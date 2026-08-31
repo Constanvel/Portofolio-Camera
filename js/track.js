@@ -1,4 +1,4 @@
-// ══ nomad · trackers ════════════════════════════════════════════════════
+// ══ portfolio · trackers ════════════════════════════════════════════════════
 // The overlay that drifts across the canvas of work: soft morphing blobs
 // wandering the frame, and an autofocus bracket that locks onto whichever
 // film is nearest the centre and follows it as the plane moves. On a site

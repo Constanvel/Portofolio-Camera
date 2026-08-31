@@ -1,4 +1,4 @@
-// ══ nomad · the canvas of work ══════════════════════════════════════════
+// ══ portfolio · the canvas of work ══════════════════════════════════════════
 // An endless plane of films you drag through. Everything — films, the two
 // text cards, the cursor grid — is composited into one 2D canvas, because
 // the grid effect has to sample the frame underneath it. Two passes:

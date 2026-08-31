@@ -1,4 +1,4 @@
-// ══ nomad · orchestration ═══════════════════════════════════════════════
+// ══ portfolio · orchestration ═══════════════════════════════════════════════
 // mark → iPod → (press play) → digicam → the canvas of work → pages.
 
 // scene.js is NOT imported statically. It pulls three.js (1.3 MB) behind it,
@@ -370,7 +370,7 @@ function finish(){
 }
 
 // a handle for the verification harness — inert in normal use
-window.__NOMAD = {
+window.__PORTFOLIO = {
   lite: LITE,
   get gl(){ return gl; }, get ipod(){ return ipod; },
   get cam(){ return cam; }, get work(){ return work; },

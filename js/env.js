@@ -1,4 +1,4 @@
-// ══ nomad · the rooms ═══════════════════════════════════════════════════
+// ══ portfolio · the rooms ═══════════════════════════════════════════════════
 // Procedural floating-point studios, run through PMREM. Two of them:
 //
 //   STUDIO — white cyclorama with black flags either side. The digicam lives

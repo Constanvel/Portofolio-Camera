@@ -1,4 +1,4 @@
-// ══ nomad · webgl ═══════════════════════════════════════════════════════
+// ══ portfolio · webgl ═══════════════════════════════════════════════════════
 // One renderer, one transparent canvas, two acts:
 //   act 1  the iPod pops out, lands dead centre with zero tilt, screen wakes
 //   act 2  the digicam faces you, turns to its monitor, and the frame closes

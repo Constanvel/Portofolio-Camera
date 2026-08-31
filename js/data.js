@@ -13,6 +13,6 @@ export const WORKS = [
 
 // Text cards live in the same grid as the films and are clickable.
 export const CARDS = [
-  { text: 'about us',   route: 'about'   },
-  { text: 'contact us', route: 'contact' }
+  { text: 'about',   route: 'about'   },
+  { text: 'contact', route: 'contact' }
 ];
