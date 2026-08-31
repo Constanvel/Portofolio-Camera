@@ -14,8 +14,18 @@ export const WORKS = [
   { src: './assets/tiles/bububar.mp4',           label: '' }
 ];
 
-// Text cards live in the same grid as the films and are clickable.
+// Text cards live in the same grid as the films and are clickable. One per
+// section in the navbar, so every section can also be stumbled on by dragging
+// rather than only reached from the bar. `route` must match the id of a
+// <section class="page" id="pageXxx"> in index.html, lowercased — a route with
+// no section routes nowhere. Adding one here also needs a slot in SLOTS,
+// js/canvas.js: a card with no slot is never drawn.
 export const CARDS = [
-  { text: 'about',   route: 'about'   },
-  { text: 'contact', route: 'contact' }
+  { text: 'about',        route: 'about'        },
+  { text: 'skills',       route: 'skills'       },
+  { text: 'portfolio',    route: 'portfolio'    },
+  { text: 'experience',   route: 'experience'   },
+  { text: 'services',     route: 'services'     },
+  { text: 'achievements', route: 'achievements' },
+  { text: 'contact',      route: 'contact'      }
 ];

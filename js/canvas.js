@@ -30,26 +30,49 @@ const MAX_DECODE = COARSE ? 3 : 99;   // concurrent hardware decoders to ask for
 const TAP        = COARSE ? 12 : 8;   // a finger wanders; a mouse does not
 
 /* ── the repeating block ────────────────────────────────────────────────
-   Four columns, three rows, two slots deliberately left empty so the plane
+   Four columns, five rows, five slots deliberately left empty so the plane
    breathes. Per-column vertical offsets break the rows without breaking the
-   tiling — a constant offset per column repeats cleanly. */
-const COLS = 4, ROWS = 3;
+   tiling — a constant offset per column repeats cleanly.
+
+   The block grew from three rows to five when every section in the navbar
+   was given a card here as well. The block is the WHOLE plane — it repeats
+   unchanged in both directions, so a section that has no slot in it exists
+   nowhere on the canvas, however far anyone drags. Twelve cells could not
+   hold eight films and seven cards; twenty can, and still leave gaps. */
+const COLS = 4, ROWS = 5;
 const COL_GAP = 0.34, ROW_GAP = 0.42;
 const TILE_AR = 9 / 16;
 const COL_OFF = [0, 0.30, 0.12, 0.44];
 
+/* `i` indexes WORKS for a film and CARDS for a card — see js/data.js. Laid
+   out here in reading order, one blank line per row of the block. */
 const SLOTS = [
   { c:0, r:0, kind:'work', i:0 },
   { c:1, r:0, kind:'work', i:1 },
-  { c:2, r:0, kind:'card', i:0 },
-  { c:3, r:0, kind:'work', i:2 },
-  { c:0, r:1, kind:'work', i:3 },
-  { c:1, r:1, kind:'card', i:1 },
-  { c:2, r:1, kind:'work', i:4 },
-  { c:3, r:1, kind:'work', i:5 },
-  { c:0, r:2, kind:'work', i:6 },
-  { c:2, r:2, kind:'work', i:7 }
+  { c:2, r:0, kind:'card', i:0 },   // about
+
+  { c:0, r:1, kind:'work', i:2 },
+  { c:1, r:1, kind:'card', i:1 },   // skills
+  { c:2, r:1, kind:'work', i:3 },
+  { c:3, r:1, kind:'card', i:2 },   // portfolio
+
+  { c:0, r:2, kind:'work', i:4 },
+  { c:2, r:2, kind:'card', i:3 },   // experience
+  { c:3, r:2, kind:'work', i:5 },
+
+  { c:0, r:3, kind:'card', i:4 },   // services
+  { c:1, r:3, kind:'work', i:6 },
+  { c:2, r:3, kind:'work', i:7 },
+
+  { c:1, r:4, kind:'card', i:5 },   // achievements
+  { c:3, r:4, kind:'card', i:6 }    // contact
 ];
+
+/* data.js is hand-edited every time a work is added or dropped. A slot left
+   pointing past the end of WORKS or CARDS would throw inside the draw loop —
+   not a missing tile but a blank plane, sixty times a second — so the table
+   is trimmed once, here, rather than guarded on every frame. */
+const LIVE = SLOTS.filter(s => (s.kind === 'work' ? WORKS : CARDS)[s.i] !== undefined);
 
 /* Edge softness. Real glass is sharp on axis and falls off toward the corner
    of the image circle; this is that, not a decorative blur. Done at a third
@@ -335,7 +358,7 @@ export class WorkCanvas {
       for (let j = j0; j <= j1; j++){
         const ox = this.x + i * this.blockW;
         const oy = this.y + j * this.blockH;
-        for (const s of SLOTS){
+        for (const s of LIVE){
           const x = ox + s.c * this.colPitch;
           const y = oy + s.r * this.rowPitch + COL_OFF[s.c] * this.rowPitch;
           if (x > this.w || x + this.tileW < 0 || y > this.h || y + this.tileH < 0) continue;

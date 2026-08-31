@@ -25,5 +25,10 @@ ada kutipan asli.
 
 Tiap bagian adalah satu `<section class="page" id="pageXxx">`. `js/main.js`
 menyusun tabel rute dari id itu, jadi menambah bagian = satu `<section>` baru
-plus satu `<a class="nav__a" href="#/xxx">` di navbar. Tidak ada JS yang perlu
-disentuh.
+plus satu `<a class="nav__a" href="#/xxx">` di navbar.
+
+Tiap bagian juga punya kartu teks di kanvas karya, supaya bisa ditemukan
+sambil menggeser, bukan cuma lewat navbar. Kartu itu butuh dua hal: satu entri
+di `CARDS` (`js/data.js`) dan satu slot di `SLOTS` (`js/canvas.js`). `SLOTS`
+adalah blok 4×5 yang berulang menutupi seluruh bidang — kartu tanpa slot tidak
+akan pernah muncul, sejauh apa pun digeser.
