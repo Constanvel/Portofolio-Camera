@@ -121,8 +121,13 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 /* ── pages ──────────────────────────────────────────────────────────── */
 .page{
   position:fixed; inset:0; z-index:60; background:var(--paper);
-  display:grid; place-items:center;
-  padding:calc(clamp(28px,6vw,80px) + env(safe-area-inset-top,0px))
+  /* flex + margin:auto on the child, not place-items:center. A grid centres by
+     shrinking the row, so a section taller than the viewport has its top cut
+     off and no way to scroll back up to it — which is exactly what the longer
+     sections below are. Auto margins centre only the slack that exists. */
+  display:flex;
+  /* the first value clears the navbar, which is fixed over this padding */
+  padding:calc(clamp(28px,6vw,80px) + 48px + env(safe-area-inset-top,0px))
           calc(clamp(28px,6vw,80px) + env(safe-area-inset-right,0px))
           calc(clamp(28px,6vw,80px) + env(safe-area-inset-bottom,0px))
           calc(clamp(28px,6vw,80px) + env(safe-area-inset-left,0px));
@@ -131,7 +136,7 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 }
 .page[hidden]{ display:none; }
 .page.is-lit{ opacity:1; }
-.page__in{ width:100%; max-width:34rem; text-align:center; }
+.page__in{ margin:auto; width:100%; max-width:34rem; text-align:center; }
 .page__t{
   margin:0 0 1.6rem; font-size:clamp(2rem,5vw,3rem); font-weight:500;
   letter-spacing:-.035em; line-height:1.04;
@@ -157,6 +162,58 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 }
 .page__back:focus-visible{ color:var(--ink); }
 
+/* ── rows · the key/value lists the sections are made of ─────────────── */
+.rows{
+  margin:2rem 0 0; padding:0; list-style:none; text-align:left;
+  border-top:1px solid var(--hair);
+}
+.rows__r{
+  display:grid; grid-template-columns:8.5rem 1fr; gap:.2rem 1.25rem;
+  padding:.9rem 0; border-bottom:1px solid var(--hair);
+}
+.rows__k{
+  padding-top:.3rem; color:var(--ink);
+  font-size:.6875rem; font-weight:500; letter-spacing:.14em; text-transform:uppercase;
+}
+.rows__v{ font-size:1rem; line-height:1.55; color:var(--ink-2); }
+/* a 8.5rem gutter and a sentence beside it is two words per line on a phone */
+@media (max-width:520px){ .rows__r{ grid-template-columns:1fr; } }
+
+/* ── the navbar ──────────────────────────────────────────────────────────
+   No JS drives this: the bar is lit by the stage the body is already in, so
+   it cannot fall out of step with the intro. Above the pages, so a visitor
+   crosses between sections without going home first; below the skip button,
+   which owns the intro alone. The strip is transparent to the pointer and
+   only the links take it, or it would eat every drag along the top edge of
+   the canvas. */
+.nav{
+  position:fixed; z-index:65; top:0; left:0; right:0;
+  padding:calc(.7rem + env(safe-area-inset-top,0px)) clamp(14px,4vw,28px) .7rem;
+  display:flex; gap:clamp(.55rem,2vw,1.5rem);
+  justify-content:flex-start;
+  /* plain `center` would clip the first links out of reach once the row
+     overflows — nothing can scroll back to what centring pushed past 0 */
+  justify-content:safe center;
+  overflow-x:auto; white-space:nowrap;
+  scrollbar-width:none; -ms-overflow-style:none;
+  /* the tiles underneath are photographs; uppercase 11px needs the paper back */
+  background:linear-gradient(rgba(255,255,255,.94), rgba(255,255,255,.78) 62%, rgba(255,255,255,0));
+  opacity:0; pointer-events:none;
+  transition:opacity var(--t-slow) var(--ease-in-out);
+}
+.nav::-webkit-scrollbar{ display:none; }
+body[data-stage="work"] .nav,
+body[data-stage="page"] .nav{ opacity:1; }
+.nav__a{
+  flex:0 0 auto; pointer-events:auto;
+  display:inline-flex; align-items:center; min-height:44px; padding:.5rem 0;
+  color:var(--ink-2); text-decoration:none;
+  font-size:.6875rem; font-weight:500; letter-spacing:.14em; text-transform:uppercase;
+  transition:color var(--t-mid) var(--ease-out);
+}
+.nav__a.is-on{ color:var(--ink); }
+.nav__a:focus-visible{ color:var(--ink); }
+
 /* ── skip ───────────────────────────────────────────────────────────── */
 .skip{
   position:fixed;
@@ -181,6 +238,7 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 @media (hover:hover) and (pointer:fine){
   .page__cta:hover{ background:var(--ink); color:var(--paper); }
   .page__back:hover{ color:var(--ink); }
+  .nav__a:hover{ color:var(--ink); }
   .skip:hover{ opacity:1; color:var(--ink); }
 }
 
@@ -202,11 +260,15 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
   .work__hint{ font-size:.75rem; letter-spacing:.14em; }
   .skip{ font-size:.6875rem; padding:.7rem 1rem; }
   .page__p{ font-size:1rem; line-height:1.6; }
+  /* eight links never fit a phone, so the bar is swiped rather than folded
+     into a menu; it starts at `home` and scrolls to `contact` */
+  .nav{ justify-content:flex-start; }
+  .nav__a{ font-size:.75rem; letter-spacing:.12em; }
 }
 
 /* a phone on its side has almost no height to spend */
 @media (pointer:coarse) and (orientation:landscape) and (max-height:520px){
-  .page{ padding-block:calc(18px + env(safe-area-inset-top,0px))
+  .page{ padding-block:calc(18px + 44px + env(safe-area-inset-top,0px))
                        calc(18px + env(safe-area-inset-bottom,0px)); }
   .page__t{ margin-bottom:.9rem; font-size:clamp(1.5rem,6vh,2rem); }
   .page__cta{ margin-top:1.4rem; }
@@ -215,5 +277,5 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 
 @media (prefers-reduced-motion:reduce){
   /* keep every state reachable, just without the travel */
-  .mark,.gl,.page,.work__hint,.skip{ transition-duration:1ms; }
+  .mark,.gl,.page,.work__hint,.skip,.nav{ transition-duration:1ms; }
 }

@@ -18,6 +18,23 @@
 </head>
 <body data-stage="mark">
 
+  <!-- ── the navbar ───────────────────────────────────────────────────────
+       Hidden through the intro and lit by [data-stage] alone — see style.css.
+       Eight links do not fit a phone, so the bar scrolls sideways rather than
+       folding into a menu nobody opens. The strip itself is transparent to the
+       pointer; only the links take it, so a drag that starts between two of
+       them still reaches the canvas underneath. -->
+  <nav class="nav" id="nav" aria-label="sections">
+    <a class="nav__a" href="#/">home</a>
+    <a class="nav__a" href="#/about">about</a>
+    <a class="nav__a" href="#/skills">skills</a>
+    <a class="nav__a" href="#/portfolio">portfolio</a>
+    <a class="nav__a" href="#/experience">experience</a>
+    <a class="nav__a" href="#/services">services</a>
+    <a class="nav__a" href="#/achievements">achievements</a>
+    <a class="nav__a" href="#/contact">contact</a>
+  </nav>
+
   <!-- ── stage 1 · the mark ───────────────────────────────────────────── -->
   <div class="mark" id="mark" aria-hidden="true">
     <!-- autoplay/playsinline as ATTRIBUTES, not only as a play() call: Safari
@@ -38,13 +55,16 @@
   <!-- ── the lens vignette · rides the whole intro, lifts as the page lands ─ -->
   <div class="vig" id="vig" aria-hidden="true"></div>
 
-  <!-- ── stage 4 · the canvas of work ─────────────────────────────────── -->
+  <!-- ── stage 4 · home · the canvas of work ──────────────────────────── -->
   <main class="work" id="work" hidden>
     <canvas class="work__cv" id="cv"></canvas>
     <p class="work__hint" id="hint">drag to explore</p>
   </main>
 
-  <!-- ── pages ────────────────────────────────────────────────────────── -->
+  <!-- ── pages ────────────────────────────────────────────────────────────
+       One <section> per route. The id must read pageXxx and the route is the
+       lowercase Xxx — js/main.js builds its table from these ids, so a new
+       section is this block plus one line in the nav above, and nothing else. -->
   <section class="page" id="pageAbout" hidden>
     <div class="page__in">
       <h1 class="page__t">about</h1>
@@ -57,6 +77,89 @@
       <button class="page__back" type="button" data-back>back</button>
     </div>
   </section>
+
+  <section class="page" id="pageSkills" hidden>
+    <div class="page__in">
+      <h1 class="page__t">skills</h1>
+      <ul class="rows">
+        <li class="rows__r"><span class="rows__k">frontend</span><span class="rows__v">React, Tailwind CSS, HTML, CSS, JavaScript</span></li>
+        <li class="rows__r"><span class="rows__k">backend</span><span class="rows__v">Node.js, REST APIs</span></li>
+        <li class="rows__r"><span class="rows__k">ai &amp; vision</span><span class="rows__v">Python, YOLO object detection, retrieval-augmented generation, Llama 3.3</span></li>
+        <li class="rows__r"><span class="rows__k">design</span><span class="rows__v">UI/UX, Figma, motion and video editing</span></li>
+        <li class="rows__r"><span class="rows__k">tools</span><span class="rows__v">Git, VS Code, Vite</span></li>
+      </ul>
+      <button class="page__back" type="button" data-back>back</button>
+    </div>
+  </section>
+
+  <section class="page" id="pagePortfolio" hidden>
+    <div class="page__in">
+      <h1 class="page__t">portfolio</h1>
+      <p class="page__p">The work itself tiles across the home canvas — drag it. The short version:</p>
+      <ul class="rows">
+        <li class="rows__r"><span class="rows__k">lensa</span><span class="rows__v">Computer-vision project built with the school AI club.</span></li>
+        <li class="rows__r"><span class="rows__k">artvault</span><span class="rows__v">A UI/UX product concept, designed end to end.</span></li>
+        <li class="rows__r"><span class="rows__k">pothole detection</span><span class="rows__v">A YOLO model that finds road damage in road footage.</span></li>
+        <li class="rows__r"><span class="rows__k">rag chatbot</span><span class="rows__v">A retrieval-augmented assistant answering over a private document set.</span></li>
+        <li class="rows__r"><span class="rows__k">llama assistant</span><span class="rows__v">An assistant built on Llama 3.3 70B.</span></li>
+      </ul>
+      <a class="page__cta" href="#/">see the canvas</a>
+      <button class="page__back" type="button" data-back>back</button>
+    </div>
+  </section>
+
+  <section class="page" id="pageExperience" hidden>
+    <div class="page__in">
+      <h1 class="page__t">experience</h1>
+      <ul class="rows">
+        <li class="rows__r"><span class="rows__k">now</span><span class="rows__v">PPLG, SMK Telkom Purwokerto — software engineering track.</span></li>
+        <li class="rows__r"><span class="rows__k">2026</span><span class="rows__v">School AI club — computer vision and language models, dataset through to demo.</span></li>
+        <li class="rows__r"><span class="rows__k">2026</span><span class="rows__v">WISE INNOVERA, national UI/UX competition — finalist.</span></li>
+        <li class="rows__r"><span class="rows__k">ongoing</span><span class="rows__v">Personal projects — React, Tailwind and Node, shipped end to end.</span></li>
+      </ul>
+      <button class="page__back" type="button" data-back>back</button>
+    </div>
+  </section>
+
+  <section class="page" id="pageServices" hidden>
+    <div class="page__in">
+      <h1 class="page__t">services</h1>
+      <ul class="rows">
+        <li class="rows__r"><span class="rows__k">web</span><span class="rows__v">React, Tailwind and Node — from an empty repo to something deployed.</span></li>
+        <li class="rows__r"><span class="rows__k">ui / ux</span><span class="rows__v">Layout, type and flow. Figma through to the code that ships it.</span></li>
+        <li class="rows__r"><span class="rows__k">computer vision</span><span class="rows__v">Object detection and image pipelines in Python.</span></li>
+        <li class="rows__r"><span class="rows__k">ai integration</span><span class="rows__v">Chatbots and assistants on top of open language models.</span></li>
+        <li class="rows__r"><span class="rows__k">video</span><span class="rows__v">Short-form edits and motion for the web.</span></li>
+      </ul>
+      <a class="page__cta" href="#/contact">start something</a>
+      <button class="page__back" type="button" data-back>back</button>
+    </div>
+  </section>
+
+  <section class="page" id="pageAchievements" hidden>
+    <div class="page__in">
+      <h1 class="page__t">achievements</h1>
+      <ul class="rows">
+        <li class="rows__r"><span class="rows__k">2026</span><span class="rows__v">Finalist, WISE INNOVERA — national UI/UX competition.</span></li>
+      </ul>
+      <button class="page__back" type="button" data-back>back</button>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS · the brief marks it "jika ada", and a quote invented for a
+       person who never said it is the one thing a portfolio must not carry.
+       When a real one arrives: uncomment this, and add
+       <a class="nav__a" href="#/testimonials">testimonials</a> to the nav.
+  <section class="page" id="pageTestimonials" hidden>
+    <div class="page__in">
+      <h1 class="page__t">testimonials</h1>
+      <ul class="rows">
+        <li class="rows__r"><span class="rows__k">name, role</span><span class="rows__v">What they actually said.</span></li>
+      </ul>
+      <button class="page__back" type="button" data-back>back</button>
+    </div>
+  </section>
+  -->
 
   <section class="page" id="pageContact" hidden>
     <div class="page__in">

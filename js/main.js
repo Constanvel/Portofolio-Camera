@@ -94,15 +94,28 @@ function armGlobalGesture(){
 }
 
 /* ── routing ────────────────────────────────────────────────────────── */
-const pages = { about: $('pageAbout'), contact: $('pageContact') };
+/* The table is read off the document rather than written twice: every
+   <section class="page" id="pageXxx"> is the route "xxx". A new section is
+   then markup only — an id that drifts from a nav href simply routes nowhere,
+   which is visible the first time anyone clicks it. */
+const pages = Object.fromEntries(
+  [...document.querySelectorAll('.page[id^="page"]')]
+    .map(el => [el.id.slice(4).toLowerCase(), el])
+);
+const navLinks = document.querySelectorAll('.nav__a');
 let lastStage = 'work';
 
 function routeFromHash(){
   const h = (location.hash || '').replace(/^#\/?/, '');
-  return (h === 'about' || h === 'contact') ? h : '';
+  return pages[h] ? h : '';
 }
 async function applyRoute(){
   const r = routeFromHash();
+  for (const a of navLinks){
+    const on = a.getAttribute('href') === '#/' + r;
+    a.classList.toggle('is-on', on);
+    if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+  }
   for (const [name, el] of Object.entries(pages)){
     if (name === r) continue;
     if (!el.hidden){ el.classList.remove('is-lit'); await sleep(reduced ? 0 : 260); el.hidden = true; }
