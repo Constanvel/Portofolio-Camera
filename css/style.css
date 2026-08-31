@@ -132,10 +132,14 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
           calc(clamp(28px,6vw,80px) + env(safe-area-inset-bottom,0px))
           calc(clamp(28px,6vw,80px) + env(safe-area-inset-left,0px));
   overflow-y:auto; -webkit-overflow-scrolling:touch;
-  opacity:0; transition:opacity var(--t-mid) var(--ease-in-out);
+  /* Two durations, because leaving and arriving are not the same length.
+     applyRoute() waits 260ms before it sets hidden — a 620ms fade-out was
+     being cut at 260 and snapping. The state being transitioned TO picks the
+     duration, so the exit reads here and the entrance reads on .is-lit. */
+  opacity:0; transition:opacity 260ms var(--ease-in-out);
 }
 .page[hidden]{ display:none; }
-.page.is-lit{ opacity:1; }
+.page.is-lit{ opacity:1; transition-duration:var(--t-mid); }
 .page__in{ margin:auto; width:100%; max-width:34rem; text-align:center; }
 .page__t{
   margin:0 0 1.6rem; font-size:clamp(2rem,5vw,3rem); font-weight:500;
@@ -162,11 +166,46 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 }
 .page__back:focus-visible{ color:var(--ink); }
 
-/* ── rows · the key/value lists the sections are made of ─────────────── */
-.rows{
-  margin:2rem 0 0; padding:0; list-style:none; text-align:left;
-  border-top:1px solid var(--hair);
+/* ── arriving at a section ───────────────────────────────────────────────
+   A bare opacity ramp reads as a cut: the section is simply there, at full
+   size, one frame later. So the block rises as it lights and its parts follow
+   a beat apart — 60ms between them, which is a rhythm rather than a queue.
+   Everything finishes inside 700ms; a section visited for the fourth time
+   must not feel like a wait.
+   `backwards` matters: without it a delayed child sits at its FINAL position
+   until its turn comes, flashes, and then animates. */
+@keyframes rise{
+  from{ opacity:0; transform:translate3d(0,14px,0); }
+  to  { opacity:1; transform:none; }
 }
+.page.is-lit .page__in > *{ animation:rise 560ms var(--ease-out) backwards; }
+.page.is-lit .page__in > :nth-child(1){ animation-delay: 60ms; }
+.page.is-lit .page__in > :nth-child(2){ animation-delay:120ms; }
+.page.is-lit .page__in > :nth-child(3){ animation-delay:180ms; }
+.page.is-lit .page__in > :nth-child(4){ animation-delay:240ms; }
+.page.is-lit .page__in > :nth-child(5){ animation-delay:300ms; }
+/* the list is not a block that arrives — it is rows that arrive, so it hands
+   the animation down to them rather than moving them twice */
+.page.is-lit .rows{ animation:none; }
+.page.is-lit .rows__r{ animation:rise 560ms var(--ease-out) backwards; }
+.page.is-lit .rows__r:nth-child(1){ animation-delay:180ms; }
+.page.is-lit .rows__r:nth-child(2){ animation-delay:240ms; }
+.page.is-lit .rows__r:nth-child(3){ animation-delay:300ms; }
+.page.is-lit .rows__r:nth-child(4){ animation-delay:360ms; }
+.page.is-lit .rows__r:nth-child(5){ animation-delay:420ms; }
+/* and whatever follows the list has to wait for it. The list is one child slot
+   but five rows, so on the plain count a button sitting after it lands in the
+   middle of them — the eye is still reading row three when the button appears
+   below row five. Same specificity as the counted rules, so it must stay
+   below them to win. */
+.page.is-lit .page__in > .rows ~ *{ animation-delay:480ms; }
+.page.is-lit .page__in > .rows ~ * ~ *{ animation-delay:540ms; }
+
+/* ── rows · the key/value lists the sections are made of ─────────────── */
+.rows{ margin:2rem 0 0; padding:0; list-style:none; text-align:left; }
+/* the opening hairline belongs to the first row, not to the list: on the list
+   it would be a line hanging alone until the rows caught up with it */
+.rows__r:first-child{ border-top:1px solid var(--hair); }
 .rows__r{
   display:grid; grid-template-columns:8.5rem 1fr; gap:.2rem 1.25rem;
   padding:.9rem 0; border-bottom:1px solid var(--hair);
@@ -205,13 +244,23 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 body[data-stage="work"] .nav,
 body[data-stage="page"] .nav{ opacity:1; }
 .nav__a{
+  position:relative;
   flex:0 0 auto; pointer-events:auto;
   display:inline-flex; align-items:center; min-height:44px; padding:.5rem 0;
   color:var(--ink-2); text-decoration:none;
   font-size:.6875rem; font-weight:500; letter-spacing:.14em; text-transform:uppercase;
   transition:color var(--t-mid) var(--ease-out);
 }
+/* the rule drawn under the current link is the one thing that moves the
+   instant a link is pressed — the section itself is still fading in behind
+   it, so the press has an answer before the page does */
+.nav__a::after{
+  content:''; position:absolute; left:0; right:0; bottom:.7rem; height:1px;
+  background:currentColor; transform:scaleX(0);
+  transition:transform 420ms var(--ease-out);
+}
 .nav__a.is-on{ color:var(--ink); }
+.nav__a.is-on::after{ transform:scaleX(1); }
 .nav__a:focus-visible{ color:var(--ink); }
 
 /* ── skip ───────────────────────────────────────────────────────────── */
@@ -277,5 +326,12 @@ body[data-stage="page"] .nav{ opacity:1; }
 
 @media (prefers-reduced-motion:reduce){
   /* keep every state reachable, just without the travel */
-  .mark,.gl,.page,.work__hint,.skip,.nav{ transition-duration:1ms; }
+  .mark,.gl,.page,.page.is-lit,.work__hint,.skip,.nav,.nav__a::after{ transition-duration:1ms; }
+  /* the stagger is the whole point of the entrance and the whole problem for
+     anyone who asked for less motion: no delay, no travel, straight there.
+     !important because the delays are set per :nth-child and per sibling of
+     .rows, and every one of those selectors outweighs this one — an override
+     that loses the cascade is an accessibility rule that does nothing. */
+  .page.is-lit .page__in > *,
+  .page.is-lit .rows__r{ animation-duration:1ms !important; animation-delay:0ms !important; }
 }
