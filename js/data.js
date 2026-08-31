@@ -1,5 +1,8 @@
 // The work. Order is the order they tile across the canvas.
-// `label` is optional — leave it empty and the tile shows the film alone.
+// `src` takes a film (.mp4) or a still (.png .jpg .webp .gif .avif) — a still is
+// drawn the same way, minus the decoder. Films need a 640-wide twin in
+// assets/tiles-sm/ for phones; stills are served at one size.
+// `label` is optional — leave it empty and the tile shows the work alone.
 export const WORKS = [
   { src: './assets/tiles/scape-final.mp4',       label: '' },
   { src: './assets/tiles/bubu-bar-directed.mp4', label: '' },

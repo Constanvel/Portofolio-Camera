@@ -96,17 +96,37 @@ export class WorkCanvas {
     this.px = -9999; this.py = -9999;   // raw cursor
     this.spread = 1;
 
-    this.videos = WORKS.map(w => {
+    /* Films and stills share the plane. An <img> is handed the four bits of the
+       <video> interface the rest of this file reads — play, pause, the natural
+       size and readyState — so nothing downstream has to ask which one it got.
+       Stills are served at one size: they cost a fraction of a film, and a
+       missing /tiles-sm/ copy would blank the tile on a phone. */
+    this.media = WORKS.map(w => {
+      const loaded = () => { this.ready = true; };
+      if (/\.(png|jpe?g|webp|gif|avif)$/i.test(w.src)){
+        const im = new Image();
+        im.decoding = 'async';
+        im.play = () => Promise.resolve();
+        im.pause = () => {};
+        Object.defineProperties(im, {
+          videoWidth:  { get(){ return im.naturalWidth;  } },
+          videoHeight: { get(){ return im.naturalHeight; } },
+          readyState:  { get(){ return im.complete && im.naturalWidth ? 4 : 0; } }
+        });
+        im.addEventListener('load', loaded);
+        im.src = w.src;
+        return im;
+      }
       const v = document.createElement('video');
       // a phone gets the 640-wide set: 3.2 MB instead of 13, and a frame the
       // hardware decoder can actually keep up with
       v.src = COARSE ? w.src.replace('/tiles/', '/tiles-sm/') : w.src;
       v.muted = true; v.loop = true; v.playsInline = true;
       v.preload = 'auto'; v.setAttribute('playsinline','');
-      v.addEventListener('loadeddata', () => { this.ready = true; });
+      v.addEventListener('loadeddata', loaded);
       return v;
     });
-    this.playing = new Array(this.videos.length).fill(false);
+    this.playing = new Array(this.media.length).fill(false);
 
     this.trackers = new Trackers();
     this.blurCv = document.createElement('canvas');
@@ -246,14 +266,14 @@ export class WorkCanvas {
     };
     this._raf = requestAnimationFrame(loop);
     document.addEventListener('visibilitychange', this._vis = () => {
-      if (document.hidden) this.videos.forEach(v => v.pause());
-      else this.playing.forEach((p, i) => { if (p) this.videos[i].play().catch(()=>{}); });
+      if (document.hidden) this.media.forEach(v => v.pause());
+      else this.playing.forEach((p, i) => { if (p) this.media[i].play().catch(()=>{}); });
     });
   }
   stop(){
     this.running = false;
     cancelAnimationFrame(this._raf);
-    this.videos.forEach(v => v.pause());
+    this.media.forEach(v => v.pause());
     this.playing.fill(false);
     if (this._vis) document.removeEventListener('visibilitychange', this._vis);
   }
@@ -300,8 +320,8 @@ export class WorkCanvas {
        frame of lag is invisible on something that drifts this slowly. */
     if (this.coarse) this.drawTrackers(dt, c);
 
-    const need = new Array(this.videos.length).fill(false);
-    const near = new Array(this.videos.length).fill(Infinity);
+    const need = new Array(this.media.length).fill(false);
+    const near = new Array(this.media.length).fill(Infinity);
     const cards = [];
     const tiles = [];
     const fcx = this.w / 2, fcy = this.h / 2;
@@ -340,9 +360,11 @@ export class WorkCanvas {
        the console says why. So on touch only the few films nearest the centre
        are asked to run; the rest hold the last frame they painted, which is
        what a paused <video> draws anyway. */
-    const onScreen = need.map((n, i) => (n ? i : -1)).filter(i => i >= 0);
+    // a still needs no decoder: it neither counts against the cap nor takes a slot
+    const onScreen = need.map((n, i) => (n && this.media[i].tagName === 'VIDEO' ? i : -1))
+                         .filter(i => i >= 0);
     this._onScreen = onScreen;          // read by the verification harness
-    if (MAX_DECODE < this.videos.length && onScreen.length > MAX_DECODE){
+    if (MAX_DECODE < this.media.length && onScreen.length > MAX_DECODE){
       const live = new Set(onScreen.slice().sort((a, b) => near[a] - near[b])
                                    .slice(0, MAX_DECODE));
       /* A capped tile holds the last frame it painted — but a tile that has
@@ -351,22 +373,22 @@ export class WorkCanvas {
          downgrades it to metadata, so the frame does not arrive on its own.)
          So one un-primed tile at a time is allowed past the cap until it has a
          frame, then it is paused again with that frame on screen. */
-      const prime = onScreen.filter(i => this.videos[i].readyState < 2)
+      const prime = onScreen.filter(i => this.media[i].readyState < 2)
                             .sort((a, b) => near[a] - near[b])[0];
       if (prime !== undefined) live.add(prime);
       for (let n = 0; n < need.length; n++) if (need[n] && !live.has(n)) need[n] = false;
     }
 
     // only decode what is actually on the plane in front of someone
-    for (let n = 0; n < this.videos.length; n++){
-      const v = this.videos[n];
+    for (let n = 0; n < this.media.length; n++){
+      const v = this.media[n];
       if (need[n] && !this.playing[n]){ this.playing[n] = true; v.play().catch(()=>{}); }
       else if (!need[n] && this.playing[n]){ this.playing[n] = false; v.pause(); }
     }
   }
 
   paintWork(c, i, x, y){
-    const v = this.videos[i];
+    const v = this.media[i];
     const w = this.tileW, h = this.tileH;
     if (v.readyState >= 2 && v.videoWidth){
       // cover
