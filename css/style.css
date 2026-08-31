@@ -193,13 +193,21 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 .page.is-lit .rows__r:nth-child(3){ animation-delay:300ms; }
 .page.is-lit .rows__r:nth-child(4){ animation-delay:360ms; }
 .page.is-lit .rows__r:nth-child(5){ animation-delay:420ms; }
+.page.is-lit .rows__r:nth-child(6){ animation-delay:480ms; }
+.page.is-lit .rows__r:nth-child(7){ animation-delay:540ms; }
+/* the counted rules stop somewhere, and a row past the last one falls back to
+   0ms — it does not arrive late, it arrives FIRST, ahead of row one. One rule
+   caps the tail so a list can grow without the order coming apart, instead of
+   another line here every time a row is added. */
+.page.is-lit .rows__r:nth-child(n+8){ animation-delay:600ms; }
 /* and whatever follows the list has to wait for it. The list is one child slot
    but five rows, so on the plain count a button sitting after it lands in the
    middle of them — the eye is still reading row three when the button appears
-   below row five. Same specificity as the counted rules, so it must stay
-   below them to win. */
-.page.is-lit .page__in > .rows ~ *{ animation-delay:480ms; }
-.page.is-lit .page__in > .rows ~ * ~ *{ animation-delay:540ms; }
+   below the last row. Same specificity as the counted rules, so it must stay
+   below them to win, and it has to clear the capped tail above — not just the
+   five rows it was written for. */
+.page.is-lit .page__in > .rows ~ *{ animation-delay:660ms; }
+.page.is-lit .page__in > .rows ~ * ~ *{ animation-delay:720ms; }
 
 /* ── rows · the key/value lists the sections are made of ─────────────── */
 .rows{ margin:2rem 0 0; padding:0; list-style:none; text-align:left; }
