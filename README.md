@@ -15,6 +15,7 @@ python -m http.server 8000
 - `js/scene.js`, `js/env.js` — WebGL, three.js
 - `js/canvas.js` — kanvas karya yang bisa di-drag
 - `assets/tiles/` — video karya, plus versi kecil di `assets/tiles-sm/` untuk HP
+- `assets/certs/` — berkas sertifikat yang ditautkan dari baris `achievements` dan `experience`
 
 ## Bagian halaman
 
@@ -32,3 +33,12 @@ sambil menggeser, bukan cuma lewat navbar. Kartu itu butuh dua hal: satu entri
 di `CARDS` (`js/data.js`) dan satu slot di `SLOTS` (`js/canvas.js`). `SLOTS`
 adalah blok 4×5 yang berulang menutupi seluruh bidang — kartu tanpa slot tidak
 akan pernah muncul, sejauh apa pun digeser.
+
+Baris yang punya sertifikat dibungkus `<a class="rows__a">` ke berkasnya di
+`assets/certs/`; garis rambut di bawah teks itulah penandanya, jadi baris tanpa
+berkas sengaja dibiarkan polos.
+
+Rute mengakhiri intro. Membuka `#/about` langsung, atau memencet navbar saat
+urutan intro masih jalan, memanggil `endIntro()` di `js/main.js` — teardown yang
+sama dengan tombol skip. Halaman itu buram tapi *fade*, jadi selama 620ms apa
+pun yang masih hidup di bawahnya kelihatan tembus.

@@ -111,6 +111,13 @@ function routeFromHash(){
 }
 async function applyRoute(){
   const r = routeFromHash();
+  /* The intro and a section are not two layers, they are two answers to
+     "where am I". A page is opaque but it FADES — for 620ms it is translucent,
+     and the iPod at z-30 shows straight through it. Worse, nothing was ever
+     stopping the sequence: open #/about directly and the mark plays, the iPod
+     loads and the render loop runs for the whole visit, underneath. So a route
+     does not cover the intro. It ends it. */
+  if (r) endIntro();
   for (const a of navLinks){
     const on = a.getAttribute('href') === '#/' + r;
     a.classList.toggle('is-on', on);
@@ -222,6 +229,12 @@ async function main(){
       sleep(2500)
     ]);
   } catch (e) { /* fall back to the stack in the font-family list */ }
+
+  /* A hash on the first paint means the visitor asked for a section, not for
+     the sequence — applyRoute() has already ended the intro below. Bail before
+     the import, or an act nobody will see still costs three.js and two glb
+     loads. Fonts are awaited above either way: the canvas of work sets type. */
+  if (skipped) return;
 
   if (!LITE){
     S = await import('./scene.js');
@@ -405,14 +418,22 @@ window.__PORTFOLIO = {
   }
 };
 
-skipBtn.addEventListener('click', async () => {
+/* Ending the intro is the same teardown whoever asks for it — the skip button,
+   or a route arriving while the sequence is still running. */
+function endIntro(){
   if (skipped) return;
   skipped = true;
   markWrap.classList.add('is-out');
   markWrap.hidden = true;
-  await goAudible();
+  /* it autoplays from the ATTRIBUTE, deliberately — so hiding the element does
+     not stop it. It keeps a hardware decoder busy for a mark nobody will see,
+     and on a phone that is the decoder the eight films are waiting for. */
+  markVideo.pause();
   finish();
-});
+}
+
+// the click is also the gesture that is allowed to unmute the track
+skipBtn.addEventListener('click', () => { endIntro(); goAudible(); });
 
 applyRoute();
 main();

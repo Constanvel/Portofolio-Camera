@@ -223,6 +223,15 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
   font-size:.6875rem; font-weight:500; letter-spacing:.14em; text-transform:uppercase;
 }
 .rows__v{ font-size:1rem; line-height:1.55; color:var(--ink-2); }
+/* Rows whose claim has a certificate behind it carry a link to the file. The
+   hairline is the whole tell — some rows have a document and some do not, and
+   the only honest way to show which is to mark the ones that do. */
+.rows__a{
+  color:inherit; text-decoration:none; border-bottom:1px solid var(--hair);
+  transition:color 220ms var(--ease-out), border-color 220ms var(--ease-out);
+}
+.rows__a:hover,
+.rows__a:focus-visible{ color:var(--ink); border-bottom-color:currentColor; }
 /* a 8.5rem gutter and a sentence beside it is two words per line on a phone */
 @media (max-width:520px){ .rows__r{ grid-template-columns:1fr; } }
 
@@ -251,9 +260,17 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 .nav::-webkit-scrollbar{ display:none; }
 body[data-stage="work"] .nav,
 body[data-stage="page"] .nav{ opacity:1; }
+/* and the links take the pointer only on those same two stages. opacity:0
+   hides a link from the eye and from nobody else — through the whole intro
+   the bar was still hit-testable, so a click anywhere along the top edge
+   landed on a section the visitor could not see they were aiming at. The
+   stage lights the bar and arms it in one move, which is the point of
+   driving it off the stage at all. */
+body[data-stage="work"] .nav__a,
+body[data-stage="page"] .nav__a{ pointer-events:auto; }
 .nav__a{
   position:relative;
-  flex:0 0 auto; pointer-events:auto;
+  flex:0 0 auto;
   display:inline-flex; align-items:center; min-height:44px; padding:.5rem 0;
   color:var(--ink-2); text-decoration:none;
   font-size:.6875rem; font-weight:500; letter-spacing:.14em; text-transform:uppercase;
