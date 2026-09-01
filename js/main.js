@@ -118,6 +118,10 @@ async function applyRoute(){
      loads and the render loop runs for the whole visit, underneath. So a route
      does not cover the intro. It ends it. */
   if (r) endIntro();
+  // and going the other way the plane has to be alive BEFORE the page above it
+  // starts to fade, or it is revealed as a frozen still. `workHeld` is the lite
+  // path holding the films back under the mark — see ensureWork — and it wins.
+  else if (work && !workHeld) work.start();
   for (const a of navLinks){
     const on = a.getAttribute('href') === '#/' + r;
     a.classList.toggle('is-on', on);
@@ -129,6 +133,13 @@ async function applyRoute(){
   }
   if (r){
     const el = pages[r];
+    /* Nothing behind an opaque full-screen page needs to be drawn, and the
+       canvas was left running through every visit to every section: eight
+       videos decoding and the whole plane repainted sixty times a second,
+       under a sheet of paper. It is also the only thing here big enough to
+       cost the entrance its frames — which is why a section stuttered on the
+       way IN and was smooth once it had arrived. */
+    if (work) work.stop();
     el.hidden = false;
     void el.offsetWidth;
     el.classList.add('is-lit');

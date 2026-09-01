@@ -42,3 +42,7 @@ Rute mengakhiri intro. Membuka `#/about` langsung, atau memencet navbar saat
 urutan intro masih jalan, memanggil `endIntro()` di `js/main.js` — teardown yang
 sama dengan tombol skip. Halaman itu buram tapi *fade*, jadi selama 620ms apa
 pun yang masih hidup di bawahnya kelihatan tembus.
+
+Rute juga menghentikan kanvas karya (`work.stop()`) dan menyalakannya lagi saat
+kembali. Halaman menutupi layar sepenuhnya, jadi delapan video dan seluruh
+bidang tidak perlu digambar ulang enam puluh kali sedetik di bawahnya.
