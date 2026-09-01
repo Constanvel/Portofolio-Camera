@@ -36,7 +36,10 @@ akan pernah muncul, sejauh apa pun digeser.
 
 Baris yang punya sertifikat dibungkus `<a class="rows__a">` ke berkasnya di
 `assets/certs/`; garis rambut di bawah teks itulah penandanya, jadi baris tanpa
-berkas sengaja dibiarkan polos.
+berkas sengaja dibiarkan polos. `contact` memakai daftar baris yang sama untuk
+kanalnya — alamatnya sendiri yang ditulis, bukan deretan logo. Baris untuk
+handel yang belum ada nomor/username aslinya dibiarkan sebagai komentar di
+`index.html`, bukan diisi contoh.
 
 Rute mengakhiri intro. Membuka `#/about` langsung, atau memencet navbar saat
 urutan intro masih jalan, memanggil `endIntro()` di `js/main.js` — teardown yang
