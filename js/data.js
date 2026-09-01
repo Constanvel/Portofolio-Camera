@@ -8,11 +8,11 @@
 // The extension in `src` is not decoration: it is how canvas.js decides between
 // an <img> and a <video>, so a .png dropped in under a .jpg name loads neither.
 export const WORKS = [
-  { src: './assets/tiles/lensa.jpg',             label: 'lensa' },
-  { src: './assets/tiles/artvault.jpg',          label: 'artvault' },
-  { src: './assets/tiles/pothole-detection.jpg', label: 'pothole detection' },
-  { src: './assets/tiles/rag-chatbot.jpg',       label: 'rag chatbot' },
-  { src: './assets/tiles/llama-assistant.jpg',   label: 'llama assistant' }
+  { src: './assets/tiles/lensa.jpg',                 label: 'lensa' },
+  { src: './assets/tiles/artvault.jpg',              label: 'artvault' },
+  { src: './assets/tiles/uang-jajan-tracker.jpg',    label: 'uang jajan tracker' },
+  { src: './assets/tiles/smk-telkom-purwokerto.jpg', label: 'smk telkom purwokerto' },
+  { src: './assets/tiles/ai-text-summarizer.jpg',    label: 'ai text summarizer' }
 ];
 
 // Text cards live in the same grid as the films and are clickable. One per
