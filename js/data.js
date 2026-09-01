@@ -9,13 +9,18 @@
 // an <img> and a <video>, so a .png dropped in under a .jpg name loads neither.
 //
 // `blurb` and `points` are what opens when a tile or a portfolio row is
-// pressed. `year`, `role` and `href` are optional and render only when they
-// are there — a project with no repo yet simply has no link, rather than a
-// dead one. Everything below describes what is actually on the screenshots;
-// fill the empty fields in as they become true.
+// pressed. `href` is optional and renders only when it is there — a project
+// with no repo yet gets no link rather than a dead one.
+//
+// `year` and `role` are read off each project's own git history, not
+// remembered: the span is first commit to last, and `role` is how many people
+// appear in `git shortlog`. artvault is the one exception — it has no repo, so
+// its dates come from the files and nothing proves who else touched it.
+// Everything in `blurb` and `points` describes what is on the screenshots.
 export const WORKS = [
   {
     src: './assets/tiles/lensa.jpg', label: 'lensa',
+    year: 'aug 2026', role: 'solo',
     blurb: 'A place to read and write criticism. An essay is filed against the characters and works it is about, so a piece has somewhere to live and something to be found from.',
     points: [
       'Search across characters, works and essays at once',
@@ -26,6 +31,7 @@ export const WORKS = [
   },
   {
     src: './assets/tiles/artvault.jpg', label: 'artvault',
+    year: 'aug 2026', role: 'solo',
     blurb: 'A community for artists to publish and be found. Work arrives in a feed, gets ranked, and can be commissioned or entered into a contest.',
     points: [
       'Upload, then discovery, rankings and contests',
@@ -36,6 +42,7 @@ export const WORKS = [
   },
   {
     src: './assets/tiles/uang-jajan-tracker.jpg', label: 'uang jajan tracker',
+    year: 'may–jun 2026', role: 'one of four',
     blurb: 'Pocket-money tracking on a phone. Adding a transaction is one sheet and nothing else: in or out, an amount, a category, and a note only if it needs one.',
     points: [
       'Money in and money out on a single toggle',
@@ -45,6 +52,7 @@ export const WORKS = [
   },
   {
     src: './assets/tiles/smk-telkom-purwokerto.jpg', label: 'smk telkom purwokerto',
+    year: 'jul–aug 2026', role: 'two of us',
     blurb: 'The school’s own site — admissions, the majors on offer, the job centre and announcements, with an admin login behind all of it.',
     points: [
       'PPDB admissions, and the majors',
@@ -56,6 +64,7 @@ export const WORKS = [
   },
   {
     src: './assets/tiles/ai-text-summarizer.jpg', label: 'ai text summarizer',
+    year: 'aug 2026', role: 'solo',
     blurb: 'Paste something long, get the short version. Three lengths, and it counts the words while you type.',
     points: [
       'Short, medium or long summaries',

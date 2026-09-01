@@ -135,8 +135,15 @@ Menekan sebuah karya membuka penjelasannya, dari dua arah: tile di kanvas
 `home`, atau baris di halaman `portfolio`. Keduanya membaca `WORKS` di
 `js/data.js`, jadi tile dan penjelasannya tidak bisa berbeda isi.
 
-`blurb` dan `points` wajib; `year`, `role`, dan `href` opsional dan hanya
-digambar kalau ada — proyek yang belum punya repo tidak mendapat tautan mati.
+`blurb` dan `points` wajib; `href` opsional dan hanya digambar kalau ada —
+proyek yang belum punya repo tidak mendapat tautan mati.
+
+`year` dan `role` dibaca dari riwayat git tiap proyek, bukan diingat: rentangnya
+commit pertama sampai terakhir, dan `role` dari berapa nama yang muncul di
+`git shortlog`. artvault satu-satunya pengecualian — tidak ada repo di sana,
+jadi tanggalnya dari berkas dan tidak ada yang membuktikan siapa lagi yang
+menyentuhnya. Kalau salah satu proyek dipindah atau reponya berubah, angkanya
+tidak ikut berubah sendiri; periksa ulang dengan cara yang sama.
 
 Tile bisa diklik karena kanvas sudah menyimpan `_tileRects` tiap frame; yang
 ditambahkan cuma indeksnya, satu `_tileAt()`, dan cabang pada gerbang
