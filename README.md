@@ -129,3 +129,30 @@ Posternya frame TERAKHIR, dipotong 12% yang sama. Klip ini menggambar dirinya
 selama sepuluh detik, jadi frame nol hampir kosong — perangkat yang menolak
 memutar video harus melihat crest yang sudah jadi.
 
+## Panel proyek
+
+Menekan sebuah karya membuka penjelasannya, dari dua arah: tile di kanvas
+`home`, atau baris di halaman `portfolio`. Keduanya membaca `WORKS` di
+`js/data.js`, jadi tile dan penjelasannya tidak bisa berbeda isi.
+
+`blurb` dan `points` wajib; `year`, `role`, dan `href` opsional dan hanya
+digambar kalau ada — proyek yang belum punya repo tidak mendapat tautan mati.
+
+Tile bisa diklik karena kanvas sudah menyimpan `_tileRects` tiap frame; yang
+ditambahkan cuma indeksnya, satu `_tileAt()`, dan cabang pada gerbang
+tap-vs-drag yang sudah dipakai kartu. Kartu menang saat berimpit: kartu punya
+slotnya sendiri, tapi padding ujung jari bisa menjangkau tile tetangga.
+
+Dialognya ber-id `workPanel`, **bukan** `work` — `<main class="work" id="work">`
+adalah kanvas karya, dan `getElementById` akan mengembalikan itu.
+
+Barisnya `<button>` yang membungkus `<span class="rows__a">`, bukan `<a>`: tidak
+ada url di bawah sebuah proyek, hanya panel ini. Span-nya harus ada karena
+`<button>` tidak bisa `display:inline` — peramban memblokkannya, dan garis
+rambutnya jadi jatuh di bawah kotak selebar penuh alih-alih mengikuti teks.
+
+`closeOnBackdrop()` menanyakan di mana tekanan **dimulai**, bukan di mana ia
+berakhir. Kanvas membuka panel pada `pointerup`, lalu `click` penutup dari
+gerakan yang sama mendarat di backdrop panel yang baru terbuka dan menutupnya
+sebelum sempat terlihat.
+

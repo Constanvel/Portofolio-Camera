@@ -128,13 +128,13 @@
   <section class="page" id="pagePortfolio" hidden>
     <div class="page__in">
       <h1 class="page__t">portfolio</h1>
-      <p class="page__p">The work itself tiles across the home canvas — drag it. The short version:</p>
+      <p class="page__p">The work itself tiles across the home canvas — drag it, and press one. Or press a line here:</p>
       <ul class="rows">
-        <li class="rows__r"><span class="rows__k">lensa</span><span class="rows__v">A place to read and write about characters and works — essays, read through six lenses.</span></li>
-        <li class="rows__r"><span class="rows__k">artvault</span><span class="rows__v">An art community: uploads, discovery, rankings, commissions and contests.</span></li>
-        <li class="rows__r"><span class="rows__k">uang jajan tracker</span><span class="rows__v">A spending tracker for a phone — money in, money out, by category.</span></li>
-        <li class="rows__r"><span class="rows__k">smk telkom purwokerto</span><span class="rows__v">The school site: admissions, majors, the job centre, and two assistants.</span></li>
-        <li class="rows__r"><span class="rows__k">ai text summarizer</span><span class="rows__v">Long text in, a short summary out, at three lengths. Runs on Groq.</span></li>
+        <li class="rows__r"><span class="rows__k">lensa</span><span class="rows__v"><button class="rows__btn" type="button" data-work="lensa"><span class="rows__a">A place to read and write about characters and works — essays, read through six lenses.</span></button></span></li>
+        <li class="rows__r"><span class="rows__k">artvault</span><span class="rows__v"><button class="rows__btn" type="button" data-work="artvault"><span class="rows__a">An art community: uploads, discovery, rankings, commissions and contests.</span></button></span></li>
+        <li class="rows__r"><span class="rows__k">uang jajan tracker</span><span class="rows__v"><button class="rows__btn" type="button" data-work="uang jajan tracker"><span class="rows__a">A spending tracker for a phone — money in, money out, by category.</span></button></span></li>
+        <li class="rows__r"><span class="rows__k">smk telkom purwokerto</span><span class="rows__v"><button class="rows__btn" type="button" data-work="smk telkom purwokerto"><span class="rows__a">The school site: admissions, majors, the job centre, and two assistants.</span></button></span></li>
+        <li class="rows__r"><span class="rows__k">ai text summarizer</span><span class="rows__v"><button class="rows__btn" type="button" data-work="ai text summarizer"><span class="rows__a">Long text in, a short summary out, at three lengths. Runs on Groq.</span></button></span></li>
       </ul>
       <a class="page__cta" href="#/">see the canvas</a>
       <button class="page__back" type="button" data-back>back</button>
@@ -236,6 +236,22 @@
        landed yet, so nothing is playing. js/main.js keeps it honest from
        there by reading the <audio> element rather than its own intentions. -->
   <button class="skip mute" id="mute" type="button">sound off</button>
+
+  <!-- ── a project, opened in place ──────────────────────────────────────
+       Same dialog chrome as the certificate below — it borrows the `cert`
+       class for its box, backdrop, Escape and back button, because a panel
+       that opens over the page is a panel however it was asked for. Only the
+       body differs, and js/main.js fills that from WORKS in js/data.js so the
+       tile on the canvas and the row in `portfolio` cannot drift apart. -->
+  <dialog class="cert" id="workPanel">
+    <img class="wk__shot" id="workShot" alt="">
+    <h2 class="wk__t" id="workTitle"></h2>
+    <p class="wk__meta" id="workMeta" hidden></p>
+    <p class="wk__p" id="workBlurb"></p>
+    <ul class="wk__l" id="workPoints"></ul>
+    <p class="cert__f" id="workLinkRow" hidden><a class="rows__a" id="workLink" target="_blank" rel="noopener">open the project</a></p>
+    <form method="dialog"><button class="page__back" type="submit">back</button></form>
+  </dialog>
 
   <!-- ── a certificate, opened in place ─────────────────────────────────
        The rows still point straight at the file and still carry target=_blank:

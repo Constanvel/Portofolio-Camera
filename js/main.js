@@ -5,6 +5,8 @@
 // and the lite path never renders a polygon — a static import would make every
 // phone on the planet download a renderer it will not use. See LITE below.
 import { WorkCanvas } from './canvas.js';
+// the same table the canvas draws from, so a tile and its panel cannot drift
+import { WORKS } from './data.js';
 
 let S = null;                       // the scene module, once asked for
 let ipodModel = null, camModel = null;   // in flight from the moment it is
@@ -188,6 +190,7 @@ function ensureWork(){
   if (work) return work;
   work = new WorkCanvas($('cv'), {
     onRoute: (r) => { location.hash = '#/' + r; },
+    onWork: (i) => openWork(i),
     onFirstDrag: () => { hint.classList.add('is-gone'); }
   });
   if (!workHeld) work.start();
@@ -512,6 +515,67 @@ muteBtn.addEventListener('click', () => {
    The row links straight at the file, so with no JS a click opens it in a tab
    and nothing is lost. With JS it opens here instead — a new tab carries no
    history, and back was never a button the visitor had. */
+/* ── a project, opened in place ──────────────────────────────────────────
+   One panel, two ways in: a tile on the canvas, or a row in `portfolio`. Both
+   land here, and both read WORKS — so the explanation lives beside the tile it
+   explains and there is no second copy to forget to update. */
+/* NOT id="work" — <main class="work" id="work"> is the canvas of work, and
+   getElementById would have handed that back instead. It has no showModal, so
+   the guard below simply refused to arm and nothing said why. */
+const workDlg = $('workPanel');
+function openWork(i){
+  const w = WORKS[i];
+  if (!w || !workDlg?.showModal) return;
+  $('workShot').src = w.src;
+  $('workShot').alt = w.label;
+  $('workTitle').textContent = w.label;
+
+  // year and role are optional and usually not known yet; an empty line is
+  // worse than no line, so the row only exists when there is something in it
+  const meta = [w.year, w.role].filter(Boolean).join(' · ');
+  $('workMeta').textContent = meta;
+  $('workMeta').hidden = !meta;
+
+  $('workBlurb').textContent = w.blurb || '';
+  $('workPoints').replaceChildren(...(w.points || []).map(t => {
+    const li = document.createElement('li');
+    li.textContent = t;
+    return li;
+  }));
+
+  // the same rule for the link: a project with no repo yet gets no link at
+  // all, rather than one that goes nowhere
+  $('workLink').href = w.href || '#';
+  $('workLinkRow').hidden = !w.href;
+
+  workDlg.showModal();
+}
+if (workDlg?.showModal){
+  // the rows in `portfolio` are buttons, not links — there is no url under a
+  // project, only this panel
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-work]');
+    if (!b) return;
+    const i = WORKS.findIndex(w => w.label === b.dataset.work);
+    if (i > -1) openWork(i);
+  });
+  closeOnBackdrop(workDlg);
+}
+
+/* A click on the dialog element itself landed outside everything inside it —
+   but only if it STARTED there too. The canvas opens a panel on pointerup, and
+   the click that completes that same gesture then arrives at the panel it just
+   opened, lands on the backdrop, and closes it before anyone sees it. Asking
+   where the press began costs one flag and also fixes the older case: dragging
+   a selection out of the dialog and letting go on the backdrop. */
+function closeOnBackdrop(dlg){
+  let downOnBackdrop = false;
+  dlg.addEventListener('pointerdown', (e) => { downOnBackdrop = e.target === dlg; });
+  dlg.addEventListener('click', (e) => {
+    if (e.target === dlg && downOnBackdrop) dlg.close();
+  });
+}
+
 const certDlg  = $('cert');
 const certView = $('certView');
 const certOpen = $('certOpen');
@@ -539,9 +603,8 @@ if (certDlg?.showModal){
     certView.replaceChildren(el);
     certDlg.showModal();
   });
-  // the backdrop is painted by the dialog's own box, so a click that lands on
-  // the element itself landed outside everything in it
-  certDlg.addEventListener('click', (e) => { if (e.target === certDlg) certDlg.close(); });
+  // the backdrop is painted by the dialog's own box — see closeOnBackdrop
+  closeOnBackdrop(certDlg);
 }
 
 applyRoute();

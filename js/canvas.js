@@ -105,6 +105,7 @@ export class WorkCanvas {
     this.buf = document.createElement('canvas');
     this.bctx = this.buf.getContext('2d');
     this.onRoute = opts.onRoute || (() => {});
+    this.onWork = opts.onWork || (() => {});
     this.onFirstDrag = opts.onFirstDrag || (() => {});
     this.reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.coarse = COARSE;
@@ -236,8 +237,16 @@ export class WorkCanvas {
         this.tx += this.vx * 90 / dt * 4;
         this.ty += this.vy * 90 / dt * 4;
       } else {
+        /* The same tap that opens a card opens a work — `d.moved > TAP` above
+           has already separated a tap from a drag, so this costs nothing but
+           the lookup. Cards win a tie: they sit in their own slots, but a
+           fingertip's padding can reach across into a neighbouring tile. */
         const card = this._cardAt(e.clientX, e.clientY);
         if (card) this.onRoute(card.route);
+        else {
+          const tile = this._tileAt(e.clientX, e.clientY);
+          if (tile) this.onWork(tile.i);
+        }
       }
     };
     cv.addEventListener('pointerup', e => {
@@ -266,7 +275,9 @@ export class WorkCanvas {
 
   _hover(x, y){
     const card = this._cardAt(x, y);
-    const hot = !!card;
+    // tiles open too now, so they light the cursor as the cards do. is-hot is
+    // only cursor:pointer — it does not touch the lens or the grid.
+    const hot = !!card || !!this._tileAt(x, y);
     if (hot !== this._hot){ this._hot = hot; this.cv.classList.toggle('is-hot', hot); }
   }
 
@@ -275,6 +286,15 @@ export class WorkCanvas {
     const p = this.coarse ? 16 : 0;
     for (const r of (this._cardRects || [])){
       if (x >= r.x - p && x <= r.x + r.w + p && y >= r.y - p && y <= r.y + r.h + p) return r;
+    }
+    return null;
+  }
+
+  // no padding here: a tile is already the size of a photograph, and growing
+  // its hit area would only let it steal taps from the card beside it
+  _tileAt(x, y){
+    for (const r of (this._tileRects || [])){
+      if (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h) return r;
     }
     return null;
   }
@@ -369,7 +389,7 @@ export class WorkCanvas {
             const dd = Math.hypot(x + this.tileW / 2 - fcx, y + this.tileH / 2 - fcy);
             if (dd < near[s.i]) near[s.i] = dd;
             this.paintWork(c, s.i, x, y);
-            tiles.push({ x, y, w: this.tileW, h: this.tileH });
+            tiles.push({ x, y, w: this.tileW, h: this.tileH, i: s.i });
           } else {
             const r = this.paintCard(c, CARDS[s.i], x, y);
             cards.push({ ...r, route: CARDS[s.i].route });
