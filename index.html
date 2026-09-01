@@ -179,16 +179,12 @@
       <ul class="rows">
         <li class="rows__r"><span class="rows__k">email</span><span class="rows__v"><a class="rows__a" href="mailto:eyesplague@gmail.com">eyesplague@gmail.com</a></span></li>
         <li class="rows__r"><span class="rows__k">github</span><span class="rows__v"><a class="rows__a" href="https://github.com/Constanvel" target="_blank" rel="noopener">github.com/Constanvel</a></span></li>
-        <!-- WHATSAPP / SOCIALS · uncomment once the real handle is here. A phone
-             number or a @handle is either right or it is a stranger's — there is
-             no placeholder version of an address, so these stay closed until the
-             actual one goes in. wa.me wants the country code and no +, no 0:
-             08123456789 → 628123456789.
-        <li class="rows__r"><span class="rows__k">whatsapp</span><span class="rows__v"><a class="rows__a" href="https://wa.me/628XXXXXXXXXX" target="_blank" rel="noopener">+62 8XX-XXXX-XXXX</a></span></li>
-        <li class="rows__r"><span class="rows__k">instagram</span><span class="rows__v"><a class="rows__a" href="https://instagram.com/HANDLE" target="_blank" rel="noopener">@HANDLE</a></span></li>
-        <li class="rows__r"><span class="rows__k">tiktok</span><span class="rows__v"><a class="rows__a" href="https://tiktok.com/@HANDLE" target="_blank" rel="noopener">@HANDLE</a></span></li>
-        <li class="rows__r"><span class="rows__k">linkedin</span><span class="rows__v"><a class="rows__a" href="https://linkedin.com/in/HANDLE" target="_blank" rel="noopener">linkedin.com/in/HANDLE</a></span></li>
-        -->
+        <!-- wa.me takes the country code with no + and no leading 0, so
+             081617800000 is written 6281617800000. The visible text keeps the
+             0 — that is the number as anyone here would read it back. -->
+        <li class="rows__r"><span class="rows__k">whatsapp</span><span class="rows__v"><a class="rows__a" href="https://wa.me/6281617800000" target="_blank" rel="noopener">0816-1780-0000</a></span></li>
+        <li class="rows__r"><span class="rows__k">instagram</span><span class="rows__v"><a class="rows__a" href="https://instagram.com/constanvel" target="_blank" rel="noopener">@constanvel</a></span></li>
+        <li class="rows__r"><span class="rows__k">tiktok</span><span class="rows__v"><a class="rows__a" href="https://tiktok.com/@constanvel" target="_blank" rel="noopener">@constanvel</a></span></li>
       </ul>
       <a class="page__cta" id="mailCta" href="mailto:eyesplague@gmail.com">write to me</a>
       <button class="page__back" type="button" data-back>back</button>
@@ -197,6 +193,25 @@
 
   <!-- ── skip / accessibility fallback ────────────────────────────────── -->
   <button class="skip" id="skip" type="button">skip intro</button>
+
+  <!-- The track is the one thing here that follows you out of the room, so the
+       way to stop it must be reachable from every stage — the opposite corner
+       to skip, the same quiet type, present from the first frame rather than
+       lit by a stage. It reads as the state it is IN, not the verb, because
+       the verb is what a visitor already assumes a button does. -->
+  <button class="skip mute" id="mute" type="button" aria-pressed="false">sound on</button>
+
+  <!-- ── a certificate, opened in place ─────────────────────────────────
+       The rows still point straight at the file and still carry target=_blank:
+       with no JS that IS the feature, and it stays the way out when a phone
+       browser refuses to draw a PDF in a frame. With JS the click is caught and
+       the file is shown here instead — a new tab carries no history, so back
+       was never a button the visitor had. -->
+  <dialog class="cert" id="cert">
+    <div class="cert__v" id="certView"></div>
+    <p class="cert__f"><a class="rows__a" id="certOpen" href="#" target="_blank" rel="noopener">open the file itself</a></p>
+    <form method="dialog"><button class="page__back" type="submit">back</button></form>
+  </dialog>
 
   <audio id="theme" src="./assets/audio/theme.mp3" loop preload="auto"></audio>
 

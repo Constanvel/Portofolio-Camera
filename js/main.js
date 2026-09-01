@@ -18,6 +18,7 @@ const workWrap  = $('work');
 const hint      = $('hint');
 const skipBtn   = $('skip');
 const theme     = $('theme');
+const muteBtn   = $('mute');
 const vig       = $('vig');
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -42,12 +43,17 @@ const LITE = matchMedia('(pointer: coarse)').matches
 theme.volume = 0;
 theme.muted = true;
 let audioArmed = false, audioBusy = false, audioOn = false;
+/* Every path to sound goes through goAudible() — the skip button, the global
+   gesture net, the end of the sequence. So a visitor who has asked for silence
+   is respected in one place rather than in each of them, and cannot be talked
+   back into it by the next thing that happens to fire. */
+let userMuted = false;
 
 function rollMuted(){
   theme.play().catch(() => { /* even muted can be refused; the gesture retries */ });
 }
 async function goAudible(){
-  if (audioOn || audioBusy) return audioOn;
+  if (userMuted || audioOn || audioBusy) return audioOn;
   audioBusy = true;
   try {
     theme.muted = false;
@@ -445,6 +451,52 @@ function endIntro(){
 
 // the click is also the gesture that is allowed to unmute the track
 skipBtn.addEventListener('click', () => { endIntro(); goAudible(); });
+
+muteBtn.addEventListener('click', () => {
+  userMuted = !userMuted;
+  theme.muted = userMuted;
+  muteBtn.textContent = userMuted ? 'sound off' : 'sound on';
+  muteBtn.setAttribute('aria-pressed', String(userMuted));
+  /* Coming back on is not just unmuting: on a visit where the track was
+     silenced before any gesture landed, it has never actually started. */
+  if (!userMuted) goAudible();
+});
+
+/* ── certificates ────────────────────────────────────────────────────────
+   The row links straight at the file, so with no JS a click opens it in a tab
+   and nothing is lost. With JS it opens here instead — a new tab carries no
+   history, and back was never a button the visitor had. */
+const certDlg  = $('cert');
+const certView = $('certView');
+const certOpen = $('certOpen');
+if (certDlg?.showModal){
+  document.addEventListener('click', (e) => {
+    // by the file it points at, not by the class: contact uses .rows__a too,
+    // and a mailto must not open in a viewer
+    const a = e.target.closest('a[href*="/certs/"]');
+    if (!a) return;
+    e.preventDefault();
+    const src = a.getAttribute('href');
+    certOpen.href = src;
+    /* ponytail: a PDF in a frame is the browser's own viewer, and some phone
+       browsers refuse to draw one — "open the file itself" is the way out when
+       they do. Built as an element rather than a string: the row text is ours,
+       but a straight quote in it would end an attribute early. */
+    const el = document.createElement(/\.pdf$/i.test(src) ? 'iframe' : 'img');
+    el.src = src;
+    if (el.tagName === 'IMG') el.alt = a.textContent.trim();
+    else el.title = a.textContent.trim();
+    // replacing rather than appending is also the whole cleanup: there is only
+    // ever one viewer, and a closed dialog is display:none. Emptying it on the
+    // way out would need the close event, which is one more thing to be right
+    // about for a hidden frame that costs nothing.
+    certView.replaceChildren(el);
+    certDlg.showModal();
+  });
+  // the backdrop is painted by the dialog's own box, so a click that lands on
+  // the element itself landed outside everything in it
+  certDlg.addEventListener('click', (e) => { if (e.target === certDlg) certDlg.close(); });
+}
 
 applyRoute();
 main();

@@ -41,6 +41,17 @@ kanalnya — alamatnya sendiri yang ditulis, bukan deretan logo. Baris untuk
 handel yang belum ada nomor/username aslinya dibiarkan sebagai komentar di
 `index.html`, bukan diisi contoh.
 
+Sertifikat dibuka di tempat, bukan di tab baru: `<dialog id="cert">` — tab baru
+tidak punya riwayat, jadi tidak pernah ada tombol kembali di sana. Tautannya
+tetap menunjuk ke berkas dan tetap `target="_blank"`, jadi tanpa JS itulah
+fiturnya, dan itu pula jalan keluarnya kalau peramban ponsel menolak menggambar
+PDF di dalam bingkai.
+
+Lagu bisa dimatikan lewat tombol `#mute` di pojok kiri bawah, ada di setiap
+tahap. Penjaganya satu, `userMuted` di `goAudible()` — semua jalan menuju suara
+lewat sana, jadi pengunjung yang minta sunyi tidak dibujuk balik oleh tombol
+skip atau gerakan pertama mana pun.
+
 Rute mengakhiri intro. Membuka `#/about` langsung, atau memencet navbar saat
 urutan intro masih jalan, memanggil `endIntro()` di `js/main.js` — teardown yang
 sama dengan tombol skip. Halaman itu buram tapi *fade*, jadi selama 620ms apa

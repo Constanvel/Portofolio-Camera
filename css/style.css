@@ -303,7 +303,44 @@ body[data-stage="page"] .nav__a{ pointer-events:auto; }
 .skip.is-lit{ opacity:.6; pointer-events:auto; }
 .skip:focus-visible{ opacity:1; color:var(--ink); }
 
+/* ── mute · skip's box, the other corner ─────────────────────────────────
+   It borrows .skip's rules instead of copying them: both are the same kind of
+   thing — a quiet way out of something that is already running. It differs in
+   the two ways it has to. It is never staged: skip belongs to the intro and
+   goes with it, while the track plays through every section, so a control that
+   waited for a stage would be missing exactly when it is wanted. Same
+   specificity as .skip, so it has to sit below it to win. */
+.mute{
+  right:auto;
+  left:calc(clamp(14px,2.4vw,26px) + env(safe-area-inset-left,0px));
+  opacity:1; pointer-events:auto;
+  /* skip only ever sits over the intro, which is empty at that corner. This one
+     is over whatever section is open, and a line of the achievements ran clean
+     through the middle of it — so it carries its own paper. */
+  background:var(--paper); border-radius:999px;
+}
+
 :focus-visible{ outline:2px solid var(--ink); outline-offset:3px; }
+
+/* ── a certificate, opened in place ──────────────────────────────────────
+   <dialog> brings the backdrop, the Escape key, the focus trap and the close
+   button (a form with method="dialog" needs no script at all) — so the only
+   thing left to write is how big the document is. */
+.cert{
+  width:min(92vw,52rem); max-width:none; max-height:88vh;
+  padding:1.1rem 1.1rem 1.4rem; border:0; border-radius:14px;
+  background:var(--paper); color:var(--ink); font-family:inherit;
+}
+.cert::backdrop{ background:rgba(17,16,20,.72); }
+/* a PDF is a frame the browser fills itself; a photograph is sized by its own
+   proportions, so it gets a ceiling and keeps its shape rather than a width */
+/* short of the dialog's own 88vh ceiling: the link and the back button live
+   under the document, and at 70vh they were pushed past the bottom edge and
+   the whole dialog grew a scrollbar to reach the way out */
+.cert__v > iframe{ display:block; width:100%; height:min(62vh,38rem); border:0; }
+.cert__v > img{ display:block; max-width:100%; max-height:64vh; margin:0 auto; }
+.cert__f{ margin:1rem 0 0; text-align:center; font-size:.875rem; color:var(--ink-2); }
+.cert .page__back{ margin-top:.9rem; }
 
 /* ── touch ──────────────────────────────────────────────────────────────
    A sticky :hover is the classic phone bug — the state latches on tap and
