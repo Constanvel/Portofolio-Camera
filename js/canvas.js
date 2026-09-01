@@ -45,26 +45,28 @@ const TILE_AR = 9 / 16;
 const COL_OFF = [0, 0.30, 0.12, 0.44];
 
 /* `i` indexes WORKS for a film and CARDS for a card — see js/data.js. Laid
-   out here in reading order, one blank line per row of the block. */
+   out here in reading order, one blank line per row of the block.
+   The table was built around eight works and now carries five, so it is spread
+   again rather than trimmed: LIVE below would have dropped three slots that sat
+   next to each other, and a plane that repeats turns one hole into a column of
+   them. Put the works back and the slots go back with them — the pairing is
+   what this table is, and it is the only place that decides the rhythm. */
 const SLOTS = [
   { c:0, r:0, kind:'work', i:0 },
-  { c:1, r:0, kind:'work', i:1 },
   { c:2, r:0, kind:'card', i:0 },   // about
 
-  { c:0, r:1, kind:'work', i:2 },
   { c:1, r:1, kind:'card', i:1 },   // skills
-  { c:2, r:1, kind:'work', i:3 },
-  { c:3, r:1, kind:'card', i:2 },   // portfolio
+  { c:3, r:1, kind:'work', i:1 },
 
-  { c:0, r:2, kind:'work', i:4 },
-  { c:2, r:2, kind:'card', i:3 },   // experience
-  { c:3, r:2, kind:'work', i:5 },
+  { c:0, r:2, kind:'work', i:2 },
+  { c:2, r:2, kind:'card', i:2 },   // portfolio
+  { c:3, r:2, kind:'card', i:3 },   // experience
 
-  { c:0, r:3, kind:'card', i:4 },   // services
-  { c:1, r:3, kind:'work', i:6 },
-  { c:2, r:3, kind:'work', i:7 },
+  { c:1, r:3, kind:'work', i:3 },
+  { c:3, r:3, kind:'card', i:4 },   // services
 
-  { c:1, r:4, kind:'card', i:5 },   // achievements
+  { c:0, r:4, kind:'card', i:5 },   // achievements
+  { c:2, r:4, kind:'work', i:4 },
   { c:3, r:4, kind:'card', i:6 }    // contact
 ];
 
@@ -423,6 +425,18 @@ export class WorkCanvas {
     } else {
       c.fillStyle = '#f2f1f4';
       c.fillRect(x, y, w, h);
+      /* A work whose picture has not arrived — still loading, or not screenshot
+         yet — was a grey rectangle that said nothing, and eight of them read as
+         a broken page rather than a loading one. Its name is a better thing to
+         hold the slot with. Quieter than a card's ink and without the asterisk,
+         because this is a placeholder and not something to click. */
+      const name = WORKS[i].label;
+      if (name){
+        c.fillStyle = '#a9a7b0';
+        c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.font = `500 ${Math.round(clamp(w * 0.085, 12, 22))}px "SF Pro Display", -apple-system, Helvetica, Arial, sans-serif`;
+        c.fillText(name, x + w / 2, y + h / 2);
+      }
     }
   }
 

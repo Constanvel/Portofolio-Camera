@@ -14,7 +14,7 @@ python -m http.server 8000
 - `js/main.js` — orkestrasi intro (mark → iPod → kamera → kanvas karya)
 - `js/scene.js`, `js/env.js` — WebGL, three.js
 - `js/canvas.js` — kanvas karya yang bisa di-drag
-- `assets/tiles/` — video karya, plus versi kecil di `assets/tiles-sm/` untuk HP
+- `assets/tiles/` — berkas karya; film `.mp4` butuh kembaran 640px di `assets/tiles-sm/` untuk HP, gambar diam tidak
 - `assets/certs/` — berkas sertifikat yang ditautkan dari baris `achievements` dan `experience`
 
 ## Bagian halaman
@@ -33,6 +33,15 @@ sambil menggeser, bukan cuma lewat navbar. Kartu itu butuh dua hal: satu entri
 di `CARDS` (`js/data.js`) dan satu slot di `SLOTS` (`js/canvas.js`). `SLOTS`
 adalah blok 4×5 yang berulang menutupi seluruh bidang — kartu tanpa slot tidak
 akan pernah muncul, sejauh apa pun digeser.
+
+Karya di `WORKS` bekerja lewat pasangan yang sama, dan sekarang isinya lima
+gambar diam, bukan delapan film. `src` menentukan pemuatnya lewat ekstensi:
+`.mp4` jadi `<video>`, `.png/.jpg/.webp/.gif/.avif` jadi `<img>` — jadi berkas
+PNG yang ditaruh dengan nama `.jpg` tidak termuat sebagai keduanya. `label`
+menahan slotnya selama berkasnya belum ada: `paintWork` menggambar namanya di
+petak kosong itu, dan berhenti menggambarnya begitu gambarnya datang. Menambah
+karya berarti menambah slot `work` di `SLOTS` juga — `LIVE` memangkas slot yang
+menunjuk ke luar `WORKS`, jadi yang kelebihan hilang diam-diam, bukan error.
 
 Baris yang punya sertifikat dibungkus `<a class="rows__a">` ke berkasnya di
 `assets/certs/`; garis rambut di bawah teks itulah penandanya, jadi baris tanpa

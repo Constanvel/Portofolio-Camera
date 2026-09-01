@@ -1,17 +1,18 @@
 // The work. Order is the order they tile across the canvas.
 // `src` takes a film (.mp4) or a still (.png .jpg .webp .gif .avif) — a still is
 // drawn the same way, minus the decoder. Films need a 640-wide twin in
-// assets/tiles-sm/ for phones; stills are served at one size.
-// `label` is optional — leave it empty and the tile shows the work alone.
+// assets/tiles-sm/ for phones; stills are served at one size, which is why the
+// five below are stills: a screenshot is what these projects look like.
+// `label` holds the slot until the picture arrives — canvas.js draws it in
+// place of a tile whose file is missing, and nothing once the file is there.
+// The extension in `src` is not decoration: it is how canvas.js decides between
+// an <img> and a <video>, so a .png dropped in under a .jpg name loads neither.
 export const WORKS = [
-  { src: './assets/tiles/scape-final.mp4',       label: '' },
-  { src: './assets/tiles/bubu-bar-directed.mp4', label: '' },
-  { src: './assets/tiles/hyde-park.mp4',         label: '' },
-  { src: './assets/tiles/video-2.mp4',           label: '' },
-  { src: './assets/tiles/bubu-promo.mp4',        label: '' },
-  { src: './assets/tiles/nomad-mograph.mp4',     label: '' },
-  { src: './assets/tiles/scape-loop.mp4',        label: '' },
-  { src: './assets/tiles/bububar.mp4',           label: '' }
+  { src: './assets/tiles/lensa.jpg',             label: 'lensa' },
+  { src: './assets/tiles/artvault.jpg',          label: 'artvault' },
+  { src: './assets/tiles/pothole-detection.jpg', label: 'pothole detection' },
+  { src: './assets/tiles/rag-chatbot.jpg',       label: 'rag chatbot' },
+  { src: './assets/tiles/llama-assistant.jpg',   label: 'llama assistant' }
 ];
 
 // Text cards live in the same grid as the films and are clickable. One per
