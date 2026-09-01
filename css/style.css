@@ -70,16 +70,26 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 /* ── the mark ───────────────────────────────────────────────────────── */
 .mark{
   position:fixed; inset:0; display:grid; place-items:center;
-  background:var(--paper); z-index:40;
+  /* The clip is light on black, so the stage is black — not paper. Its own
+     ground is #000 at every edge, which is why the crop below leaves no seam
+     and why the fade into the iPod act, also black, has nothing to cross. */
+  background:#000; z-index:40;
   opacity:1; transition:opacity var(--t-mid) var(--ease-in-out);
 }
 .mark.is-out{ opacity:0; pointer-events:none; }
 .mark[hidden]{ display:none; }
 .mark__v{
-  width:min(42vh,42vw); height:auto; display:block;
-  /* the clip is black ink on white paper — multiply knocks the paper out
-     against any light surface, so no seam and no compression halo. */
-  mix-blend-mode:multiply;
+  width:min(48vh,62vw); height:auto; display:block;
+  /* No blend mode. Multiply was for a clip of black ink on white paper; this
+     one is light on black, and multiplying it against anything would sink the
+     whole thing to black. It is opaque and its ground matches the stage. */
+  /* The generator signs its work in the bottom-right — a 48x48 mark at
+     x 1136-1183 of 1280. Cropping the bottom would take the crest with it (it
+     reaches y 626, the mark starts at 576), but the sides are empty: the crest
+     ends at x 1076. So 12% comes off each side — the right to lose the
+     signature, the left only so the crest stays centred. Measured, not
+     guessed, and the same on every frame of the clip. */
+  clip-path:inset(0 12% 0 12%);
 }
 
 /* ── webgl surface ──────────────────────────────────────────────────── */
@@ -372,7 +382,7 @@ body.is-dark .mute{ background:none; }
      anyone sees. Portrait gets the width it can afford; landscape is still
      governed by height. */
   .mark__v{
-    width:min(58vw,44vh);
+    width:min(76vw,46vh);
     /* iOS composites a hardware-decoded video on its own layer, which a blend
        mode cannot always reach — the clip goes blank or unblended. The paper is
        exactly #ffffff and so is the clip's own ground, so on touch the multiply

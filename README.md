@@ -103,3 +103,29 @@ oleh router, jadi tanpa skrip yang tampil bukan versi polos melainkan halaman
 putih; `<noscript>` di `index.html` membuka semuanya dan membuang urutan intro.
 Kanvas karya punya `aria-label` dan isi cadangan di dalam elemennya, karena
 halaman `home` itu kanvas, dan kanvas tidak mengatakan apa pun ke pembaca layar.
+
+## Mark pembuka
+
+`assets/video/mark.mp4` itu klip 1280x720 sepuluh detik, terang di atas hitam,
+jadi `.mark` berlatar `#000` dan bukan kertas, dan `<body>` mulai dengan
+`is-dark` supaya `--ink-2` terangkat dan tombol skip serta suara terbaca di
+atasnya. Tidak ada `mix-blend-mode`: multiply itu untuk klip tinta hitam di
+atas kertas putih, dan pada klip ini akan menenggelamkan semuanya jadi hitam.
+
+Pembuatnya menandatangani karyanya di kanan bawah, kotak 48x48 di `x 1136-1183,
+y 576-623`. Memotong bagian bawah akan ikut memotong crest-nya (crest sampai
+`y 626`, tandanya mulai `y 576`), tapi sisi kiri-kanan kosong: crest berhenti di
+`x 1076`. Jadi `clip-path:inset(0 12%)` — kanan untuk membuang tandanya, kiri
+hanya supaya crest tetap di tengah. Latar klipnya `#000` di semua tepi, jadi
+potongan itu tidak meninggalkan jahitan.
+
+Batas 5600ms di `markDone` menahan tahap ini, dan crest-nya mencapai puncak di
+4,9 detik — jadi penonton melihat gambarnya selesai, lalu diserahkan. Sisa klip
+setelah itu cuma menahan di separuh terang. `markVideo.pause()` dipanggil saat
+serah terima, bukan cuma di `endIntro()`: klip yang lebih panjang dari tahapnya
+akan terus mendekode di belakang iPod kalau tidak.
+
+Posternya frame TERAKHIR, dipotong 12% yang sama. Klip ini menggambar dirinya
+selama sepuluh detik, jadi frame nol hampir kosong — perangkat yang menolak
+memutar video harus melihat crest yang sudah jadi.
+

@@ -295,9 +295,15 @@ async function main(){
     const go = () => { if (!fired){ fired = true; res(); } };
     markVideo.addEventListener('ended', go, { once:true });
     const full = setTimeout(go, reduced ? 900 : 5600);   // never hang on a stall
-    // did it actually start? currentTime is the only honest answer — readyState
-    // and the play() promise both lie when the decoder is merely busy.
-    setTimeout(() => {
+    /* did it actually start? currentTime is the only honest answer — readyState
+       and the play() promise both lie when the decoder is merely busy.
+       But the question is "was playback refused", not "has the file arrived",
+       and those were the same question only while the clip weighed 115 KB. At
+       1.8 MB a visitor on cellular fails this check with nothing wrong at all,
+       and gets the sequence cut for being slow. So the window opens when the
+       clip is playable, not when the page asked it to roll. `full` below still
+       bounds the whole thing, so a clip that never arrives is still let go. */
+    const probe = () => setTimeout(() => {
       if (markVideo.currentTime > 0.08) return;          // rolling, leave it be
       rollMark();                                        // one more try
       setTimeout(() => {
@@ -306,6 +312,8 @@ async function main(){
         go();                                            // hold the still, move on
       }, 700);
     }, reduced ? 200 : 1400);
+    if (markVideo.readyState >= 3) probe();
+    else markVideo.addEventListener('canplay', probe, { once:true });
   });
   await markDone;
   if (skipped) return;
@@ -314,6 +322,12 @@ async function main(){
   skipBtn.classList.add('is-lit');
   await sleep(reduced ? 20 : 480);
   markWrap.hidden = true;
+  /* Same reason endIntro() pauses it: hiding the element does not stop the
+     decoder. It never showed while the clip was shorter than this stage and
+     had always ended by now — the longer one is cut by the cap above with
+     seconds still to run, and would keep a decoder busy behind the iPod for
+     a mark nobody can see. */
+  markVideo.pause();
   if (skipped) return;
 
   if (LITE) return lite();
