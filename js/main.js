@@ -14,7 +14,6 @@ let ipodModel = null, camModel = null;   // in flight from the moment it is
 const $ = id => document.getElementById(id);
 const body      = document.body;
 const markWrap  = $('mark');
-const markVideo = $('markVideo');
 const glCanvas  = $('gl');
 const workWrap  = $('work');
 const hint      = $('hint');
@@ -98,8 +97,6 @@ function armGlobalGesture(){
   if (audioArmed) return;
   audioArmed = true;
   const go = async () => {
-    // the same gesture that lights the track can start a refused mark
-    if (!markWrap.hidden && markVideo.paused) markVideo.play().catch(() => {});
     const ok = await goAudible();
     if (ok){
       window.removeEventListener('pointerdown', go);
@@ -280,44 +277,32 @@ async function main(){
   }
 
   /* ── the mark ─────────────────────────────────────────────────────────
-     Three ways this fails on a phone and none of them are visible on a desk:
-     autoplay refused outright (Low Power Mode does this, so does turning off
-     Auto-Play Video Previews), the decoder busy with something else, or the
-     clip simply never getting a frame out in time. The poster covers the look
-     of all three — the mark is fully drawn in frame 0 — and the clock below
-     covers the wait, so nobody stares at a still logo for five and a half
-     seconds because their battery is low. */
+     A still and a turning ring, painted from the first frame. The three ways
+     this used to fail on a phone — autoplay refused outright, the decoder busy
+     elsewhere, the clip never getting a frame out in time — all belonged to
+     the video, and went with it. */
   // On the lite path the films start ARRIVING under the mark but must not
   // start PLAYING under it — see workHeld.
   if (LITE){ workHeld = true; setTimeout(ensureWork, 2600); }
 
-  const rollMark = () => markVideo.play().catch(() => {});
-  rollMark();
-  const markDone = new Promise(res => {
-    let fired = false;
-    const go = () => { if (!fired){ fired = true; res(); } };
-    markVideo.addEventListener('ended', go, { once:true });
-    const full = setTimeout(go, reduced ? 900 : 5600);   // never hang on a stall
-    /* did it actually start? currentTime is the only honest answer — readyState
-       and the play() promise both lie when the decoder is merely busy.
-       But the question is "was playback refused", not "has the file arrived",
-       and those were the same question only while the clip weighed 115 KB. At
-       1.8 MB a visitor on cellular fails this check with nothing wrong at all,
-       and gets the sequence cut for being slow. So the window opens when the
-       clip is playable, not when the page asked it to roll. `full` below still
-       bounds the whole thing, so a clip that never arrives is still let go. */
-    const probe = () => setTimeout(() => {
-      if (markVideo.currentTime > 0.08) return;          // rolling, leave it be
-      rollMark();                                        // one more try
-      setTimeout(() => {
-        if (markVideo.currentTime > 0.08) return;
-        clearTimeout(full);
-        go();                                            // hold the still, move on
-      }, 700);
-    }, reduced ? 200 : 1400);
-    if (markVideo.readyState >= 3) probe();
-    else markVideo.addEventListener('canplay', probe, { once:true });
-  });
+  /* ── how long the mark stays ───────────────────────────────────────────
+     The clip used to answer this itself: play it, wait for `ended`, and keep a
+     clock and a stall probe around for the three ways a phone refuses to play
+     video at all. A still cannot fail that way, so all of it is gone — and the
+     wait can now be spent on the thing that is genuinely slow. The two glb
+     models are already in flight above; the ring turns until they land.
+
+     A floor because a loader that flashes for 200ms reads as a glitch, and a
+     ceiling because a model that never arrives must not hold the door. On the
+     lite path there are no models to wait for, so the floor is the whole beat. */
+  const FLOOR = reduced ? 300 : 1300;
+  const CEIL  = reduced ? 900 : 5600;
+  const loaded = LITE ? Promise.resolve()
+                      : Promise.allSettled([ipodModel, camModel]);
+  const markDone = Promise.all([
+    sleep(FLOOR),
+    Promise.race([loaded, sleep(CEIL)])
+  ]);
   await markDone;
   if (skipped) return;
 
@@ -325,12 +310,6 @@ async function main(){
   skipBtn.classList.add('is-lit');
   await sleep(reduced ? 20 : 480);
   markWrap.hidden = true;
-  /* Same reason endIntro() pauses it: hiding the element does not stop the
-     decoder. It never showed while the clip was shorter than this stage and
-     had always ended by now — the longer one is cut by the cap above with
-     seconds still to run, and would keep a decoder busy behind the iPod for
-     a mark nobody can see. */
-  markVideo.pause();
   if (skipped) return;
 
   if (LITE) return lite();
@@ -470,10 +449,6 @@ function endIntro(){
   skipped = true;
   markWrap.classList.add('is-out');
   markWrap.hidden = true;
-  /* it autoplays from the ATTRIBUTE, deliberately — so hiding the element does
-     not stop it. It keeps a hardware decoder busy for a mark nobody will see,
-     and on a phone that is the decoder the eight films are waiting for. */
-  markVideo.pause();
   finish();
 }
 

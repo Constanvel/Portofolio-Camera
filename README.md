@@ -106,28 +106,35 @@ halaman `home` itu kanvas, dan kanvas tidak mengatakan apa pun ke pembaca layar.
 
 ## Mark pembuka
 
-`assets/video/mark.mp4` itu klip 1280x720 sepuluh detik, terang di atas hitam,
-jadi `.mark` berlatar `#000` dan bukan kertas, dan `<body>` mulai dengan
-`is-dark` supaya `--ink-2` terangkat dan tombol skip serta suara terbaca di
-atasnya. Tidak ada `mix-blend-mode`: multiply itu untuk klip tinta hitam di
-atas kertas putih, dan pada klip ini akan menenggelamkan semuanya jadi hitam.
+`assets/mark/crest.webp` dan `assets/mark/ring.webp` — satu gambar diam dan satu
+cincin yang berputar di bawahnya. Keduanya PNG transparan bergaris putih yang
+dipangkas ke kotak pembatasnya sebelum disimpan, jadi posisinya ditentukan oleh
+apa yang benar-benar tergambar, bukan oleh margin kosong sisa penghapus latar.
+Karena garisnya terang, `.mark` berlatar `#000` dan bukan kertas, dan `<body>`
+mulai dengan `is-dark` supaya `--ink-2` terangkat dan tombol skip serta suara
+terbaca di atasnya.
 
-Pembuatnya menandatangani karyanya di kanan bawah, kotak 48x48 di `x 1136-1183,
-y 576-623`. Memotong bagian bawah akan ikut memotong crest-nya (crest sampai
-`y 626`, tandanya mulai `y 576`), tapi sisi kiri-kanan kosong: crest berhenti di
-`x 1076`. Jadi `clip-path:inset(0 12%)` — kanan untuk membuang tandanya, kiri
-hanya supaya crest tetap di tengah. Latar klipnya `#000` di semua tepi, jadi
-potongan itu tidak meninggalkan jahitan.
+Cincinnya dipersegikan di sekeliling kotak pembatasnya sendiri: sebuah spinner
+berputar mengelilingi titik tengah **kotaknya**, jadi cincin yang duduk di luar
+pusat sebuah persegi panjang akan oleng, bukan berputar.
 
-Batas 5600ms di `markDone` menahan tahap ini, dan crest-nya mencapai puncak di
-4,9 detik — jadi penonton melihat gambarnya selesai, lalu diserahkan. Sisa klip
-setelah itu cuma menahan di separuh terang. `markVideo.pause()` dipanggil saat
-serah terima, bukan cuma di `endIntro()`: klip yang lebih panjang dari tahapnya
-akan terus mendekode di belakang iPod kalau tidak.
+`.mark` punya dua baris grid. `place-items` memusatkan tiap anak di barisnya
+sendiri; `align-content` yang menahan keduanya tetap bersama di tengah, bukan
+membiarkan barisnya melar memenuhi layar.
 
-Posternya frame TERAKHIR, dipotong 12% yang sama. Klip ini menggambar dirinya
-selama sepuluh detik, jadi frame nol hampir kosong — perangkat yang menolak
-memutar video harus melihat crest yang sudah jadi.
+Lamanya tahap ini ditentukan `markDone` di `js/main.js`, dan sekarang menunggu
+sesuatu yang nyata: dua model `.glb` sudah mulai diunduh di atasnya, dan
+cincinnya berputar sampai keduanya mendarat. Ada lantai, karena loader yang
+berkedip 200ms terbaca sebagai kerusakan, dan ada langit-langit, karena model
+yang tidak pernah datang tidak boleh menahan pintu. Di jalur lite tidak ada
+model yang ditunggu, jadi lantainya adalah seluruh ketukannya.
+
+Versi sebelumnya klip sepuluh detik, dan seluruh perkakas yang dibutuhkannya
+ikut hilang bersamanya: heuristik autoplay, poster untuk menutupi penolakan,
+probe untuk menyadari klipnya tidak pernah mulai, `pause()` supaya dekodernya
+tidak terus jalan di belakang iPod, dan potongan 12% untuk menyembunyikan tanda
+tangan generatornya. Sebuah `<img>` menggambar atau tidak. Berat aset intronya
+turun dari 1,86 MB ke 131 KB.
 
 ## Panel proyek
 

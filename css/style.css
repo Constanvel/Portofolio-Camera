@@ -69,27 +69,33 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 
 /* ── the mark ───────────────────────────────────────────────────────── */
 .mark{
-  position:fixed; inset:0; display:grid; place-items:center;
-  /* The clip is light on black, so the stage is black — not paper. Its own
-     ground is #000 at every edge, which is why the crop below leaves no seam
-     and why the fade into the iPod act, also black, has nothing to cross. */
-  background:#000; z-index:40;
+  position:fixed; inset:0; z-index:40;
+  /* Two rows now — the crest, and the ring turning under it. place-items
+     centres each in its own row; align-content is what keeps the pair together
+     in the middle instead of letting the rows stretch apart to fill the
+     viewport. The mark is light on black, so the stage is black, not paper —
+     and the fade into the iPod act, also black, has nothing to cross. */
+  display:grid; place-items:center; align-content:center; gap:clamp(1.6rem,4vh,2.8rem);
+  background:#000;
   opacity:1; transition:opacity var(--t-mid) var(--ease-in-out);
 }
 .mark.is-out{ opacity:0; pointer-events:none; }
 .mark[hidden]{ display:none; }
-.mark__v{
-  width:min(48vh,62vw); height:auto; display:block;
-  /* No blend mode. Multiply was for a clip of black ink on white paper; this
-     one is light on black, and multiplying it against anything would sink the
-     whole thing to black. It is opaque and its ground matches the stage. */
-  /* The generator signs its work in the bottom-right — a 48x48 mark at
-     x 1136-1183 of 1280. Cropping the bottom would take the crest with it (it
-     reaches y 626, the mark starts at 576), but the sides are empty: the crest
-     ends at x 1076. So 12% comes off each side — the right to lose the
-     signature, the left only so the crest stays centred. Measured, not
-     guessed, and the same on every frame of the clip. */
-  clip-path:inset(0 12% 0 12%);
+/* No blend mode and no crop. Multiply was for a clip of black ink on white
+   paper, and the crop was hiding a generator's signature — the still carries
+   neither problem. It is transparent, trimmed to what is actually painted, and
+   its lines are white, so the black stage shows through the gaps. */
+.mark__v{ width:min(42vh,58vw); height:auto; display:block; }
+
+/* ── the wait ────────────────────────────────────────────────────────────
+   The ring was squared around its own bounding box before it was saved: a
+   spinner turns about the centre of its BOX, so a ring sitting off-centre in a
+   rectangle wobbles instead of turning. */
+@keyframes markSpin{ to{ transform:rotate(1turn); } }
+.mark__ring{
+  width:clamp(38px,5.4vh,56px); height:auto; display:block;
+  opacity:.9;
+  animation:markSpin 1.25s linear infinite;
 }
 
 /* ── webgl surface ──────────────────────────────────────────────────── */
@@ -417,14 +423,11 @@ button.rows__btn{
   /* 42vw of a 390px screen is a 164px mark — too small to be the first thing
      anyone sees. Portrait gets the width it can afford; landscape is still
      governed by height. */
-  .mark__v{
-    width:min(76vw,46vh);
-    /* iOS composites a hardware-decoded video on its own layer, which a blend
-       mode cannot always reach — the clip goes blank or unblended. The paper is
-       exactly #ffffff and so is the clip's own ground, so on touch the multiply
-       buys nothing and costs a whole class of compositing bugs. */
-    mix-blend-mode:normal;
-  }
+  /* the whole note that used to live here was about iOS compositing a
+     hardware-decoded video on its own layer, where a blend mode could not
+     always reach it. There is no video and no blend mode now; only the size
+     still needs saying. */
+  .mark__v{ width:min(72vw,40vh); }
   /* the canvas is dragged, so nothing on it may be selected or long-pressed */
   .work__cv{ -webkit-touch-callout:none; }
   /* the hint has to clear the home indicator and read at arm's length */
@@ -449,6 +452,9 @@ button.rows__btn{
 @media (prefers-reduced-motion:reduce){
   /* keep every state reachable, just without the travel */
   .mark,.gl,.page,.page.is-lit,.work__hint,.skip,.nav,.nav__a::after{ transition-duration:1ms; }
+  /* the ring still has to say "waiting", so it is not removed — it breathes
+     in place instead of turning */
+  .mark__ring{ animation:none; opacity:.55; }
   /* the stagger is the whole point of the entrance and the whole problem for
      anyone who asked for less motion: no delay, no travel, straight there.
      !important because the delays are set per :nth-child and per sibling of

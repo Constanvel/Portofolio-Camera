@@ -55,17 +55,19 @@
 
   <!-- ── stage 1 · the mark ───────────────────────────────────────────── -->
   <div class="mark" id="mark" aria-hidden="true">
-    <!-- autoplay/playsinline as ATTRIBUTES, not only as a play() call: Safari
-         evaluates its autoplay heuristics at parse time, and a JS-only start is
-         refused in cases the attribute survives. The poster is the clip's LAST
-         frame, not its first: this mark is drawn over the ten seconds, so frame
-         0 is nearly empty — a device that refuses to play video has to be shown
-         the finished crest, not the blank it starts from. It is cropped to the
-         same 12% as the video, or it would carry the signature the CSS cuts. -->
-    <video class="mark__v" id="markVideo" src="./assets/video/mark.mp4"
-           poster="./assets/video/mark-still.webp"
-           autoplay muted playsinline webkit-playsinline
-           preload="auto" disablepictureinpicture></video>
+    <!-- A still, not a clip. The whole apparatus the video needed is gone with
+         it: autoplay heuristics, a poster to cover a refusal, a stall probe to
+         notice it never started, and a crop to hide the generator's signature.
+         An <img> either paints or it does not. fetchpriority high because this
+         is the first thing on the screen and nothing else on the page is
+         competing for the first connection. -->
+    <img class="mark__v" id="markImg" src="./assets/mark/crest.webp" alt=""
+         decoding="async" fetchpriority="high">
+    <!-- and the wait has something to say for itself. The ring turns while the
+         two glb models are actually downloading — see markDone in main.js — so
+         it is a report rather than decoration. -->
+    <img class="mark__ring" id="markRing" src="./assets/mark/ring.webp" alt=""
+         decoding="async">
   </div>
 
   <!-- ── stage 2/3 · webgl (ipod, then camera) ────────────────────────── -->
