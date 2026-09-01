@@ -5,3 +5,9 @@ desktop.ini
 .DS_Store
 .vscode/
 .idea/
+
+# The full-resolution screenshots the tiles were built from. Kept on disk so a
+# tile can be rebuilt at a different size or crop, but not published: the
+# 16:9 versions in assets/tiles/ are what the canvas draws, and shipping both
+# would send the same five pictures twice.
+assets/photo/
