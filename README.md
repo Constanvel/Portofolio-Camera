@@ -52,6 +52,14 @@ tahap. Penjaganya satu, `userMuted` di `goAudible()` — semua jalan menuju suar
 lewat sana, jadi pengunjung yang minta sunyi tidak dibujuk balik oleh tombol
 skip atau gerakan pertama mana pun.
 
+Labelnya dibaca dari elemen `<audio>`, bukan ditulis oleh penanganan kliknya:
+sampai ada gerakan, peramban menahan lagu apa pun yang diminta, jadi label yang
+menyatakan niat akan berbohong di muat pertama. Dan volume dihitung sebagai
+bagian dari "bunyi" — ramp 1400ms itu jalan di atas frame, dan tab yang
+di-throttle tidak dapat satu pun. `setTimeout` di `goAudible()` yang memastikan
+levelnya sampai walau tidak ada frame sama sekali; tanpa itu lagu berputar di
+volume nol dan tombolnya benar tapi tidak terdengar.
+
 Rute mengakhiri intro. Membuka `#/about` langsung, atau memencet navbar saat
 urutan intro masih jalan, memanggil `endIntro()` di `js/main.js` — teardown yang
 sama dengan tombol skip. Halaman itu buram tapi *fade*, jadi selama 620ms apa

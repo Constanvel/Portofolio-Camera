@@ -319,6 +319,9 @@ body[data-stage="page"] .nav__a{ pointer-events:auto; }
      through the middle of it — so it carries its own paper. */
   background:var(--paper); border-radius:999px;
 }
+/* — except where the paper is the one thing that is not behind it. The iPod
+   plays on black, and a white lozenge in the corner of that is a hole in it. */
+body.is-dark .mute{ background:none; }
 
 :focus-visible{ outline:2px solid var(--ink); outline-offset:3px; }
 

@@ -52,8 +52,16 @@ let userMuted = false;
 function rollMuted(){
   theme.play().catch(() => { /* even muted can be refused; the gesture retries */ });
 }
+const LEVEL = 0.42;                    // where the track sits once it is up
 async function goAudible(){
-  if (userMuted || audioOn || audioBusy) return audioOn;
+  if (userMuted || audioBusy) return audioOn;
+  /* "already on" has to mean audible, not merely flagged. The ramp below is the
+     only thing that ever lifts the volume off zero, and it runs on frames — a
+     tab throttled or hidden through its 1400ms gets none, and the track is then
+     playing at a volume of nothing with audioOn true. Returning here would hand
+     that back as success, and every later unmute would flip the flag over
+     silence: a toggle that does exactly what it says and cannot be heard. */
+  if (audioOn && theme.volume > 0) return audioOn;
   audioBusy = true;
   try {
     theme.muted = false;
@@ -66,10 +74,13 @@ async function goAudible(){
       // predate the performance.now() that scheduled it — an unclamped p goes
       // negative, the cube flips sign, and setting a negative volume throws.
       const p = Math.max(0, Math.min(1, (now - t0) / 1400));
-      theme.volume = 0.42 * (1 - Math.pow(1 - p, 3));
+      theme.volume = LEVEL * (1 - Math.pow(1 - p, 3));
       if (p < 1) requestAnimationFrame(ramp);
     };
     requestAnimationFrame(ramp);
+    // frames are the fade, not the destination: if none arrive, the track still
+    // has to end up somewhere a person can hear
+    setTimeout(() => { if (!userMuted && theme.volume < LEVEL) theme.volume = LEVEL; }, 1500);
   } catch (err) {
     theme.muted = true;
     theme.volume = 0;
@@ -452,11 +463,27 @@ function endIntro(){
 // the click is also the gesture that is allowed to unmute the track
 skipBtn.addEventListener('click', () => { endIntro(); goAudible(); });
 
+/* The label used to be written by the click handler, which meant it stated the
+   visitor's PREFERENCE and called it the state. Those are not the same thing
+   here: until a gesture lands the browser keeps the track silent whatever was
+   asked for, so a fresh page said "sound on" over silence and the first press
+   moved it to "sound off" and changed nothing anyone could hear — a toggle that
+   looks broken because it is describing the wrong thing. It reads the element
+   now. <audio> announces every change to muted, volume and playback itself, so
+   the label is right no matter which path caused it — this button, the skip
+   button, or the gesture net. */
+const syncMute = () => {
+  // volume counts as much as the mute flag: the track eases up over 1400ms and
+  // starts that ramp at exactly zero, which is silence by any honest reading
+  const audible = !theme.muted && !theme.paused && theme.volume > 0;
+  muteBtn.textContent = audible ? 'sound on' : 'sound off';
+};
+['volumechange', 'play', 'pause'].forEach(e => theme.addEventListener(e, syncMute));
+syncMute();
+
 muteBtn.addEventListener('click', () => {
   userMuted = !userMuted;
   theme.muted = userMuted;
-  muteBtn.textContent = userMuted ? 'sound off' : 'sound on';
-  muteBtn.setAttribute('aria-pressed', String(userMuted));
   /* Coming back on is not just unmuting: on a visit where the track was
      silenced before any gesture landed, it has never actually started. */
   if (!userMuted) goAudible();
