@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://constanvel.github.io/Portofolio-Camera/sitemap.xml

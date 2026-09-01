@@ -1,0 +1,7 @@
+# OS and editor droppings, nothing else — this repo has no build step and
+# nothing generated, so anything else here would be hiding a real file.
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/

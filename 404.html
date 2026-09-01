@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Not here — Constantine Rainer Simanjuntak</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='16' y='24' font-size='28' font-family='Helvetica,Arial' text-anchor='middle' fill='%23111014'%3E*%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="./css/style.css">
+<style>
+  /* This page has no router and no stages, so it borrows the page styles and
+     stands one section up by hand. .page is normally fixed to all four edges,
+     which is where it got both its size and its centring — taken out of that
+     it collapses to the width of its own text, so both have to be given back. */
+  .page{ position:static; opacity:1; width:100%; min-height:100vh; }
+  .page__t + .page__p{ margin-top:0; }
+</style>
+</head>
+<body>
+  <section class="page is-lit">
+    <div class="page__in">
+      <p class="page__p" style="margin-bottom:1.2rem">*</p>
+      <h1 class="page__t">not here</h1>
+      <p class="page__p">That address does not exist. The sections all live on one page.</p>
+      <a class="page__cta" href="./">go to the start</a>
+    </div>
+  </section>
+
+  <!-- GitHub Pages serves this for any path it does not have. The sections are
+       hash routes on the index, so /experience is not a wrong address so much
+       as an address written the old way — send those on rather than making the
+       visitor find the section again by hand. Anything else stays put: an
+       automatic bounce to the home page hides a genuinely broken link, from
+       the visitor and from whoever put it there. -->
+  <script>
+    var routes = ['about','skills','portfolio','experience','services','achievements','contact'];
+    var last = location.pathname.replace(/\/+$/, '').split('/').pop().toLowerCase();
+    if (routes.indexOf(last) > -1) location.replace('./#/' + last);
+  </script>
+</body>
+</html>

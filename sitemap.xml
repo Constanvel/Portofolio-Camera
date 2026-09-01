@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- One page. The sections are hash routes, and a crawler does not follow a
+     fragment as a separate url — listing #/about here would be listing this
+     same document seven times. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://constanvel.github.io/Portofolio-Camera/</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+</urlset>

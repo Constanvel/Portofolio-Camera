@@ -82,3 +82,24 @@ pun yang masih hidup di bawahnya kelihatan tembus.
 Rute juga menghentikan kanvas karya (`work.stop()`) dan menyalakannya lagi saat
 kembali. Halaman menutupi layar sepenuhnya, jadi delapan video dan seluruh
 bidang tidak perlu digambar ulang enam puluh kali sedetik di bawahnya.
+
+## Tayang
+
+Berkas statis, tanpa langkah build — arahkan GitHub Pages ke branch `main`,
+folder root. `.nojekyll` ada supaya Pages tidak membuang apa pun yang berawalan
+garis bawah; `404.html` menangkap alamat yang tidak ada, dan meneruskan
+`/experience` ke `#/experience` karena itu bukan alamat salah, cuma alamat yang
+ditulis dengan cara lama. Alamat kanonik dan semua tag `og:` menunjuk ke
+`https://constanvel.github.io/Portofolio-Camera/` — ubah keduanya kalau
+domainnya pindah, termasuk `og:image`, yang **harus** absolut: setiap pengambil
+pratinjau menariknya tanpa halaman untuk melandaskan path relatif.
+
+`assets/og.jpg` (1200×630) dibuat ulang dengan skrip di riwayat commit, memakai
+`assets/fonts/SFProDisplay-*.woff2` — kartu bagikan pakai huruf yang sama dengan
+halamannya.
+
+Halaman ini juga punya versi tanpa JS. Tiap bagian dimulai `hidden` dan dibuka
+oleh router, jadi tanpa skrip yang tampil bukan versi polos melainkan halaman
+putih; `<noscript>` di `index.html` membuka semuanya dan membuang urutan intro.
+Kanvas karya punya `aria-label` dan isi cadangan di dalam elemennya, karena
+halaman `home` itu kanvas, dan kanvas tidak mengatakan apa pun ke pembaca layar.

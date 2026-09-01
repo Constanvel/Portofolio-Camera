@@ -479,6 +479,11 @@ const syncMute = () => {
   muteBtn.textContent = audible ? 'sound on' : 'sound off';
 };
 ['volumechange', 'play', 'pause'].forEach(e => theme.addEventListener(e, syncMute));
+/* And if there is no track at all — the file pulled, or never replaced — the
+   control for it is a button that cannot do anything. Take it away rather than
+   leave a visitor pressing it: <audio> reports a src it could not load, so the
+   page finds this out on its own instead of being told twice. */
+theme.addEventListener('error', () => { muteBtn.hidden = true; });
 syncMute();
 
 muteBtn.addEventListener('click', () => {

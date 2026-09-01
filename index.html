@@ -7,6 +7,21 @@
 <meta name="description" content="Constantine Rainer Simanjuntak — PPLG student at SMK Telkom Purwokerto. Computer vision, language models, and the web.">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#ffffff">
+<link rel="canonical" href="https://constanvel.github.io/Portofolio-Camera/">
+<!-- ── the link, as it arrives somewhere else ───────────────────────────
+     A portfolio is pasted into a chat far more often than it is searched for,
+     and a bare URL in WhatsApp or LinkedIn is a grey rectangle nobody taps.
+     These four lines are what the page looks like before anyone has opened it.
+     og:image must be an ABSOLUTE url — every scraper fetches it out of context,
+     with no page to resolve a relative path against. -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://constanvel.github.io/Portofolio-Camera/">
+<meta property="og:title" content="Constantine Rainer Simanjuntak">
+<meta property="og:description" content="PPLG student at SMK Telkom Purwokerto. Computer vision, language models, and the web.">
+<meta property="og:image" content="https://constanvel.github.io/Portofolio-Camera/assets/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='16' y='24' font-size='28' font-family='Helvetica,Arial' text-anchor='middle' fill='%23111014'%3E*%3C/text%3E%3C/svg%3E">
 <link rel="preload" as="font" type="font/woff2" href="./assets/fonts/SFProDisplay-Regular.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="./assets/fonts/VCR.woff2" crossorigin
@@ -57,7 +72,21 @@
 
   <!-- ── stage 4 · home · the canvas of work ──────────────────────────── -->
   <main class="work" id="work" hidden>
-    <canvas class="work__cv" id="cv"></canvas>
+    <!-- The home page IS this canvas, and a canvas says nothing to a screen
+         reader — so the whole first page read as blank. The fallback inside
+         the element is what that reader gets, and it is also what a browser
+         with no canvas draws: the same sections, as links. -->
+    <canvas class="work__cv" id="cv" aria-label="The work, tiled across a plane you can drag. Every section is also a link below.">
+      <ul>
+        <li><a href="#/about">about</a></li>
+        <li><a href="#/skills">skills</a></li>
+        <li><a href="#/portfolio">portfolio</a></li>
+        <li><a href="#/experience">experience</a></li>
+        <li><a href="#/services">services</a></li>
+        <li><a href="#/achievements">achievements</a></li>
+        <li><a href="#/contact">contact</a></li>
+      </ul>
+    </canvas>
     <p class="work__hint" id="hint">drag to explore</p>
   </main>
 
@@ -71,9 +100,9 @@
       <p class="page__p" id="aboutBody">Constantine Rainer Simanjuntak — PPLG, SMK Telkom Purwokerto. I build for the
       web with React, Tailwind and Node, and work on computer vision and language
       models in the school AI club: pothole detection with YOLO, a retrieval-augmented
-      chatbot, and a Llama-3.3-70B assistant. Finalist at WISE INNOVERA 2026, a
-      national UI/UX competition. Off the clock I make aesthetic desktop videos for
-      TikTok, usually to something shoegaze.</p>
+      chatbot, and a Llama-3.3-70B assistant. Finalist in the UI/UX Design
+      competition at Sevent 9.0, Telkom University Purwokerto. Off the clock I make
+      aesthetic desktop videos for TikTok, usually to something shoegaze.</p>
       <button class="page__back" type="button" data-back>back</button>
     </div>
   </section>
@@ -217,6 +246,21 @@
   </dialog>
 
   <audio id="theme" src="./assets/audio/theme.mp3" loop preload="auto"></audio>
+
+  <!-- Every section starts `hidden` and is opened by the router, so a page
+       whose script never ran showed nothing at all — not a plain version, a
+       white one. This unhides them and drops the sequence, which is the whole
+       of what JS was for here. -->
+  <noscript>
+    <style>
+      .mark, .gl, .vig, .work, .skip, .mute{ display:none !important; }
+      .page{ position:static; opacity:1; height:auto; min-height:0; padding:3rem 1.25rem; }
+      .page[hidden]{ display:flex !important; }
+      .nav{ opacity:1; position:static; padding-top:1.5rem; }
+      .nav__a{ pointer-events:auto; }
+      .page__back{ display:none; }
+    </style>
+  </noscript>
 
   <script type="module" src="./js/main.js"></script>
 </body>
