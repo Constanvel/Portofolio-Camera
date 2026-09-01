@@ -48,7 +48,12 @@ Baris yang punya sertifikat dibungkus `<a class="rows__a">` ke berkasnya di
 berkas sengaja dibiarkan polos. `contact` memakai daftar baris yang sama untuk
 kanalnya — alamatnya sendiri yang ditulis, bukan deretan logo. Baris untuk
 handel yang belum ada nomor/username aslinya dibiarkan sebagai komentar di
-`index.html`, bukan diisi contoh.
+`index.html`, bukan diisi contoh. Tiap kanal punya mark mereknya, di-inline
+sebagai `<svg class="rows__i">` di dalam `.rows__k` — jalur path-nya dari
+Simple Icons (CC0). Ditempel di berkas, bukan ditarik dari CDN, jadi situsnya
+tetap utuh tanpa jaringan; dan digambar dengan `currentColor`, karena lima
+merek berwarna penuh akan jadi hal paling berisik di halaman yang selebihnya
+tinta di atas kertas. Mau warna aslinya: beri `fill` sendiri per baris.
 
 Sertifikat dibuka di tempat, bukan di tab baru: `<dialog id="cert">` — tab baru
 tidak punya riwayat, jadi tidak pernah ada tombol kembali di sana. Tautannya

@@ -232,6 +232,17 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 }
 .rows__a:hover,
 .rows__a:focus-visible{ color:var(--ink); border-bottom-color:currentColor; }
+/* The channel marks, inline in the key so they ride its line rather than
+   claiming a column of their own — sized in em off that label's type, so they
+   follow it everywhere including the one-column phone layout below. Drawn in
+   currentColor on purpose: five brands at full saturation would be the loudest
+   thing on a page that is otherwise ink on paper, and a mark is recognised by
+   its shape long before its colour. aria-hidden, because the row already says
+   which service it is twice — in the key and in the address. */
+.rows__i{
+  width:1.35em; height:1.35em; margin-right:.45em; vertical-align:-.35em;
+  fill:currentColor;
+}
 /* a 8.5rem gutter and a sentence beside it is two words per line on a phone */
 @media (max-width:520px){ .rows__r{ grid-template-columns:1fr; } }
 
