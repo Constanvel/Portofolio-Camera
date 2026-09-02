@@ -264,15 +264,10 @@
       <span class="set__k">theme</span>
       <button class="set__v" id="themeBtn" type="button">light</button>
     </div>
-    <!-- the sound value reads as the state it is IN, not the verb, because the
-         verb is what a visitor already assumes a button does — and it starts at
-         "off" because that is the truth on the first frame: no gesture has
-         landed yet, so nothing is playing. js/main.js keeps it honest from
-         there by reading the <audio> element rather than its own intentions. -->
-    <div class="set__row">
-      <span class="set__k">sound</span>
-      <button class="set__v" id="soundBtn" type="button">off</button>
-    </div>
+    <!-- No separate on/off row. The slider already has an off — its left end —
+         and two controls for one thing means they can disagree: mute on with
+         the slider at 70 is a state a visitor has to reason about. Dragging to
+         zero is the mute, and it is the same gesture that lights the track. -->
     <div class="set__row set__row--wide">
       <span class="set__k">volume</span>
       <input class="set__range" id="volRange" type="range"

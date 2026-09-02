@@ -61,18 +61,20 @@ tetap menunjuk ke berkas dan tetap `target="_blank"`, jadi tanpa JS itulah
 fiturnya, dan itu pula jalan keluarnya kalau peramban ponsel menolak menggambar
 PDF di dalam bingkai.
 
-Lagu bisa dimatikan lewat tombol `#mute` di pojok kiri bawah, ada di setiap
-tahap. Penjaganya satu, `userMuted` di `goAudible()` — semua jalan menuju suara
-lewat sana, jadi pengunjung yang minta sunyi tidak dibujuk balik oleh tombol
-skip atau gerakan pertama mana pun.
+Lagu diatur dari satu kontrol saja, slider volume di panel `settings`, ada di
+setiap tahap. Dulu ada baris `sound on/off` di sebelahnya; itu dihapus karena
+dua kontrol untuk satu hal bisa saling bertentangan — mute menyala sementara
+slidernya di 70 adalah keadaan yang harus dipikirkan pengunjung sebelum ia tahu
+kenapa sunyi. Ujung kiri slider itulah mute-nya, dan menyeretnya juga gerakan
+yang boleh menyalakan lagu, jadi ia tetap bisa dibatalkan di kunjungan yang lagunya
+belum pernah sempat berputar.
 
-Labelnya dibaca dari elemen `<audio>`, bukan ditulis oleh penanganan kliknya:
-sampai ada gerakan, peramban menahan lagu apa pun yang diminta, jadi label yang
-menyatakan niat akan berbohong di muat pertama. Dan volume dihitung sebagai
-bagian dari "bunyi" — ramp 1400ms itu jalan di atas frame, dan tab yang
-di-throttle tidak dapat satu pun. `setTimeout` di `goAudible()` yang memastikan
-levelnya sampai walau tidak ada frame sama sekali; tanpa itu lagu berputar di
-volume nol dan tombolnya benar tapi tidak terdengar.
+Nilainya satu, `level`, dan semua jalan menuju suara membacanya — tombol skip,
+jaring gerakan, akhir sekuens — jadi tidak ada bendera mute kedua yang harus
+dijaga tetap sinkron. `level` juga tujuan ramp 1400ms yang jalan di atas frame,
+dan tab yang di-throttle tidak dapat satu pun; `setTimeout` di `goAudible()`
+yang memastikan levelnya sampai walau tanpa frame sama sekali. Tanpa itu lagu
+berputar di volume nol dan slidernya benar tapi tidak terdengar.
 
 Rute mengakhiri intro. Membuka `#/about` langsung, atau memencet navbar saat
 urutan intro masih jalan, memanggil `endIntro()` di `js/main.js` — teardown yang

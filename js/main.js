@@ -23,7 +23,6 @@ const theme     = $('theme');
    not the colour theme. The colour scheme is `mode` everywhere below. */
 const setBtn    = $('settingsBtn');
 const setPanel  = $('settingsPanel');
-const soundBtn  = $('soundBtn');
 const modeBtn   = $('themeBtn');
 const volRange  = $('volRange');
 const vig       = $('vig');
@@ -50,11 +49,10 @@ const LITE = matchMedia('(pointer: coarse)').matches
 theme.volume = 0;
 theme.muted = true;
 let audioArmed = false, audioBusy = false, audioOn = false;
-/* Every path to sound goes through goAudible() — the skip button, the global
-   gesture net, the end of the sequence. So a visitor who has asked for silence
-   is respected in one place rather than in each of them, and cannot be talked
-   back into it by the next thing that happens to fire. */
-let userMuted = false;
+/* There is no separate mute flag any more. `level` below carries it: a visitor
+   who wants silence drags the slider to zero, and every path to sound — the
+   skip button, the gesture net, the end of the sequence — aims at `level`, so
+   silence survives all of them without a second variable to keep in step. */
 
 function rollMuted(){
   theme.play().catch(() => { /* even muted can be refused; the gesture retries */ });
@@ -69,7 +67,7 @@ function rollMuted(){
    room sounds exactly as loud as it did before. */
 let level = 0.66;
 async function goAudible(){
-  if (userMuted || audioBusy) return audioOn;
+  if (audioBusy) return audioOn;
   /* "already on" has to mean audible, not merely flagged. The ramp below is the
      only thing that ever lifts the volume off zero, and it runs on frames — a
      tab throttled or hidden through its 1400ms gets none, and the track is then
@@ -95,7 +93,7 @@ async function goAudible(){
     requestAnimationFrame(ramp);
     // frames are the fade, not the destination: if none arrive, the track still
     // has to end up somewhere a person can hear
-    setTimeout(() => { if (!userMuted && theme.volume < level) theme.volume = level; }, 1500);
+    setTimeout(() => { if (theme.volume < level) theme.volume = level; }, 1500);
   } catch (err) {
     theme.muted = true;
     theme.volume = 0;
@@ -484,38 +482,12 @@ function endIntro(){
 // the click is also the gesture that is allowed to unmute the track
 skipBtn.addEventListener('click', () => { endIntro(); goAudible(); });
 
-/* The label used to be written by the click handler, which meant it stated the
-   visitor's PREFERENCE and called it the state. Those are not the same thing
-   here: until a gesture lands the browser keeps the track silent whatever was
-   asked for, so a fresh page said "sound on" over silence and the first press
-   moved it to "sound off" and changed nothing anyone could hear — a toggle that
-   looks broken because it is describing the wrong thing. It reads the element
-   now. <audio> announces every change to muted, volume and playback itself, so
-   the label is right no matter which path caused it — this button, the skip
-   button, or the gesture net. */
-const syncMute = () => {
-  // volume counts as much as the mute flag: the track eases up over 1400ms and
-  // starts that ramp at exactly zero, which is silence by any honest reading
-  const audible = !theme.muted && !theme.paused && theme.volume > 0;
-  soundBtn.textContent = audible ? 'on' : 'off';
-};
-['volumechange', 'play', 'pause'].forEach(e => theme.addEventListener(e, syncMute));
-/* And if there is no track at all — the file pulled, or never replaced — the
-   controls for it cannot do anything. Take those two rows away rather than
-   leave a visitor pressing them; the panel keeps its theme row. <audio>
-   reports a src it could not load, so the page finds this out on its own. */
+/* If there is no track at all — the file pulled, or never replaced — the
+   control for it cannot do anything. Take the row away rather than leave a
+   visitor dragging it; the panel keeps its theme row. <audio> reports a src it
+   could not load, so the page finds this out on its own. */
 theme.addEventListener('error', () => {
-  soundBtn.closest('.set__row').hidden = true;
   volRange.closest('.set__row').hidden = true;
-});
-syncMute();
-
-soundBtn.addEventListener('click', () => {
-  userMuted = !userMuted;
-  theme.muted = userMuted;
-  /* Coming back on is not just unmuting: on a visit where the track was
-     silenced before any gesture landed, it has never actually started. */
-  if (!userMuted) goAudible();
 });
 
 /* ── remembered settings ─────────────────────────────────────────────────
@@ -532,7 +504,7 @@ const recall   = (k)    => { try { return localStorage.getItem('pf.' + k); } cat
    the slider before any sound has started still lands at the right place. */
 function applyVolume(pct, save){
   level = Math.max(0, Math.min(1, pct / 100));
-  if (!userMuted && audioOn) theme.volume = level;
+  if (audioOn) theme.volume = level;
   volRange.value = String(Math.round(level * 100));
   if (save) remember('vol', volRange.value);
 }
@@ -542,7 +514,14 @@ function applyVolume(pct, save){
    did nothing at all, because this one runs last and wins. The attribute stays
    (it is what paints before any script runs); the rest reads from one place. */
 applyVolume(Number(recall('vol') ?? level * 100), false);
-volRange.addEventListener('input', () => applyVolume(Number(volRange.value), true));
+/* Dragging is a gesture, so it is also allowed to start the track — which is
+   what makes the left end a real mute rather than a setting for later. Leave a
+   visit at zero and the slider is the only control that can undo it, and it has
+   to work on the visit where nothing ever managed to play. */
+volRange.addEventListener('input', () => {
+  applyVolume(Number(volRange.value), true);
+  if (level > 0) goAudible();
+});
 
 /* ── the colour scheme ───────────────────────────────────────────────────
    On <html data-theme>, not on body.is-dark: that class belongs to the intro
