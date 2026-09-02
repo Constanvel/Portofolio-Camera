@@ -314,8 +314,15 @@ async function main(){
      lite path there are no models to wait for, so the floor is the whole beat. */
   const FLOOR = reduced ? 300 : 1300;
   const CEIL  = reduced ? 900 : 5600;
+  /* Both models, and then the GPU work they imply: shaders compiled and
+     textures uploaded while the ring is still turning. three.js would
+     otherwise do it on the first frame each act is drawn — which for the
+     digicam is a 200-760ms stall landing on the cut into it. The mark is
+     already a wait; this is the right wait to hide it in. */
   const loaded = LITE ? Promise.resolve()
-                      : Promise.allSettled([ipodModel, camModel]);
+                      : Promise.allSettled([ipodModel, camModel])
+                          .then(r => S.warm(gl, ...r.filter(x => x.status === 'fulfilled')
+                                                    .map(x => x.value)));
   const markDone = Promise.all([
     sleep(FLOOR),
     Promise.race([loaded, sleep(CEIL)])

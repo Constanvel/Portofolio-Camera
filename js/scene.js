@@ -183,6 +183,52 @@ export function load(url){
   return new Promise((res, rej) => loader.load(url, g => res(g.scene), undefined, rej));
 }
 
+/* ── warming ────────────────────────────────────────────────────────────
+   three.js compiles a shader and uploads a texture the first frame an object
+   is actually drawn, not when it is loaded. The digicam is 25 materials over
+   42 MB of texture, so that first frame cost 200-760ms on an Intel UHD —
+   a third to three quarters of a second of frozen animation, landing exactly
+   on the cut the whole intro is built around.
+
+   So it is paid earlier, under the mark, where a ring is already turning and
+   the sequence is already waiting on the download anyway. compileAsync goes
+   through KHR_parallel_shader_compile and does not block frames; initTexture
+   is the upload, which compileAsync does not cover.
+
+   Warming the raw model is enough for the act that clones it: a clone keeps
+   every property the program cache keys on, so the compiled program is a hit,
+   and it shares the texture objects outright. */
+export async function warm(gl, ...models){
+  const parked = models.filter(m => m && !m.parent);
+  if (!parked.length) return;
+  /* Parked VISIBLE, at a millionth of their size. Invisible is not enough:
+     compileAsync builds the programs and initTexture pushes the images, but
+     the vertex and index buffers only go up when something is actually
+     drawn — 48ms of the stall was geometry, and an object that never draws
+     never uploads it. The mark is a full-screen overlay, so nothing of this
+     reaches the eye. */
+  const holder = new THREE.Group();
+  holder.scale.setScalar(1e-6);
+  for (const m of parked) holder.add(m);
+  gl.scene.add(holder);
+  try {
+    await gl.renderer.compileAsync(gl.scene, gl.camera);
+    for (const m of parked) m.traverse(o => {
+      if (!o.isMesh || !o.material) return;
+      for (const mat of (Array.isArray(o.material) ? o.material : [o.material]))
+        for (const k of ['map','normalMap','roughnessMap','metalnessMap','aoMap','emissiveMap'])
+          if (mat[k]) gl.renderer.initTexture(mat[k]);
+    });
+    gl.renderer.render(gl.scene, gl.camera);   // the one draw that uploads geometry
+  } catch (e){
+    /* a warm-up that fails is not a reason to lose the intro — the frame it
+       was buying back is the only thing at stake */
+  } finally {
+    for (const m of parked) holder.remove(m);
+    gl.scene.remove(holder);
+  }
+}
+
 /* ── act one · the iPod ─────────────────────────────────────────────── */
 export class IpodAct {
   constructor(gl, model){
