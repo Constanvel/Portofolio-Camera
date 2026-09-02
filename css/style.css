@@ -331,6 +331,54 @@ body[data-stage="page"] .nav__a{ pointer-events:auto; }
 }
 .nav__a.is-on{ color:var(--ink); }
 .nav__a.is-on::after{ transform:scaleX(1); }
+
+/* ── the navbar on a narrow screen ───────────────────────────────────────
+   Eight links need roughly 700px of room. Below that the bar clipped, and a
+   strip that scrolls sideways gives no sign there is anything past its edge —
+   the last thing visible was half a word. So under 760px the same <nav>
+   becomes a dropdown: one list, two shapes, no second copy of the links.
+   Keyed to WIDTH and not to pointer:coarse, because a narrow desktop window
+   has exactly the same problem and a landscape tablet has none of it. */
+.navbtn{ display:none; }
+@media (max-width:760px){
+  .navbtn{
+    display:block; position:fixed; z-index:66;
+    top:calc(.7rem + env(safe-area-inset-top,0px)); left:50%; translate:-50% 0;
+    min-height:44px; padding:.5rem 1rem;
+    border:0; background:none; cursor:pointer; color:var(--ink-2);
+    font:inherit; font-size:.6875rem; font-weight:500;
+    letter-spacing:.14em; text-transform:uppercase;
+    /* lit by the stage, exactly as the bar it replaces — a control for
+       sections must not be reachable before there are sections to reach */
+    opacity:0; pointer-events:none;
+    transition:opacity var(--t-slow) var(--ease-in-out);
+  }
+  body[data-stage="work"] .navbtn,
+  body[data-stage="page"] .navbtn{ opacity:1; pointer-events:auto; }
+  .navbtn[aria-expanded="true"]{ color:var(--ink); }
+
+  .nav{
+    top:calc(3.3rem + env(safe-area-inset-top,0px));
+    left:50%; right:auto; translate:-50% 0;
+    width:min(15rem, calc(100vw - 2 * clamp(14px,4vw,28px)));
+    flex-direction:column; gap:0;
+    padding:.1rem 1rem .5rem;
+    justify-content:flex-start; white-space:normal; overflow:visible;
+    background:var(--paper);
+    border:1px solid var(--hair); border-radius:14px;
+    display:none;
+  }
+  body.nav-open .nav{ display:flex; }
+
+  .nav__a{
+    display:flex; width:100%;
+    padding:.8rem 0; border-bottom:1px solid var(--hair);
+  }
+  .nav__a:last-child{ border-bottom:0; }
+  /* the sliding underline belongs to a row of words; in a column it would sit
+     under one item like a mistake. The active row is carried by its ink. */
+  .nav__a::after{ display:none; }
+}
 .nav__a:focus-visible{ color:var(--ink); }
 
 /* ── skip ───────────────────────────────────────────────────────────── */

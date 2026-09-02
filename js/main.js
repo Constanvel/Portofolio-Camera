@@ -128,6 +128,7 @@ const pages = Object.fromEntries(
     .map(el => [el.id.slice(4).toLowerCase(), el])
 );
 const navLinks = document.querySelectorAll('.nav__a');
+const navBtn   = $('navBtn');
 let lastStage = 'work';
 
 function routeFromHash(){
@@ -152,6 +153,12 @@ async function applyRoute(){
     a.classList.toggle('is-on', on);
     if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   }
+  /* On a narrow screen the bar is behind a button, so the button has to say
+     which section you are in — otherwise the only thing telling you is hidden
+     inside the thing you have not opened. "menu" is the honest word for home,
+     where no section is current. */
+  navBtn.textContent = r || 'menu';
+  openNav(false);
   for (const [name, el] of Object.entries(pages)){
     if (name === r) continue;
     if (!el.hidden){ el.classList.remove('is-lit'); await sleep(reduced ? 0 : 260); el.hidden = true; }
@@ -553,6 +560,28 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
    turn the volume down. It closes on Escape and on a press anywhere outside —
    the press that OPENS it is a pointerdown while the panel is still closed, so
    that handler sees nothing and there is no fight between the two. */
+/* ── the navbar dropdown ─────────────────────────────────────────────────
+   Same shape as the settings panel below, and for the same reasons: not a
+   modal, closes on Escape or a press outside, and the press that OPENS it
+   happens while the list is still closed so the two handlers never fight.
+   It also closes on every route change — see applyRoute — because a menu that
+   stays open over the section it just took you to is a menu in the way. */
+function openNav(on){
+  document.body.classList.toggle('nav-open', on);
+  navBtn.setAttribute('aria-expanded', String(on));
+}
+navBtn.addEventListener('click', () => openNav(!document.body.classList.contains('nav-open')));
+document.addEventListener('pointerdown', (e) => {
+  if (!document.body.classList.contains('nav-open')) return;
+  if (navBtn.contains(e.target) || document.getElementById('nav').contains(e.target)) return;
+  openNav(false);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.body.classList.contains('nav-open')){
+    openNav(false); navBtn.focus();
+  }
+});
+
 function openSettings(on){
   setPanel.hidden = !on;
   setBtn.setAttribute('aria-expanded', String(on));

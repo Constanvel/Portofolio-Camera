@@ -206,3 +206,32 @@ mengembalikan `null`. Tema mengikuti `prefers-color-scheme` **hanya** selama
 pengunjung belum memilih sendiri; setelah memilih, sistem operasi tidak berhak
 membatalkannya.
 
+## Navbar di layar sempit
+
+Delapan tautan butuh sekitar 700px. Di bawah itu bar-nya terpotong, dan strip
+yang digeser menyamping tidak memberi tanda apa pun bahwa masih ada lanjutan di
+balik tepinya — yang terlihat terakhir cuma separuh kata. Jadi di bawah 760px
+`<nav>` yang **sama** berubah jadi dropdown: satu daftar, dua bentuk, tidak ada
+salinan kedua yang bisa berbeda isi.
+
+Titik potongnya lebar, bukan `pointer:coarse`. Jendela desktop yang disempitkan
+punya masalah yang persis sama, dan tablet lanskap tidak punya masalah itu sama
+sekali. Diukur: di 762px bar-nya pas penuh dan tidak melimpah, jadi satu piksel
+lebih sempit sudah akan terpotong.
+
+Labelnya bagian yang bekerja. Ia menampilkan **bagian tempatmu berada**, bukan
+kata tetap — jadi kontrolnya melaporkan posisimu sekaligus menawarkan pindah,
+dan tidak butuh ikon, yang memang tidak ada di mana pun di situs ini. `menu`
+adalah kata jujur untuk `home`, di mana tidak ada bagian yang sedang aktif.
+`applyRoute()` yang menuliskannya, jadi ia tidak bisa lepas dari rute.
+
+Menutup di tiga jalan: Escape, tekan di luar, dan setiap pergantian rute — menu
+yang tetap terbuka di atas bagian yang baru saja dibukanya adalah menu yang
+menghalangi. Tekanan yang **membuka**-nya adalah `pointerdown` saat daftar masih
+tertutup, jadi penangan tutup-di-luar tidak melihat apa-apa dan keduanya tidak
+berkelahi — pola yang sama dengan panel setelan dan backdrop dialog.
+
+Garis bawah geser `.nav__a::after` disembunyikan di dropdown: ia milik satu
+baris kata, dan di kolom akan duduk di bawah satu item seperti kesalahan cetak.
+Baris aktif ditandai tintanya saja.
+

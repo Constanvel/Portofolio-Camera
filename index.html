@@ -42,6 +42,14 @@
        folding into a menu nobody opens. The strip itself is transparent to the
        pointer; only the links take it, so a drag that starts between two of
        them still reaches the canvas underneath. -->
+  <!-- On a narrow screen the bar becomes the list this opens. The label is the
+       section you are in rather than a fixed word, so the control reports where
+       you are as well as offering to move you — and it needs no icon, which
+       this site has none of anywhere else. Same eight links either way: the
+       <nav> below is the bar AND the dropdown, so there is no second copy to
+       fall out of step. -->
+  <button class="navbtn" id="navBtn" type="button"
+          aria-expanded="false" aria-controls="nav">menu</button>
   <nav class="nav" id="nav" aria-label="sections">
     <a class="nav__a" href="#/">home</a>
     <a class="nav__a" href="#/about">about</a>
@@ -298,6 +306,9 @@
       .page{ position:static; opacity:1; height:auto; min-height:0; padding:3rem 1.25rem; }
       .page[hidden]{ display:flex !important; }
       .nav{ opacity:1; position:static; padding-top:1.5rem; }
+      /* the trigger cannot open anything without JS; the bar below is already
+         laid out as a plain row by the rules above, so it stays the way in */
+      .navbtn{ display:none !important; }
       .nav__a{ pointer-events:auto; }
       .page__back{ display:none; }
     </style>
