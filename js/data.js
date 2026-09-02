@@ -8,7 +8,7 @@
 // The extension in `src` is not decoration: it is how canvas.js decides between
 // an <img> and a <video>, so a .png dropped in under a .jpg name loads neither.
 //
-// `blurb` and `points` are what opens when a tile or a portfolio row is
+// `blurb` and `points` are what opens when a tile or a works card is
 // pressed. `href` is optional and renders only when it is there — a project
 // with no repo yet gets no link rather than a dead one.
 //
@@ -84,7 +84,7 @@ export const WORKS = [
 export const CARDS = [
   { text: 'about',        route: 'about'        },
   { text: 'skills',       route: 'skills'       },
-  { text: 'portfolio',    route: 'portfolio'    },
+  { text: 'works',        route: 'works'        },
   { text: 'experience',   route: 'experience'   },
   { text: 'services',     route: 'services'     },
   { text: 'achievements', route: 'achievements' },

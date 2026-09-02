@@ -59,7 +59,7 @@ const SLOTS = [
   { c:3, r:1, kind:'work', i:1 },
 
   { c:0, r:2, kind:'work', i:2 },
-  { c:2, r:2, kind:'card', i:2 },   // portfolio
+  { c:2, r:2, kind:'card', i:2 },   // works
   { c:3, r:2, kind:'card', i:3 },   // experience
 
   { c:1, r:3, kind:'work', i:3 },

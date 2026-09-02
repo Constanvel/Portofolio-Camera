@@ -54,7 +54,6 @@
     <a class="nav__a" href="#/">home</a>
     <a class="nav__a" href="#/about">about</a>
     <a class="nav__a" href="#/skills">skills</a>
-    <a class="nav__a" href="#/portfolio">portfolio</a>
     <a class="nav__a" href="#/works">works</a>
     <a class="nav__a" href="#/experience">experience</a>
     <a class="nav__a" href="#/services">services</a>
@@ -95,7 +94,7 @@
       <ul>
         <li><a href="#/about">about</a></li>
         <li><a href="#/skills">skills</a></li>
-        <li><a href="#/portfolio">portfolio</a></li>
+        <li><a href="#/works">works</a></li>
         <li><a href="#/experience">experience</a></li>
         <li><a href="#/services">services</a></li>
         <li><a href="#/achievements">achievements</a></li>
@@ -133,25 +132,6 @@
         <li class="rows__r"><span class="rows__k">design</span><span class="rows__v">UI/UX, Figma, design systems and component states, motion and video editing</span></li>
         <li class="rows__r"><span class="rows__k">tools</span><span class="rows__v">Git, Vite, ESLint, Node — including a Vite dev-server plugin written for one of these projects</span></li>
       </ul>
-      <button class="page__back" type="button" data-back>back</button>
-    </div>
-  </section>
-
-  <section class="page" id="pagePortfolio" hidden>
-    <div class="page__in">
-      <h1 class="page__t">portfolio</h1>
-      <p class="page__p">The work itself tiles across the home canvas — drag it, and press one. Or press a line here:</p>
-      <ul class="rows">
-        <li class="rows__r"><span class="rows__k">lensa</span><span class="rows__v"><button class="rows__btn" type="button" data-work="lensa"><span class="rows__a">A place to read and write about characters and works — essays, read through six lenses.</span></button></span></li>
-        <li class="rows__r"><span class="rows__k">artvault</span><span class="rows__v"><button class="rows__btn" type="button" data-work="artvault"><span class="rows__a">An art community: uploads, discovery, rankings, commissions and contests.</span></button></span></li>
-        <li class="rows__r"><span class="rows__k">uang jajan tracker</span><span class="rows__v"><button class="rows__btn" type="button" data-work="uang jajan tracker"><span class="rows__a">A spending tracker for a phone — money in, money out, by category.</span></button></span></li>
-        <li class="rows__r"><span class="rows__k">smk telkom purwokerto</span><span class="rows__v"><button class="rows__btn" type="button" data-work="smk telkom purwokerto"><span class="rows__a">The school site: admissions, majors, the job centre, and two assistants.</span></button></span></li>
-        <li class="rows__r"><span class="rows__k">ai text summarizer</span><span class="rows__v"><button class="rows__btn" type="button" data-work="ai text summarizer"><span class="rows__a">Long text in, a short summary out, at three lengths. Runs on Groq.</span></button></span></li>
-      </ul>
-      <!-- it used to say "see the canvas" and go to the drag plane. The plane is
-           still there under home; this goes to the gallery instead, where the
-           work can actually be looked at rather than found. -->
-      <a class="page__cta" href="#/works">see the work</a>
       <button class="page__back" type="button" data-back>back</button>
     </div>
   </section>
@@ -287,7 +267,7 @@
        class for its box, backdrop, Escape and back button, because a panel
        that opens over the page is a panel however it was asked for. Only the
        body differs, and js/main.js fills that from WORKS in js/data.js so the
-       tile on the canvas and the row in `portfolio` cannot drift apart. -->
+       tile on the canvas and the card in `works` cannot drift apart. -->
   <dialog class="cert" id="workPanel">
     <img class="wk__shot" id="workShot" alt="">
     <h2 class="wk__t" id="workTitle"></h2>

@@ -601,7 +601,7 @@ document.addEventListener('keydown', (e) => {
    and nothing is lost. With JS it opens here instead — a new tab carries no
    history, and back was never a button the visitor had. */
 /* ── a project, opened in place ──────────────────────────────────────────
-   One panel, two ways in: a tile on the canvas, or a row in `portfolio`. Both
+   One panel, two ways in: a tile on the canvas, or a card in `works`. Both
    land here, and both read WORKS — so the explanation lives beside the tile it
    explains and there is no second copy to forget to update. */
 /* NOT id="work" — <main class="work" id="work"> is the canvas of work, and
@@ -673,7 +673,7 @@ if (worksGrid){
 }
 
 if (workDlg?.showModal){
-  // the rows in `portfolio` are buttons, not links — there is no url under a
+  // the cards in `works` are buttons, not links — there is no url under a
   // project, only this panel
   document.addEventListener('click', (e) => {
     const b = e.target.closest('button[data-work]');

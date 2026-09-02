@@ -251,9 +251,19 @@ viewport — jadi yang lazy tidak pernah diminta dan galerinya tinggal kosong.
 Memuatnya langsung pun gratis: kanvas sudah mengambil kelima berkas yang sama
 untuk tile-nya, jadi semuanya cache hit.
 
-Tombol di `portfolio` dulu berbunyi "see the canvas" dan menuju bidang seret.
-Bidangnya masih ada di `home`; tombolnya sekarang menuju galeri, tempat
-karyanya bisa dilihat dan bukan dicari-cari.
+`works` menggantikan `portfolio` sepenuhnya, jadi `portfolio` dibuang: dari
+navbar, dari isi cadangan `<canvas>`, dari daftar rute `404.html`, dari kartu
+kanvas, dan seksinya sendiri. Tombol "see the canvas" yang dulu ada di sana
+sudah tidak relevan bersamanya.
+
+Kartu kanvasnya **diganti di tempat**, bukan dihapus lalu ditambah: `SLOTS` di
+`js/canvas.js` merujuk `CARDS` lewat **indeks**, jadi menghapus satu entri akan
+menggeser semua indeks sesudahnya dan membuat kartu-kartu lain diam-diam
+menunjuk bagian yang salah. Mengganti isinya di posisi yang sama menghindari itu
+sekaligus memberi `works` kartu kanvas yang sebelumnya belum ia punya.
+
+Alamat lama `#/portfolio` tidak error: `routeFromHash()` mengembalikan rute
+kosong untuk id yang tidak ada, jadi bookmark lama mendarat di kanvas.
 
 `.page__in--wide` ada karena `34rem` itu ukuran untuk **dibaca**. Galeri tidak
 dibaca, ia dipindai, jadi ia dapat ruang yang dibutuhkan dua kolom.

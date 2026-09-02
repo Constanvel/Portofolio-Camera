@@ -365,19 +365,21 @@ body[data-stage="page"] .nav__a{ pointer-events:auto; }
 .nav__a.is-on::after{ transform:scaleX(1); }
 
 /* ── the navbar on a narrow screen ───────────────────────────────────────
-   Nine links need 793px of room — measured from the rendered type, not
-   guessed, because scrollWidth cannot tell "fits" from "exactly fills": it is
-   never smaller than the box. Below that the bar clipped, and a strip that
-   scrolls sideways gives no sign there is anything past its edge — the last
-   thing visible was half a word. So under 820px the same <nav> becomes a
-   dropdown: one list, two shapes, no second copy of the links.
-   The number is tied to the link count. Adding `works` as a ninth pushed the
-   requirement from 700 to 793 and opened a band at 761-793px where the bar was
-   quietly scrolling sideways again. Measure it again if a tenth arrives.
+   Eight links need 696px of room — measured by summing the rendered links, the
+   gaps and the padding, not from scrollWidth, which cannot tell "fits" from
+   "exactly fills" because it is never smaller than the box. Below that the bar
+   clipped, and a strip that scrolls sideways gives no sign there is anything
+   past its edge — the last thing visible was half a word. So under 720px the
+   same <nav> becomes a dropdown: one list, two shapes, no second copy of the
+   links.
+   This number is tied to the link count, and it has moved twice already: nine
+   links needed 793px, and `portfolio` leaving took it back to 696. Measure it
+   again whenever a link is added or dropped — a stale value here does not
+   break anything loudly, it just quietly hands back the sideways scroll.
    Keyed to WIDTH and not to pointer:coarse, because a narrow desktop window
    has exactly the same problem and a landscape tablet has none of it. */
 .navbtn{ display:none; }
-@media (max-width:820px){
+@media (max-width:720px){
   .navbtn{
     display:block; position:fixed; z-index:66;
     top:calc(.7rem + env(safe-area-inset-top,0px)); left:50%; translate:-50% 0;

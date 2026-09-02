@@ -33,7 +33,7 @@
        automatic bounce to the home page hides a genuinely broken link, from
        the visitor and from whoever put it there. -->
   <script>
-    var routes = ['about','skills','portfolio','experience','services','achievements','contact'];
+    var routes = ['about','skills','works','experience','services','achievements','contact'];
     var last = location.pathname.replace(/\/+$/, '').split('/').pop().toLowerCase();
     if (routes.indexOf(last) > -1) location.replace('./#/' + last);
   </script>
