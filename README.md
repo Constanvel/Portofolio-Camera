@@ -286,3 +286,33 @@ kosong untuk id yang tidak ada, jadi bookmark lama mendarat di kanvas.
 `.page__in--wide` ada karena `34rem` itu ukuran untuk **dibaca**. Galeri tidak
 dibaca, ia dipindai, jadi ia dapat ruang yang dibutuhkan dua kolom.
 
+
+## Lisensi aset
+
+Kode, tulisan, dan tangkapan layar proyek di repo ini milik Constantine Rainer
+Simanjuntak. Yang berikut **bukan**, dan didaftar di sini serta di bagian
+`about` situs karena lisensinya memang mensyaratkan itu.
+
+| berkas | pembuat | lisensi |
+|---|---|---|
+| `assets/models/camera.glb` | [Dokono Kinokoda](https://sketchfab.com/JunkWren) — [Digital Camera](https://sketchfab.com/3d-models/digital-camera-5b2573eab7bf48f2bb8cd5a6026795b1) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+| `assets/models/ipod.glb` | [Harrison Sikora](https://sketchfab.com/harrisonsikora) — [Ipod](https://sketchfab.com/3d-models/ipod-a9ccc57eafaa4c4db50fe78a1347d16b) | [Sketchfab Standard](https://sketchfab.com/licenses) |
+| `assets/fonts/VCR.woff2` | Riciery Leal — VCR OSD Mono | bebas, termasuk untuk komersial dan redistribusi |
+| `assets/audio/theme.mp3` | Parannoul — "No One Talk About It Anymore" | **tidak ada izin** |
+
+Keduanya sudah dimodifikasi: mesh dan tekstur dikompres ulang lewat
+glTF-Transform, dan materialnya ditukar saat runtime di `js/scene.js`. CC BY
+mengizinkan itu selama perubahannya disebut, dan baris di atas menyebutnya.
+
+Dua yang masih terbuka:
+
+- **`ipod.glb`** — Sketchfab Standard melarang redistribusi berkas modelnya.
+  Menaruh `.glb` di server publik berarti siapa pun bisa mengunduhnya langsung,
+  jadi mencantumkan kredit saja tidak menutup masalah ini. Perlu diganti.
+- **`theme.mp3`** — rilisan komersial, dipakai tanpa izin. Yang menahannya
+  sementara ini: pemutarannya mati sampai pengunjung sendiri yang menyalakan.
+
+SF Pro Display pernah ada di sini dan sudah dibuang. Apple melisensikannya untuk
+platform Apple, bukan untuk disajikan dari server web. Sekarang `css/style.css`
+meminta muka huruf UI milik sistem — SF di perangkat Apple, disuplai dengan cara
+yang memang diizinkan Apple; Segoe UI di Windows; Roboto di Android.

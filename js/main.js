@@ -264,11 +264,12 @@ async function main(){
   try {
     await Promise.race([
       Promise.all([
-        // VCR sets two words on the iPod's screen and nothing else, so the
-        // lite path must never pay for it
-        LITE ? Promise.resolve() : document.fonts.load('400 40px "VCR OSD Mono"'),
-        document.fonts.load('500 24px "SF Pro Display"'),
-        document.fonts.load('400 24px "SF Pro Display"')
+        // VCR is now the only webfont on the page. The body face comes from
+        // the operating system, which is resident before the first byte of
+        // this file arrives — asking fonts.load() for it would REJECT, and a
+        // rejected Promise.all abandons the VCR load with it, which is how
+        // the iPod's screen ends up painted in fallback monospace.
+        LITE ? Promise.resolve() : document.fonts.load('400 40px "VCR OSD Mono"')
       ]),
       sleep(2500)
     ]);

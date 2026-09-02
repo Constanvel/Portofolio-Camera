@@ -14,6 +14,13 @@
 import { WORKS, CARDS } from './data.js';
 import { Trackers } from './track.js';
 
+/* The same stack css/style.css sets on <body>, because canvas type and page
+   type are the same voice and must not drift apart. Written once here: it was
+   three copies of a literal, and the third had already lost a fallback.
+   No webfont — the operating system's own UI face is resident before this
+   module runs, so there is nothing to wait for and nothing to ship. */
+const UI = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 
 /* ── touch ──────────────────────────────────────────────────────────────
@@ -476,7 +483,7 @@ export class WorkCanvas {
       if (name){
         c.fillStyle = this.pal.ink3;
         c.textAlign = 'center'; c.textBaseline = 'middle';
-        c.font = `500 ${Math.round(clamp(w * 0.085, 12, 22))}px "SF Pro Display", -apple-system, Helvetica, Arial, sans-serif`;
+        c.font = `500 ${Math.round(clamp(w * 0.085, 12, 22))}px ${UI}`;
         c.fillText(name, x + w / 2, y + h / 2);
       }
     }
@@ -487,11 +494,11 @@ export class WorkCanvas {
     const size = Math.round(clamp(this.tileW * 0.115, 17, 34));
     c.fillStyle = this.pal.ink;
     c.textAlign = 'center'; c.textBaseline = 'middle';
-    c.font = `500 ${size}px "SF Pro Display", -apple-system, Helvetica, Arial, sans-serif`;
+    c.font = `500 ${size}px ${UI}`;
     const cx = x + w / 2, cy = y + h / 2;
     c.fillText(card.text, cx, cy);
     // the mark's asterisk, used once, as the only ornament on the plane
-    c.font = `400 ${Math.round(size * 0.8)}px "SF Pro Display", Helvetica, Arial, sans-serif`;
+    c.font = `400 ${Math.round(size * 0.8)}px ${UI}`;
     c.fillStyle = this.pal.ink;
     c.fillText('*', cx, cy - size * 1.35);
 
