@@ -62,7 +62,12 @@ function rollMuted(){
 /* Where the track sits once it is up. It was a constant while the only choice
    was on or off; the slider makes it a setting, so the ramp and the backstop
    below both aim at whatever the visitor last left it at. */
-let level = 0.42;
+/* 0.66, not the 0.42 this was tuned to. The track behind it changed, and the
+   new one is quieter: -15.0 LUFS against the old -11.0, because it keeps its
+   full 7.6 LU of range instead of being mastered flat and hot. Four decibels
+   of that is real, so the default climbs by the same four (x1.585) and the
+   room sounds exactly as loud as it did before. */
+let level = 0.66;
 async function goAudible(){
   if (userMuted || audioBusy) return audioOn;
   /* "already on" has to mean audible, not merely flagged. The ramp below is the
@@ -531,7 +536,12 @@ function applyVolume(pct, save){
   volRange.value = String(Math.round(level * 100));
   if (save) remember('vol', volRange.value);
 }
-applyVolume(Number(recall('vol') ?? 42), false);
+/* `level` above is the default, not a second copy of it. This line used to
+   carry its own `?? 42`, so the number lived in three places — the declaration,
+   this fallback, and the input's value attribute — and changing the first two
+   did nothing at all, because this one runs last and wins. The attribute stays
+   (it is what paints before any script runs); the rest reads from one place. */
+applyVolume(Number(recall('vol') ?? level * 100), false);
 volRange.addEventListener('input', () => applyVolume(Number(volRange.value), true));
 
 /* ── the colour scheme ───────────────────────────────────────────────────
