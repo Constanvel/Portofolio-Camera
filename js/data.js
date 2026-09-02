@@ -8,6 +8,11 @@
 // The extension in `src` is not decoration: it is how canvas.js decides between
 // an <img> and a <video>, so a .png dropped in under a .jpg name loads neither.
 //
+// `href` is the project's own home — read off each repo's git remote, not
+// typed from memory, and every one checked for a 200 before it went in: a link
+// to a private repo is a 404 to everyone but its owner. artvault has none
+// because it has no repo, and the panel simply leaves the row out.
+//
 // `note` is the single line under a card in `works`; `blurb` and `points` are
 // the longer version, and open when a tile or a works card is pressed. Two
 // fields rather than one derived from the other: taking the first sentence of
@@ -23,6 +28,7 @@
 export const WORKS = [
   {
     src: './assets/tiles/lensa.jpg', label: 'lensa',
+    href: 'https://github.com/Constanvel/Lensa',
     note: 'A place to read and write about characters and works — essays, read through six lenses.',
     year: 'aug 2026', role: 'solo',
     blurb: 'A place to read and write criticism. An essay is filed against the characters and works it is about, so a piece has somewhere to live and something to be found from.',
@@ -47,6 +53,7 @@ export const WORKS = [
   },
   {
     src: './assets/tiles/uang-jajan-tracker.jpg', label: 'uang jajan tracker',
+    href: 'https://github.com/AvilaSavero/UangJajanTracker',
     note: 'A spending tracker for a phone — money in, money out, by category.',
     year: 'may–jun 2026', role: 'one of four',
     blurb: 'Pocket-money tracking on a phone. Adding a transaction is one sheet and nothing else: in or out, an amount, a category, and a note only if it needs one.',
@@ -58,6 +65,7 @@ export const WORKS = [
   },
   {
     src: './assets/tiles/smk-telkom-purwokerto.jpg', label: 'smk telkom purwokerto',
+    href: 'https://github.com/KiandrAHD/smk-telkom-purwokerto',
     note: 'The school site: admissions, majors, the job centre, and two assistants.',
     year: 'jul–aug 2026', role: 'two of us',
     blurb: 'The school’s own site — admissions, the majors on offer, the job centre and announcements, with an admin login behind all of it.',
@@ -71,6 +79,7 @@ export const WORKS = [
   },
   {
     src: './assets/tiles/ai-text-summarizer.jpg', label: 'ai text summarizer',
+    href: 'https://github.com/Constanvel/AI-Text-Summarizer',
     note: 'Long text in, a short summary out, at three lengths. Runs on Groq.',
     year: 'aug 2026', role: 'solo',
     blurb: 'Paste something long, get the short version. Three lengths, and it counts the words while you type.',

@@ -607,6 +607,11 @@ document.addEventListener('keydown', (e) => {
 /* NOT id="work" — <main class="work" id="work"> is the canvas of work, and
    getElementById would have handed that back instead. It has no showModal, so
    the guard below simply refused to arm and nothing said why. */
+// a bad url must not take the panel down with it — URL() throws on anything
+// it cannot parse, and this runs while a visitor is opening a project
+function hostOf(u){
+  try { return new URL(u).hostname; } catch (e) { return ''; }
+}
 const workDlg = $('workPanel');
 function openWork(i){
   const w = WORKS[i];
@@ -628,9 +633,14 @@ function openWork(i){
     return li;
   }));
 
-  // the same rule for the link: a project with no repo yet gets no link at
-  // all, rather than one that goes nowhere
-  $('workLink').href = w.href || '#';
+  /* Same rule as the meta line: a project with no repo gets no link at all
+     rather than one that goes nowhere. The label is read off the url instead
+     of being fixed in the markup, so pointing a project at a live demo later
+     does not leave it announcing a repo that is not there. */
+  const link = $('workLink');
+  link.href = w.href || '#';
+  link.textContent = /(^|\.)github\.com$/.test(hostOf(w.href)) ? 'open the repo on GitHub'
+                                                              : 'open the project';
   $('workLinkRow').hidden = !w.href;
 
   workDlg.showModal();

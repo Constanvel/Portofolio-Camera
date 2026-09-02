@@ -237,9 +237,27 @@ Baris aktif ditandai tintanya saja.
 
 ## Halaman works
 
-`#/works` adalah galeri: tiap proyek sebagai tangkapan layar 16:9, dengan nama
-dan `tahun · peran` di bawahnya, dan menekannya membuka panel penjelasan yang
-sama dengan tile kanvas dan baris `portfolio`.
+`#/works` adalah galeri: tiap proyek sebagai tangkapan layar 16:9, lalu nama,
+satu kalimat, dan `tahun · peran` — urutan itu disengaja, karena baris meta yang
+paling insidental dari ketiganya dan tidak layak duduk di antara nama dan
+kalimat yang menjelaskannya. Menekan kartunya membuka panel penjelasan yang sama
+dengan tile kanvas.
+
+`href` adalah rumah proyeknya sendiri, dan panel yang menampilkannya — bukan
+kartunya, karena kartu itu sendiri sebuah `<button>` dan menaruh tautan di
+dalam tombol adalah HTML yang tidak sah. Labelnya diturunkan dari URL-nya, jadi
+mengarahkan sebuah proyek ke demo langsung nanti tidak meninggalkan tulisan yang
+mengumumkan repo yang tidak ada. `new URL()` melempar untuk apa pun yang tidak
+bisa ia urai, dan itu berjalan tepat saat pengunjung membuka sebuah proyek, jadi
+ia dibungkus.
+
+Kalimatnya `note` di `WORKS`, bidang tersendiri dan bukan diturunkan dari
+`blurb`. Mengambil kalimat pertama `blurb` akan benar untuk empat proyek dan
+menelan seluruh paragraf untuk `smk telkom purwokerto`, yang titik pertamanya
+baru ada di ujung — persis jenis kepintaran yang gagal tanpa bersuara. `note`
+disetel huruf normal tanpa tracking: ia satu-satunya hal di kartu yang
+dimaksudkan untuk **dibaca**, bukan dipindai, dan menyetelnya seperti label di
+sekelilingnya akan menguburnya di antara mereka.
 
 Markup-nya sengaja kosong — `<ul id="worksGrid">` diisi `js/main.js` dari
 `WORKS`, tabel yang sama yang dibaca kanvas dan panel. Menambah proyek tetap
