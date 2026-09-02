@@ -13,6 +13,13 @@
 // to a private repo is a 404 to everyone but its owner. artvault has none
 // because it has no repo, and the panel simply leaves the row out.
 //
+// The two team projects point at forks under this account rather than at the
+// repos they were built in — KiandrAHD/smk-telkom-purwokerto and
+// AvilaSavero/UangJajanTracker. GitHub still prints "forked from …" under the
+// title, which is the honest part and cannot be turned off. A fork is a
+// snapshot of the moment it was taken: if either upstream moves on, these go
+// stale and have to be synced.
+//
 // `note` is the single line under a card in `works`; `blurb` and `points` are
 // the longer version, and open when a tile or a works card is pressed. Two
 // fields rather than one derived from the other: taking the first sentence of
@@ -53,7 +60,7 @@ export const WORKS = [
   },
   {
     src: './assets/tiles/uang-jajan-tracker.jpg', label: 'uang jajan tracker',
-    href: 'https://github.com/AvilaSavero/UangJajanTracker',
+    href: 'https://github.com/Constanvel/UangJajanTracker',
     note: 'A spending tracker for a phone — money in, money out, by category.',
     year: 'may–jun 2026', role: 'one of four',
     blurb: 'Pocket-money tracking on a phone. Adding a transaction is one sheet and nothing else: in or out, an amount, a category, and a note only if it needs one.',
@@ -65,7 +72,7 @@ export const WORKS = [
   },
   {
     src: './assets/tiles/smk-telkom-purwokerto.jpg', label: 'smk telkom purwokerto',
-    href: 'https://github.com/KiandrAHD/smk-telkom-purwokerto',
+    href: 'https://github.com/Constanvel/smk-telkom-purwokerto',
     note: 'The school site: admissions, majors, the job centre, and two assistants.',
     year: 'jul–aug 2026', role: 'two of us',
     blurb: 'The school’s own site — admissions, the majors on offer, the job centre and announcements, with an admin login behind all of it.',
