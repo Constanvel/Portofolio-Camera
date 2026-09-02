@@ -170,3 +170,39 @@ berakhir. Kanvas membuka panel pada `pointerup`, lalu `click` penutup dari
 gerakan yang sama mendarat di backdrop panel yang baru terbuka dan menutupnya
 sebelum sempat terlihat.
 
+## Setelan
+
+Satu tombol di pojok kiri bawah membuka panel berisi tiga baris: tema, suara,
+dan volume. Bukan `<dialog>` — modal akan menaruh seluruh situs di balik lembar
+gelap hanya untuk mengecilkan volume. Panel biasa yang tertutup oleh Escape atau
+tekanan di luar; tekanan yang **membuka**-nya adalah `pointerdown` saat panel
+masih tertutup, jadi penangan itu tidak melihat apa-apa dan keduanya tidak
+berkelahi.
+
+Tema ada di `<html data-theme>`, **bukan** di `body.is-dark`. Kelas itu milik
+sequencer intro yang menyalakan dan mematikannya per babak, dan pilihan
+pengunjung tidak boleh sesuatu yang bisa dicabut mark di tengah jalan. Yang
+berpindah hanya tokennya; seluruh aturan di stylesheet sudah membacanya.
+
+Kanvas karya ikut. Warnanya dulu literal di `js/canvas.js`, jadi bidangnya akan
+tetap jadi lubang putih di halaman gelap. Sekarang dibaca dari custom property
+lewat `readPalette()`, dan `applyMode()` memanggilnya lagi tiap tema berganti —
+kanvas menyimpan warnanya sebagai string, jadi harus disuruh melihat ulang.
+Masker tepi lembut satu-satunya yang tetap literal: ia dikomposisikan pada
+**alpha**, jadi warnanya tidak pernah terlihat.
+
+`--scrim` ada karena navbar punya gradien kertasnya sendiri di atas foto. Kalau
+itu dibiarkan putih, mode gelap akan dapat pita putih di sepanjang tepi atas.
+
+Volume memiliki `level` di `js/main.js`. Dulu konstanta selagi pilihannya cuma
+nyala atau mati; slider membuatnya setelan, dan ramp serta jaring pengaman di
+`goAudible()` dua-duanya membidik nilai terakhir yang ditinggalkan pengunjung —
+itu sebabnya menggeser slider sebelum ada bunyi pun tetap mendarat di tempat
+yang benar.
+
+Tema dan volume disimpan di `localStorage`, dan setiap sentuhannya dibungkus
+`try/catch`: di sebagian mode privasi `localStorage` melempar, bukan
+mengembalikan `null`. Tema mengikuti `prefers-color-scheme` **hanya** selama
+pengunjung belum memilih sendiri; setelah memilih, sistem operasi tidak berhak
+membatalkannya.
+

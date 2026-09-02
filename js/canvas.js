@@ -104,6 +104,13 @@ export class WorkCanvas {
     this.ctx = canvas.getContext('2d');
     this.buf = document.createElement('canvas');
     this.bctx = this.buf.getContext('2d');
+    /* Every colour on this plane used to be a literal, which meant the canvas
+       could not follow a theme the CSS already knew about. They are read off
+       the custom properties instead, once, and re-read when the theme changes
+       — see readPalette(). The soft-edge mask is the one exception and stays a
+       literal: it composites on ALPHA, so its colour is never seen. */
+    this.pal = {};
+    this.readPalette();
     this.onRoute = opts.onRoute || (() => {});
     this.onWork = opts.onWork || (() => {});
     this.onFirstDrag = opts.onFirstDrag || (() => {});
@@ -281,6 +288,21 @@ export class WorkCanvas {
     if (hot !== this._hot){ this._hot = hot; this.cv.classList.toggle('is-hot', hot); }
   }
 
+  /** Pulls the theme's colours off :root. Cheap, and only ever called on a
+      theme change — getComputedStyle in the draw loop would be a per-frame
+      style resolution for four strings that change twice a visit. */
+  readPalette(){
+    const cs = getComputedStyle(document.body);
+    const v = (n, fallback) => (cs.getPropertyValue(n).trim() || fallback);
+    this.pal = {
+      paper: v('--paper',  '#ffffff'),
+      ink:   v('--ink',    '#111014'),
+      ink2:  v('--ink-2',  '#5d5b63'),
+      ink3:  v('--ink-3',  '#a9a7b0'),
+      sunk:  v('--sunk',   '#f2f1f4')
+    };
+  }
+
   _cardAt(x, y){
     // a fingertip is about 9 mm across; the type is not
     const p = this.coarse ? 16 : 0;
@@ -354,7 +376,7 @@ export class WorkCanvas {
     const c = this.bctx, dpr = this.dpr;
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
     c.clearRect(0, 0, this.w, this.h);
-    c.fillStyle = '#ffffff';
+    c.fillStyle = this.pal.paper;
     c.fillRect(0, 0, this.w, this.h);
 
     /* On touch the overlay goes down FIRST, on the paper, and the films are
@@ -443,7 +465,7 @@ export class WorkCanvas {
       else { sh = v.videoWidth / tr; sy = (v.videoHeight - sh) / 2; }
       c.drawImage(v, sx, sy, sw, sh, x, y, w, h);
     } else {
-      c.fillStyle = '#f2f1f4';
+      c.fillStyle = this.pal.sunk;
       c.fillRect(x, y, w, h);
       /* A work whose picture has not arrived — still loading, or not screenshot
          yet — was a grey rectangle that said nothing, and eight of them read as
@@ -452,7 +474,7 @@ export class WorkCanvas {
          because this is a placeholder and not something to click. */
       const name = WORKS[i].label;
       if (name){
-        c.fillStyle = '#a9a7b0';
+        c.fillStyle = this.pal.ink3;
         c.textAlign = 'center'; c.textBaseline = 'middle';
         c.font = `500 ${Math.round(clamp(w * 0.085, 12, 22))}px "SF Pro Display", -apple-system, Helvetica, Arial, sans-serif`;
         c.fillText(name, x + w / 2, y + h / 2);
@@ -463,14 +485,14 @@ export class WorkCanvas {
   paintCard(c, card, x, y){
     const w = this.tileW, h = this.tileH;
     const size = Math.round(clamp(this.tileW * 0.115, 17, 34));
-    c.fillStyle = '#111014';
+    c.fillStyle = this.pal.ink;
     c.textAlign = 'center'; c.textBaseline = 'middle';
     c.font = `500 ${size}px "SF Pro Display", -apple-system, Helvetica, Arial, sans-serif`;
     const cx = x + w / 2, cy = y + h / 2;
     c.fillText(card.text, cx, cy);
     // the mark's asterisk, used once, as the only ornament on the plane
     c.font = `400 ${Math.round(size * 0.8)}px "SF Pro Display", Helvetica, Arial, sans-serif`;
-    c.fillStyle = '#111014';
+    c.fillStyle = this.pal.ink;
     c.fillText('*', cx, cy - size * 1.35);
 
     const tw = Math.max(size * 4.2, c.measureText(card.text).width);
@@ -518,7 +540,7 @@ export class WorkCanvas {
         dots.push([x, y, s]);
       }
     }
-    ctx.fillStyle = '#111014';
+    ctx.fillStyle = this.pal.ink;
     for (const [x, y, s] of dots){
       ctx.globalAlpha = DOT_ALPHA * s;
       ctx.beginPath();
@@ -564,7 +586,7 @@ export class WorkCanvas {
         dots.push([x, y, s]);
       }
     }
-    ctx.fillStyle = '#111014';
+    ctx.fillStyle = this.pal.ink;
     for (const [x, y, s] of dots){
       ctx.globalAlpha = EDGE_DOT * s;
       ctx.beginPath();

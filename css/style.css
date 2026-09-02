@@ -22,10 +22,14 @@
 }
 
 :root{
+  color-scheme:light;
   --paper:#ffffff;         /* exactly the paper the mark video was shot on */
   --ink:#111014;           /* tinted near-black, never #000 */
   --ink-2:#5d5b63;
+  --ink-3:#a9a7b0;         /* quieter than ink-2: a label holding an empty tile */
   --hair:#e4e2e6;
+  --sunk:#f2f1f4;          /* a tile whose picture has not arrived */
+  --scrim:255,255,255;     /* the navbar's own ground, over photographs */
   --ease-out:cubic-bezier(.16,1,.3,1);          /* expo-out */
   --ease-in-out:cubic-bezier(.65,0,.35,1);
   --t-slow:1100ms;
@@ -55,6 +59,20 @@ body[data-stage="work"], body[data-stage="page"]{ overflow:hidden; }
    js/env.js. The mark before it and the page after it are both paper, so the
    ground tone is animated rather than switched. */
 body{ transition:background-color 800ms var(--ease-in-out); }
+/* The theme is on <html data-theme>, deliberately NOT on body.is-dark: that
+   class belongs to the intro sequencer, which turns it on and off per act, and
+   a visitor's choice must not be something the mark can revoke halfway through.
+   Only the tokens move — every rule below already reads them. */
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#0e0e11;
+  --ink:#f1f0f4;
+  --ink-2:#a09eaa;
+  --ink-3:#6d6b78;
+  --hair:#26262c;
+  --sunk:#17171b;
+  --scrim:14,14,17;
+}
 body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 
 /* ── the vignette ───────────────────────────────────────────────────── */
@@ -280,7 +298,7 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
   overflow-x:auto; white-space:nowrap;
   scrollbar-width:none; -ms-overflow-style:none;
   /* the tiles underneath are photographs; uppercase 11px needs the paper back */
-  background:linear-gradient(rgba(255,255,255,.94), rgba(255,255,255,.78) 62%, rgba(255,255,255,0));
+  background:linear-gradient(rgba(var(--scrim),.94), rgba(var(--scrim),.78) 62%, rgba(var(--scrim),0));
   opacity:0; pointer-events:none;
   transition:opacity var(--t-slow) var(--ease-in-out);
 }
@@ -330,14 +348,14 @@ body[data-stage="page"] .nav__a{ pointer-events:auto; }
 .skip.is-lit{ opacity:.6; pointer-events:auto; }
 .skip:focus-visible{ opacity:1; color:var(--ink); }
 
-/* ── mute · skip's box, the other corner ─────────────────────────────────
+/* ── settings · skip's box, the other corner ─────────────────────────────
    It borrows .skip's rules instead of copying them: both are the same kind of
-   thing — a quiet way out of something that is already running. It differs in
-   the two ways it has to. It is never staged: skip belongs to the intro and
-   goes with it, while the track plays through every section, so a control that
-   waited for a stage would be missing exactly when it is wanted. Same
+   thing — a quiet control in a corner, out of the way of the work. It differs
+   in the two ways it has to. It is never staged: skip belongs to the intro and
+   goes with it, while theme and sound belong to the whole visit, so a control
+   that waited for a stage would be missing exactly when it is wanted. Same
    specificity as .skip, so it has to sit below it to win. */
-.mute{
+.set{
   right:auto;
   left:calc(clamp(14px,2.4vw,26px) + env(safe-area-inset-left,0px));
   opacity:1; pointer-events:auto;
@@ -348,8 +366,57 @@ body[data-stage="page"] .nav__a{ pointer-events:auto; }
    the intro a white lozenge in the corner of a black stage is a hole in it.
    Keyed to the stage rather than to is-dark — the camera act drops is-dark for
    its own reasons while the screen is still black, and the pill came back. */
-body[data-stage="work"] .mute,
-body[data-stage="page"] .mute{ background:var(--paper); }
+body[data-stage="work"] .set,
+body[data-stage="page"] .set{ background:var(--paper); }
+
+/* ── the panel it opens ──────────────────────────────────────────────────
+   Not a <dialog>: a modal dims the whole page, and turning the volume down is
+   not worth putting the site behind a sheet. It is a plain panel that sits
+   above its button, closes on Escape or on a press outside, and reads in the
+   same key/value language as every list on the site. */
+.set__panel{
+  position:fixed; z-index:71;
+  left:calc(clamp(14px,2.4vw,26px) + env(safe-area-inset-left,0px));
+  bottom:calc(clamp(14px,2.4vh,26px) + env(safe-area-inset-bottom,0px) + 52px);
+  width:min(17rem,calc(100vw - 2 * clamp(14px,2.4vw,26px)));
+  padding:.35rem 1rem .9rem;
+  background:var(--paper); color:var(--ink);
+  border:1px solid var(--hair); border-radius:14px;
+}
+.set__panel[hidden]{ display:none; }
+.set__row{
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  padding:.7rem 0; border-bottom:1px solid var(--hair);
+}
+.set__row:last-child{ border-bottom:0; padding-bottom:.2rem; }
+.set__k{
+  color:var(--ink-2);
+  font-size:.6875rem; font-weight:500; letter-spacing:.14em; text-transform:uppercase;
+}
+/* the value is the control: same hairline as a link, no button chrome */
+.set__v{
+  font:inherit; font-size:.9375rem; padding:0; min-height:24px;
+  background:none; border:0; border-bottom:1px solid var(--hair);
+  color:var(--ink); cursor:pointer;
+}
+.set__v:hover, .set__v:focus-visible{ border-bottom-color:currentColor; }
+/* a full-width row of its own: a slider squeezed beside its label is a slider
+   nobody can aim at */
+.set__row--wide{ flex-direction:column; align-items:stretch; gap:.55rem; }
+.set__range{
+  -webkit-appearance:none; appearance:none;
+  width:100%; height:22px; background:none; cursor:pointer;
+}
+.set__range::-webkit-slider-runnable-track{ height:1px; background:var(--hair); }
+.set__range::-moz-range-track{ height:1px; background:var(--hair); }
+.set__range::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none;
+  width:14px; height:14px; margin-top:-6.5px; border:0; border-radius:50%;
+  background:var(--ink);
+}
+.set__range::-moz-range-thumb{
+  width:14px; height:14px; border:0; border-radius:50%; background:var(--ink);
+}
 
 :focus-visible{ outline:2px solid var(--ink); outline-offset:3px; }
 

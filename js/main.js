@@ -19,7 +19,13 @@ const workWrap  = $('work');
 const hint      = $('hint');
 const skipBtn   = $('skip');
 const theme     = $('theme');
-const muteBtn   = $('mute');
+/* `theme` above is the <audio> element — it matches <audio id="theme"> and is
+   not the colour theme. The colour scheme is `mode` everywhere below. */
+const setBtn    = $('settingsBtn');
+const setPanel  = $('settingsPanel');
+const soundBtn  = $('soundBtn');
+const modeBtn   = $('themeBtn');
+const volRange  = $('volRange');
 const vig       = $('vig');
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -53,7 +59,10 @@ let userMuted = false;
 function rollMuted(){
   theme.play().catch(() => { /* even muted can be refused; the gesture retries */ });
 }
-const LEVEL = 0.42;                    // where the track sits once it is up
+/* Where the track sits once it is up. It was a constant while the only choice
+   was on or off; the slider makes it a setting, so the ramp and the backstop
+   below both aim at whatever the visitor last left it at. */
+let level = 0.42;
 async function goAudible(){
   if (userMuted || audioBusy) return audioOn;
   /* "already on" has to mean audible, not merely flagged. The ramp below is the
@@ -75,13 +84,13 @@ async function goAudible(){
       // predate the performance.now() that scheduled it — an unclamped p goes
       // negative, the cube flips sign, and setting a negative volume throws.
       const p = Math.max(0, Math.min(1, (now - t0) / 1400));
-      theme.volume = LEVEL * (1 - Math.pow(1 - p, 3));
+      theme.volume = level * (1 - Math.pow(1 - p, 3));
       if (p < 1) requestAnimationFrame(ramp);
     };
     requestAnimationFrame(ramp);
     // frames are the fade, not the destination: if none arrive, the track still
     // has to end up somewhere a person can hear
-    setTimeout(() => { if (!userMuted && theme.volume < LEVEL) theme.volume = LEVEL; }, 1500);
+    setTimeout(() => { if (!userMuted && theme.volume < level) theme.volume = level; }, 1500);
   } catch (err) {
     theme.muted = true;
     theme.volume = 0;
@@ -468,22 +477,94 @@ const syncMute = () => {
   // volume counts as much as the mute flag: the track eases up over 1400ms and
   // starts that ramp at exactly zero, which is silence by any honest reading
   const audible = !theme.muted && !theme.paused && theme.volume > 0;
-  muteBtn.textContent = audible ? 'sound on' : 'sound off';
+  soundBtn.textContent = audible ? 'on' : 'off';
 };
 ['volumechange', 'play', 'pause'].forEach(e => theme.addEventListener(e, syncMute));
 /* And if there is no track at all — the file pulled, or never replaced — the
-   control for it is a button that cannot do anything. Take it away rather than
-   leave a visitor pressing it: <audio> reports a src it could not load, so the
-   page finds this out on its own instead of being told twice. */
-theme.addEventListener('error', () => { muteBtn.hidden = true; });
+   controls for it cannot do anything. Take those two rows away rather than
+   leave a visitor pressing them; the panel keeps its theme row. <audio>
+   reports a src it could not load, so the page finds this out on its own. */
+theme.addEventListener('error', () => {
+  soundBtn.closest('.set__row').hidden = true;
+  volRange.closest('.set__row').hidden = true;
+});
 syncMute();
 
-muteBtn.addEventListener('click', () => {
+soundBtn.addEventListener('click', () => {
   userMuted = !userMuted;
   theme.muted = userMuted;
   /* Coming back on is not just unmuting: on a visit where the track was
      silenced before any gesture landed, it has never actually started. */
   if (!userMuted) goAudible();
+});
+
+/* ── remembered settings ─────────────────────────────────────────────────
+   localStorage throws outright in some privacy modes rather than returning
+   null, so every touch of it is wrapped. A visitor who cannot be remembered
+   still gets working controls — they just start from the default each time. */
+const remember = (k, v) => { try { localStorage.setItem('pf.' + k, v); } catch (e) {} };
+const recall   = (k)    => { try { return localStorage.getItem('pf.' + k); } catch (e) { return null; } };
+
+/* ── volume ──────────────────────────────────────────────────────────────
+   The slider owns `level`. Setting theme.volume directly only does anything
+   once the track is actually running, so the assignment is guarded — and the
+   ramp and the backstop in goAudible() both read `level`, which is why moving
+   the slider before any sound has started still lands at the right place. */
+function applyVolume(pct, save){
+  level = Math.max(0, Math.min(1, pct / 100));
+  if (!userMuted && audioOn) theme.volume = level;
+  volRange.value = String(Math.round(level * 100));
+  if (save) remember('vol', volRange.value);
+}
+applyVolume(Number(recall('vol') ?? 42), false);
+volRange.addEventListener('input', () => applyVolume(Number(volRange.value), true));
+
+/* ── the colour scheme ───────────────────────────────────────────────────
+   On <html data-theme>, not on body.is-dark: that class belongs to the intro
+   sequencer, which turns it on and off per act. Only the tokens move — the
+   stylesheet already reads them everywhere, and the canvas reads them too, so
+   the plane changes colour with the page instead of staying a white hole. */
+const MODES = ['light', 'dark'];
+function applyMode(m, save){
+  m = MODES.includes(m) ? m : 'light';
+  document.documentElement.dataset.theme = m;
+  modeBtn.textContent = m;
+  // the browser chrome around the page, on phones
+  for (const meta of document.querySelectorAll('meta[name="theme-color"]')){
+    meta.content = m === 'dark' ? '#0e0e11' : '#ffffff';
+  }
+  // the canvas holds its colours as strings, so it has to be told to look again
+  work?.readPalette?.();
+  if (save) remember('mode', m);
+}
+const savedMode = recall('mode');
+applyMode(savedMode ?? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'), false);
+modeBtn.addEventListener('click', () => {
+  applyMode(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark', true);
+});
+/* Only follow the system while the visitor has not chosen for themselves —
+   once they have, the choice is theirs and the OS does not get to undo it. */
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+  if (!recall('mode')) applyMode(e.matches ? 'dark' : 'light', false);
+});
+
+/* ── the panel ───────────────────────────────────────────────────────────
+   Plain, not a <dialog>: a modal would put the whole site behind a sheet to
+   turn the volume down. It closes on Escape and on a press anywhere outside —
+   the press that OPENS it is a pointerdown while the panel is still closed, so
+   that handler sees nothing and there is no fight between the two. */
+function openSettings(on){
+  setPanel.hidden = !on;
+  setBtn.setAttribute('aria-expanded', String(on));
+}
+setBtn.addEventListener('click', () => openSettings(setPanel.hidden));
+document.addEventListener('pointerdown', (e) => {
+  if (setPanel.hidden) return;
+  if (setPanel.contains(e.target) || setBtn.contains(e.target)) return;
+  openSettings(false);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !setPanel.hidden){ openSettings(false); setBtn.focus(); }
 });
 
 /* ── certificates ────────────────────────────────────────────────────────

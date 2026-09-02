@@ -230,15 +230,33 @@
   <!-- ── skip / accessibility fallback ────────────────────────────────── -->
   <button class="skip" id="skip" type="button">skip intro</button>
 
-  <!-- The track is the one thing here that follows you out of the room, so the
-       way to stop it must be reachable from every stage — the opposite corner
-       to skip, the same quiet type, present from the first frame rather than
-       lit by a stage. It reads as the state it is IN, not the verb, because
-       the verb is what a visitor already assumes a button does — and it starts
-       at "off" because that is the truth on the first frame: no gesture has
-       landed yet, so nothing is playing. js/main.js keeps it honest from
-       there by reading the <audio> element rather than its own intentions. -->
-  <button class="skip mute" id="mute" type="button">sound off</button>
+  <!-- Theme and sound both follow you out of the room, so their control has to
+       be reachable from every stage — the opposite corner to skip, the same
+       quiet type, present from the first frame rather than lit by a stage.
+       One button rather than two floating in the corner: the volume needs a
+       slider, and a slider needs somewhere to live. -->
+  <button class="skip set" id="settingsBtn" type="button"
+          aria-expanded="false" aria-controls="settingsPanel">settings</button>
+  <div class="set__panel" id="settingsPanel" role="group" aria-label="settings" hidden>
+    <div class="set__row">
+      <span class="set__k">theme</span>
+      <button class="set__v" id="themeBtn" type="button">light</button>
+    </div>
+    <!-- the sound value reads as the state it is IN, not the verb, because the
+         verb is what a visitor already assumes a button does — and it starts at
+         "off" because that is the truth on the first frame: no gesture has
+         landed yet, so nothing is playing. js/main.js keeps it honest from
+         there by reading the <audio> element rather than its own intentions. -->
+    <div class="set__row">
+      <span class="set__k">sound</span>
+      <button class="set__v" id="soundBtn" type="button">off</button>
+    </div>
+    <div class="set__row set__row--wide">
+      <span class="set__k">volume</span>
+      <input class="set__range" id="volRange" type="range"
+             min="0" max="100" step="1" value="42" aria-label="volume">
+    </div>
+  </div>
 
   <!-- ── a project, opened in place ──────────────────────────────────────
        Same dialog chrome as the certificate below — it borrows the `cert`
@@ -276,7 +294,7 @@
        of what JS was for here. -->
   <noscript>
     <style>
-      .mark, .gl, .vig, .work, .skip, .mute{ display:none !important; }
+      .mark, .gl, .vig, .work, .skip, .set, .set__panel{ display:none !important; }
       .page{ position:static; opacity:1; height:auto; min-height:0; padding:3rem 1.25rem; }
       .page[hidden]{ display:flex !important; }
       .nav{ opacity:1; position:static; padding-top:1.5rem; }
