@@ -13,9 +13,14 @@ import { GLTFLoader } from './vendor/GLTFLoader.js';
 import { studioEnvironment, shadowSprite, STUDIO, RIM } from './env.js';
 
 /* ── measured off the models, once, offline ──────────────────────────────
-   iPod (raw model space): front face is +X, up is +Y.
-     screen active area   y 7.00 … 11.38   z −3.126 … 2.884   plane x 0.7316
-     play/pause glyph     y 1.273          z −0.240
+   iPod (raw model space): front face is +X, up is +Y. The whole front is ONE
+   flat quad at x 0.01386 with the artwork in the texture — the screen is not
+   its own geometry, so its bounds are the bounds of the recessed LCD behind
+   the glass (the 51-vertex mesh), and the play glyph was found by scanning the
+   base-colour map along the wheel and taking the centroid of the mark.
+     screen active area   y 0.02158 … 0.08748   z −0.03981 … 0.04032
+     glass plane          x 0.01386   (LCD sits back at x 0.00829)
+     play/pause glyph     y −0.0758              z −0.0024
    Digicam (scene space, node transforms applied — the raw buffers are in a
    different frame, which is what made the first pass show the base plate):
      lens is +Z, monitor is −Z, up is +Y
@@ -24,9 +29,15 @@ import { studioEnvironment, shadowSprite, STUDIO, RIM } from './env.js';
    replaced at runtime, never shown.
    ─────────────────────────────────────────────────────────────────────── */
 const IPOD = {
-  face: 0.7316,
-  screen: { y0: 7.00, y1: 11.38, z0: -3.126, z1: 2.884 },
-  play:   { y: 1.273, z: -0.240, r: 0.92 }
+  face: 0.01386,
+  screen: { y0: 0.02158, y1: 0.08748, z0: -0.03981, z1: 0.04032 },
+  play:   { y: -0.0758, z: -0.0024, r: 0.0148 },
+  /* How far off the glass the two added surfaces sit. These were bare numbers
+     against a model 12 units tall; this one is 0.2, so leaving them inline
+     would have buried the screen inside the body. They belong with the
+     measurements they are relative to. */
+  proud: 0.0002,      // the lit screen plane
+  reach: 0.0003       // the invisible hit target, a touch further out again
 };
 const CAM = {
   display: { z: -0.365, x0: -0.908, x1: 1.332, y0: -0.866, y1: 0.937 },
@@ -197,7 +208,7 @@ export class IpodAct {
       new THREE.MeshBasicMaterial({ map:this.screenTex, transparent:true, toneMapped:false })
     );
     this.screen.rotation.y = Math.PI / 2;                 // face +X
-    this.screen.position.set(IPOD.face + 0.012,
+    this.screen.position.set(IPOD.face + IPOD.proud,
                              (IPOD.screen.y0 + IPOD.screen.y1) / 2,
                              (IPOD.screen.z0 + IPOD.screen.z1) / 2);
     model.add(this.screen);
@@ -208,7 +219,7 @@ export class IpodAct {
       new THREE.MeshBasicMaterial({ colorWrite:false, depthWrite:false, transparent:true, opacity:0 })
     );
     this.hit.rotation.y = Math.PI / 2;
-    this.hit.position.set(IPOD.face + 0.02, IPOD.play.y, IPOD.play.z);
+    this.hit.position.set(IPOD.face + IPOD.reach, IPOD.play.y, IPOD.play.z);
     model.add(this.hit);
 
     // normalise: pivot on the body centre, front (+X) toward the camera
@@ -247,7 +258,12 @@ export class IpodAct {
         // the model's own albedo, untouched. The dark tint this once carried
         // was compensating for a bright cyclorama; under the flagged room it
         // crushes the click wheel into an unreadable black slab.
-        color: m.color, side: m.side, transparent: m.transparent,
+        /* NOT m.transparent. This model's single material declares
+           alphaMode:BLEND for its screen glass, and copying that through
+           marked all six opaque meshes transparent — they leave the depth
+           buffer alone and get re-sorted every frame for nothing. fadeOut()
+           turns transparency back on when it actually needs it. */
+        color: m.color, side: m.side, transparent: false,
         roughness: 0.26, metalness: 0.22,
         clearcoat: 1.0, clearcoatRoughness: 0.065,
         envMapIntensity: 1.15

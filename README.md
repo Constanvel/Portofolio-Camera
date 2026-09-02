@@ -296,7 +296,7 @@ Simanjuntak. Yang berikut **bukan**, dan didaftar di sini serta di bagian
 | berkas | pembuat | lisensi |
 |---|---|---|
 | `assets/models/camera.glb` | [Dokono Kinokoda](https://sketchfab.com/JunkWren) — [Digital Camera](https://sketchfab.com/3d-models/digital-camera-5b2573eab7bf48f2bb8cd5a6026795b1) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
-| `assets/models/ipod.glb` | [Harrison Sikora](https://sketchfab.com/harrisonsikora) — [Ipod](https://sketchfab.com/3d-models/ipod-a9ccc57eafaa4c4db50fe78a1347d16b) | [Sketchfab Standard](https://sketchfab.com/licenses) |
+| `assets/models/ipod.glb` | [Timothy Ahene](https://sketchfab.com/timothyahene) — [iPod Classic](https://sketchfab.com/3d-models/ipod-classic-13dbe30b0e45408c8bfaddfe6a4e8786) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | `assets/fonts/VCR.woff2` | Riciery Leal — VCR OSD Mono | bebas, termasuk untuk komersial dan redistribusi |
 | `assets/audio/theme.mp3` | Parannoul — "No One Talk About It Anymore" | **tidak ada izin** |
 
@@ -304,13 +304,28 @@ Keduanya sudah dimodifikasi: mesh dan tekstur dikompres ulang lewat
 glTF-Transform, dan materialnya ditukar saat runtime di `js/scene.js`. CC BY
 mengizinkan itu selama perubahannya disebut, dan baris di atas menyebutnya.
 
-Dua yang masih terbuka:
+Yang masih terbuka tinggal satu:
 
-- **`ipod.glb`** — Sketchfab Standard melarang redistribusi berkas modelnya.
-  Menaruh `.glb` di server publik berarti siapa pun bisa mengunduhnya langsung,
-  jadi mencantumkan kredit saja tidak menutup masalah ini. Perlu diganti.
 - **`theme.mp3`** — rilisan komersial, dipakai tanpa izin. Yang menahannya
   sementara ini: pemutarannya mati sampai pengunjung sendiri yang menyalakan.
+
+iPod milik Harrison Sikora sebelumnya ada di sini dengan lisensi Sketchfab
+Standard, yang melarang redistribusi berkas modelnya — dan menaruh `.glb` di
+server publik berarti siapa pun bisa mengunduhnya langsung, jadi mencantumkan
+kredit saja tidak akan menutupnya. Sudah diganti dengan model CC BY di atas.
+
+Penggantian itu bukan sekadar tukar berkas. `IpodAct` di `js/scene.js`
+memegang koordinat yang diukur dari model tertentu — bidang kaca depan, batas
+layar, dan titik glyph play — dan ketiganya diukur ulang untuk model baru:
+mukanya satu quad datar di `x 0.01386` dengan seluruh gambar ada di tekstur,
+layarnya adalah LCD terbenam di belakang kaca (mesh 51 verteks), dan letak
+glyph play didapat dengan memindai peta base-colour sepanjang roda lalu
+mengambil sentroid tanda yang lebih terang dari cincinnya.
+
+Teksturnya juga dikecilkan: lima PNG 2048px jadi WebP 1024px, dan dua peta yang
+memang tidak pernah dibaca — emissive dan transmission, keduanya dibuang saat
+`scene.js` menyusun ulang materialnya — diganti gambar 4x4. 5,49 MB jadi 249 KB,
+lebih kecil daripada model yang digantikannya, tanpa beda yang terlihat.
 
 SF Pro Display pernah ada di sini dan sudah dibuang. Apple melisensikannya untuk
 platform Apple, bukan untuk disajikan dari server web. Sekarang `css/style.css`
