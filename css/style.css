@@ -202,8 +202,15 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
   display:block; margin-top:.75rem; color:var(--ink);
   font-size:.6875rem; font-weight:500; letter-spacing:.14em; text-transform:uppercase;
 }
+/* the one line that says what it is. Sentence case and normal tracking: it is
+   the only thing on a card meant to be READ rather than scanned, and setting it
+   like the labels around it would bury it among them. */
+.grid__d{
+  display:block; margin-top:.4rem; color:var(--ink-2);
+  font-size:.9375rem; line-height:1.5; letter-spacing:0; text-transform:none;
+}
 .grid__m{
-  display:block; margin-top:.3rem; color:var(--ink-3);
+  display:block; margin-top:.45rem; color:var(--ink-3);
   font-size:.6875rem; letter-spacing:.14em; text-transform:uppercase;
 }
 .grid__b:focus-visible .grid__img{ opacity:.82; }

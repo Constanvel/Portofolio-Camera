@@ -660,6 +660,15 @@ if (worksGrid){
     t.className = 'grid__t'; t.textContent = w.label;
 
     b.append(img, t);
+
+    /* Reading order on a card: what it is called, what it is, then when and
+       with whom. The meta line is the most incidental of the three, so it goes
+       last rather than between the name and the sentence that explains it. */
+    if (w.note){
+      const n = document.createElement('span');
+      n.className = 'grid__d'; n.textContent = w.note;
+      b.append(n);
+    }
     // year and role only when they are known — an empty line reads as a fault
     const meta = [w.year, w.role].filter(Boolean).join(' · ');
     if (meta){

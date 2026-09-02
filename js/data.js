@@ -8,8 +8,11 @@
 // The extension in `src` is not decoration: it is how canvas.js decides between
 // an <img> and a <video>, so a .png dropped in under a .jpg name loads neither.
 //
-// `blurb` and `points` are what opens when a tile or a works card is
-// pressed. `href` is optional and renders only when it is there — a project
+// `note` is the single line under a card in `works`; `blurb` and `points` are
+// the longer version, and open when a tile or a works card is pressed. Two
+// fields rather than one derived from the other: taking the first sentence of
+// `blurb` would work for four of these and swallow the whole paragraph for smk
+// telkom, whose first full stop is at the very end. `href` is optional and renders only when it is there — a project
 // with no repo yet gets no link rather than a dead one.
 //
 // `year` and `role` are read off each project's own git history, not
@@ -20,6 +23,7 @@
 export const WORKS = [
   {
     src: './assets/tiles/lensa.jpg', label: 'lensa',
+    note: 'A place to read and write about characters and works — essays, read through six lenses.',
     year: 'aug 2026', role: 'solo',
     blurb: 'A place to read and write criticism. An essay is filed against the characters and works it is about, so a piece has somewhere to live and something to be found from.',
     points: [
@@ -31,6 +35,7 @@ export const WORKS = [
   },
   {
     src: './assets/tiles/artvault.jpg', label: 'artvault',
+    note: 'An art community: uploads, discovery, rankings, commissions and contests.',
     year: 'aug 2026', role: 'solo',
     blurb: 'A community for artists to publish and be found. Work arrives in a feed, gets ranked, and can be commissioned or entered into a contest.',
     points: [
@@ -42,6 +47,7 @@ export const WORKS = [
   },
   {
     src: './assets/tiles/uang-jajan-tracker.jpg', label: 'uang jajan tracker',
+    note: 'A spending tracker for a phone — money in, money out, by category.',
     year: 'may–jun 2026', role: 'one of four',
     blurb: 'Pocket-money tracking on a phone. Adding a transaction is one sheet and nothing else: in or out, an amount, a category, and a note only if it needs one.',
     points: [
@@ -52,6 +58,7 @@ export const WORKS = [
   },
   {
     src: './assets/tiles/smk-telkom-purwokerto.jpg', label: 'smk telkom purwokerto',
+    note: 'The school site: admissions, majors, the job centre, and two assistants.',
     year: 'jul–aug 2026', role: 'two of us',
     blurb: 'The school’s own site — admissions, the majors on offer, the job centre and announcements, with an admin login behind all of it.',
     points: [
@@ -64,6 +71,7 @@ export const WORKS = [
   },
   {
     src: './assets/tiles/ai-text-summarizer.jpg', label: 'ai text summarizer',
+    note: 'Long text in, a short summary out, at three lengths. Runs on Groq.',
     year: 'aug 2026', role: 'solo',
     blurb: 'Paste something long, get the short version. Three lengths, and it counts the words while you type.',
     points: [
