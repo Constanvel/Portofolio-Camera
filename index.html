@@ -55,6 +55,7 @@
     <a class="nav__a" href="#/about">about</a>
     <a class="nav__a" href="#/skills">skills</a>
     <a class="nav__a" href="#/portfolio">portfolio</a>
+    <a class="nav__a" href="#/works">works</a>
     <a class="nav__a" href="#/experience">experience</a>
     <a class="nav__a" href="#/services">services</a>
     <a class="nav__a" href="#/achievements">achievements</a>
@@ -147,7 +148,22 @@
         <li class="rows__r"><span class="rows__k">smk telkom purwokerto</span><span class="rows__v"><button class="rows__btn" type="button" data-work="smk telkom purwokerto"><span class="rows__a">The school site: admissions, majors, the job centre, and two assistants.</span></button></span></li>
         <li class="rows__r"><span class="rows__k">ai text summarizer</span><span class="rows__v"><button class="rows__btn" type="button" data-work="ai text summarizer"><span class="rows__a">Long text in, a short summary out, at three lengths. Runs on Groq.</span></button></span></li>
       </ul>
-      <a class="page__cta" href="#/">see the canvas</a>
+      <!-- it used to say "see the canvas" and go to the drag plane. The plane is
+           still there under home; this goes to the gallery instead, where the
+           work can actually be looked at rather than found. -->
+      <a class="page__cta" href="#/works">see the work</a>
+      <button class="page__back" type="button" data-back>back</button>
+    </div>
+  </section>
+
+  <!-- The gallery. Deliberately empty markup: js/main.js builds the cards from
+       WORKS in js/data.js, the same table the canvas tiles and the detail panel
+       read, so the three cannot drift apart. Adding a project stays a one-line
+       edit in one file. -->
+  <section class="page" id="pageWorks" hidden>
+    <div class="page__in page__in--wide">
+      <h1 class="page__t">works</h1>
+      <ul class="grid" id="worksGrid"></ul>
       <button class="page__back" type="button" data-back>back</button>
     </div>
   </section>

@@ -235,3 +235,26 @@ Garis bawah geser `.nav__a::after` disembunyikan di dropdown: ia milik satu
 baris kata, dan di kolom akan duduk di bawah satu item seperti kesalahan cetak.
 Baris aktif ditandai tintanya saja.
 
+## Halaman works
+
+`#/works` adalah galeri: tiap proyek sebagai tangkapan layar 16:9, dengan nama
+dan `tahun · peran` di bawahnya, dan menekannya membuka panel penjelasan yang
+sama dengan tile kanvas dan baris `portfolio`.
+
+Markup-nya sengaja kosong — `<ul id="worksGrid">` diisi `js/main.js` dari
+`WORKS`, tabel yang sama yang dibaca kanvas dan panel. Menambah proyek tetap
+satu suntingan di satu berkas, dan ketiga tempatnya tidak bisa berbeda isi.
+
+Kartunya **tidak** `loading="lazy"`. Kartu dibangun selagi `works` masih
+`hidden`, dan gambar di dalam `display:none` tidak pernah berpotongan dengan
+viewport — jadi yang lazy tidak pernah diminta dan galerinya tinggal kosong.
+Memuatnya langsung pun gratis: kanvas sudah mengambil kelima berkas yang sama
+untuk tile-nya, jadi semuanya cache hit.
+
+Tombol di `portfolio` dulu berbunyi "see the canvas" dan menuju bidang seret.
+Bidangnya masih ada di `home`; tombolnya sekarang menuju galeri, tempat
+karyanya bisa dilihat dan bukan dicari-cari.
+
+`.page__in--wide` ada karena `34rem` itu ukuran untuk **dibaca**. Galeri tidak
+dibaca, ia dipindai, jadi ia dapat ruang yang dibutuhkan dua kolom.
+

@@ -635,6 +635,43 @@ function openWork(i){
 
   workDlg.showModal();
 }
+/* The gallery is built rather than written: the markup for `works` is an empty
+   <ul>, and the cards come from WORKS — the same table the canvas tiles and the
+   panel above read. Adding a project stays one edit in one file, and the three
+   places it appears cannot disagree. The buttons carry data-work, so the
+   delegated handler below opens them with no extra wiring. */
+const worksGrid = $('worksGrid');
+if (worksGrid){
+  worksGrid.replaceChildren(...WORKS.map(w => {
+    const li = document.createElement('li');
+    const b  = document.createElement('button');
+    b.type = 'button'; b.className = 'grid__b'; b.dataset.work = w.label;
+
+    const img = document.createElement('img');
+    img.className = 'grid__img'; img.src = w.src; img.alt = '';
+    /* NOT loading="lazy". These are built while `works` is still hidden, and an
+       image inside display:none never intersects the viewport, so a lazy one is
+       never asked for — the gallery stayed empty. Loading them anyway costs
+       nothing: the canvas already fetches these exact five files for its tiles,
+       so every one is a cache hit. */
+    img.decoding = 'async';
+
+    const t = document.createElement('span');
+    t.className = 'grid__t'; t.textContent = w.label;
+
+    b.append(img, t);
+    // year and role only when they are known — an empty line reads as a fault
+    const meta = [w.year, w.role].filter(Boolean).join(' · ');
+    if (meta){
+      const m = document.createElement('span');
+      m.className = 'grid__m'; m.textContent = meta;
+      b.append(m);
+    }
+    li.append(b);
+    return li;
+  }));
+}
+
 if (workDlg?.showModal){
   // the rows in `portfolio` are buttons, not links — there is no url under a
   // project, only this panel
