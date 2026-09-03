@@ -302,9 +302,54 @@ Simanjuntak. Yang berikut **bukan**, dan didaftar di sini serta di bagian
 | `assets/fonts/VCR.woff2` | Riciery Leal — VCR OSD Mono | bebas, termasuk untuk komersial dan redistribusi |
 | `assets/audio/theme.mp3` | [Nihilore](https://www.nihilore.com/) — [Something Meaningful](https://www.nihilore.com/postrock), putaran 48 detik | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 
-Keduanya sudah dimodifikasi: mesh dan tekstur dikompres ulang lewat
-glTF-Transform, dan materialnya ditukar saat runtime di `js/scene.js`. CC BY
-mengizinkan itu selama perubahannya disebut, dan baris di atas menyebutnya.
+Keduanya sudah dimodifikasi: tekstur dan geometrinya dikemas ulang, dan
+materialnya ditukar saat runtime di `js/scene.js`. CC BY mengizinkan itu
+selama perubahannya disebut, dan baris di atas menyebutnya.
+
+### Mengecilkan `camera.glb`
+
+Dugaan pertama saya salah. Tekstur biasanya yang paling berat di berkas glTF,
+tapi di sini kedelapan gambarnya sudah WebP dan cuma 0,33 MB — **11%** dari
+berkas. Yang berat justru vertex-nya, 2,61 MB untuk 44.117 titik:
+
+| | sebelum | sesudah | cara |
+|---|---|---|---|
+| indeks | 684 KB | 342 KB | u32 → u16 |
+| normal | 529 KB | 353 KB | f32 → i16 ternormalisasi |
+| tangen | 533 KB | 267 KB | f32 → i16 ternormalisasi |
+| posisi | 529 KB | 529 KB | tidak disentuh |
+| uv | 335 KB | 335 KB | tidak disentuh |
+
+Indeksnya u32 padahal primitif terbesar cuma 21.960 titik — Sketchfab menulis
+u32 tanpa melihat isinya, dan setengah dari 684 KB itu nol semua. Normal dan
+tangen aman diringkas karena keduanya vektor satuan: tidak butuh skala maupun
+offset, jadi tidak ada transform node yang harus ikut bergeser. **Posisi
+sengaja tidak diringkas** — itu perlu skalanya dilipat ke transform node, dan
+`CameraAct` mengukur koordinat dari hierarki itu.
+
+Hasilnya 2,97 MB → 2,19 MB mentah, 1,41 MB → 1,15 MB ter-gzip. Diverifikasi
+dengan memuat kedua berkas lewat GLTFLoader yang sama lalu membandingkan:
+44.117 posisi **sama persis bit demi bit**, uv sama persis, buffer indeks
+sama, tanda handedness tangen tidak ada yang terbalik, galat komponen normal
+1,53e-5 — tepat setengah langkah 16-bit, seminimal yang mungkin. Render kedua
+model ke framebuffer yang sama: **nol piksel berbeda** dari 167.096 piksel
+yang tersinari.
+
+`ipod.glb` dilewatkan pass yang sama: 249 KB → 220 KB.
+
+### Yang tidak jadi saya lakukan
+
+Membuang TANGENT sama sekali menghemat jauh lebih banyak — 1,83 MB mentah,
+0,98 MB gzip — karena three.js bisa menyusun tangent frame dari turunan
+layar kalau atributnya tidak ada. Tapi diukur, itu **bukan** gratis: 23% dari
+piksel tersinari berubah lebih dari 2/255, rata-rata 5,88, dan perubahannya
+menumpuk persis di tempat normal map bekerja — tekstur grip bergerigi dan
+huruf timbul di ring lensa. Itu detail yang sengaja dibuat perancangnya, di
+objek utama intro.
+
+`geometry.computeTangents()` bawaan three.js juga dicoba untuk mengembalikannya
+di sisi klien. Hasilnya lebih buruk daripada tidak punya tangen sama sekali
+(34,55% piksel, rata-rata 12,69) dan memakan 20 ms saat muat, jadi dibuang.
 
 Tidak ada lagi yang terbuka: keempatnya kini punya izin.
 
