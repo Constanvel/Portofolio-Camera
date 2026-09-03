@@ -10,7 +10,7 @@ import { WORKS } from './data.js';
 /* Two languages, one document. The English is the markup itself — see
    js/i18n.js — so this import is only the parts that are not in it: t() for a
    field off WORKS, s() for a string this file builds, applyLang() for the rest. */
-import { applyLang, lang, t, s, LANGS } from './i18n.js';
+import { applyLang, lang, t, s, pickLang } from './i18n.js';
 
 let S = null;                       // the scene module, once asked for
 let ipodModel = null, camModel = null;   // in flight from the moment it is
@@ -899,14 +899,8 @@ function renderLang(l, save){
   if (workDlg?.open && lastWork > -1) openWork(lastWork);
   if (save) remember('lang', lang);
 }
-/* Saved choice first, then what the browser asked for — navigator.languages is
-   ordered by preference and carries regional tags, so id-ID has to match as
-   well as id. Anything else, and anything at all on a browser that answers
-   nothing, is English: that is what the document already says. */
-const savedLang = recall('lang');
-renderLang(LANGS.includes(savedLang) ? savedLang
-  : (navigator.languages || [navigator.language || '']).some(l => /^id\b/i.test(l)) ? 'id' : 'en',
-  false);
+// pickLang lives in i18n.js because 404.html has to reach the same answer
+renderLang(pickLang(recall('lang')), false);
 langBtn.addEventListener('click', () => renderLang(lang === 'id' ? 'en' : 'id', true));
 
 applyRoute();

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Not here — Constantine Rainer Simanjuntak</title>
+<title data-t="e404.title">Not here — Constantine Rainer Simanjuntak</title>
 <meta name="robots" content="noindex">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='16' y='24' font-size='28' font-family='Helvetica,Arial' text-anchor='middle' fill='%23111014'%3E*%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="./css/style.css">
@@ -20,9 +20,9 @@
   <section class="page is-lit">
     <div class="page__in">
       <p class="page__p" style="margin-bottom:1.2rem">*</p>
-      <h1 class="page__t">not here</h1>
-      <p class="page__p">That address does not exist. The sections all live on one page.</p>
-      <a class="page__cta" href="./">go to the start</a>
+      <h1 class="page__t" data-t="e404.t">not here</h1>
+      <p class="page__p" data-t="e404.body">That address does not exist. The sections all live on one page.</p>
+      <a class="page__cta" href="./" data-t="e404.cta">go to the start</a>
     </div>
   </section>
 
@@ -36,6 +36,22 @@
     var routes = ['about','skills','works','experience','services','achievements','contact'];
     var last = location.pathname.replace(/\/+$/, '').split('/').pop().toLowerCase();
     if (routes.indexOf(last) > -1) location.replace('./#/' + last);
+  </script>
+
+  <!-- The whole of the language switch this page needs. No toggle: there is
+       nothing on a 404 to change your mind about, so it only honours the
+       choice already made on the real page, and reaches it through the same
+       pickLang() so the two pages cannot disagree about what a browser asking
+       for id-ID means. 'pf.lang' is the key js/main.js writes, and the try
+       block is because localStorage throws outright in some privacy modes
+       rather than returning null.
+       A module, so it runs after the redirect above has already had its say —
+       there is no point translating a page that is on its way somewhere. -->
+  <script type="module">
+    import { applyLang, pickLang } from './js/i18n.js';
+    var saved = null;
+    try { saved = localStorage.getItem('pf.lang'); } catch (e) {}
+    applyLang(pickLang(saved));
   </script>
 </body>
 </html>

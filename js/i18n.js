@@ -31,6 +31,19 @@ export const t = (o, k) => (lang === 'id' && o[k + '_id']) || o[k];
    dictionary for the handful of strings JavaScript happens to build. */
 export const s = (k, en = k) => (lang === 'id' && ID[k]) || en;
 
+/* The language to open in: a saved choice first, then what the browser asked
+   for — navigator.languages is ordered by preference and carries regional
+   tags, so id-ID has to match as well as plain id. Anything else, and anything
+   at all on a browser that answers nothing, is English, because that is what
+   the documents already say.
+   Here rather than in js/main.js because 404.html has to reach the same answer
+   and has none of main.js — no router, no scene, no storage helpers. */
+export function pickLang(saved){
+  if (LANGS.includes(saved)) return saved;
+  return (navigator.languages || [navigator.language || ''])
+    .some(l => /^id/i.test(l)) ? 'id' : 'en';
+}
+
 /* Only the Indonesian, keyed by the data-t on the node it replaces.
    ponytail: the four credit rows carry their <a href> in here as well as in
    index.html, so those five urls exist twice and a link that moves has to move
@@ -125,6 +138,26 @@ const ID = {
   'ct.body': 'Terbuka untuk kolaborasi, lomba, dan apa pun yang perlu dibangun.',
   'ct.cta':  'kirim pesan',
 
+  /* the page that is not a page.
+     No toggle over there: there is nothing on a 404 to change your mind about,
+     so it only honours the choice already made on the real page. */
+  'e404.title': 'Tidak ada di sini — Constantine Rainer Simanjuntak',
+  'e404.t':     'tidak ada di sini',
+  'e404.body':  'Alamat itu tidak ada. Semua bagiannya tinggal di satu halaman.',
+  'e404.cta':   'ke halaman awal',
+
+  /* what the page says about itself before anyone opens it.
+     ponytail: a scraper never runs this — WhatsApp, Twitter and Facebook read
+     the markup and stop, so what they quote is the English above, always. Only
+     a crawler that renders (Googlebot does) ever sees these, and it renders
+     with no saved choice and a browser that asks for English, so it indexes
+     the English too. They are here so the document is not describing itself in
+     the wrong language to anyone who does read the DOM, and so the mechanism
+     is already in place the day a real /id/ url exists — which is the only
+     thing that would actually serve Indonesian to a scraper. */
+  'meta.desc': 'Constantine Rainer Simanjuntak — siswa PPLG di SMK Telkom Purwokerto. Aplikasi web dan perkakas AI, dibangun dari awal sampai rilis.',
+  'meta.og':   'Siswa PPLG di SMK Telkom Purwokerto. Aplikasi web dan perkakas AI, dibangun dari awal sampai rilis.',
+
   /* the two panels that open over the page */
   'wk.repo': 'buka repo di GitHub',
   'wk.open': 'buka proyeknya',
@@ -140,7 +173,10 @@ const ID = {
    with a link inside them, and every value above is a literal in this file. */
 const SLOTS = [
   ['t',  el => el.innerHTML,                  (el, v) => { el.innerHTML = v; }],
-  ['ta', el => el.getAttribute('aria-label'), (el, v) => el.setAttribute('aria-label', v)]
+  ['ta', el => el.getAttribute('aria-label'), (el, v) => el.setAttribute('aria-label', v)],
+  // `content`, for the <meta> description and its open-graph twin — see the
+  // note on meta.desc above for how little that is worth and why it is here
+  ['tc', el => el.getAttribute('content'),    (el, v) => el.setAttribute('content', v)]
 ];
 
 /* The English, taken off the DOM the first time a key is asked for. Keyed by
