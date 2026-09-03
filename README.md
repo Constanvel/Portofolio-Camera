@@ -279,6 +279,23 @@ Keduanya terlihat. Lensa sungguhan punya masalah yang sama dan menyelesaikannya
 dengan cara yang sama — bilahnya berjalan **di belakang** pelat, dan yang pernah
 terlihat cuma jendela bundar yang dilubangi di sana.
 
+**Lensanya masuk saat kilatannya surut, bukan bersamaan.** Kurva kilatannya
+diukur: penuh sampai 60 ms, 0,30 di 100 ms, 0,12 di 150 ms, praktis habis di
+200 ms. Versi pertama memulai lensa di 0, jadi ia menjalani 40% kedatangannya
+**di bawah** cahaya dan sudah terbuka waktu cahayanya hilang — ia muncul
+sebelum ada yang sempat melihatnya muncul. `HOLD` 90 ms menaruh frame
+pertamanya tepat saat kilatannya meluruh, jadi yang menyingkapnya justru
+pudarnya cahaya itu.
+
+**Dan satu bug yang saya buat sendiri di `GL.start()`.** Sebuah act bisa
+mengakhiri seluruh sekuens dari dalam tick-nya: `CameraAct` memanggil
+`onDone()` di sana, `onDone` itu `finish()`, dan sejak `finish()` membuang
+renderer-nya, baris **tepat sesudah** loop act menggambar ke konteks yang sudah
+tidak ada. Ia tidak melempar error — ia cuma meninggalkan apa pun yang
+ditinggalkan driver, dan itulah kenapa frame terakhir intro berubah jadi
+kosong. `stop()` menolkan `_raf`, jadi `_raf` sendiri yang jadi penjaganya dan
+tidak perlu variabel kedua.
+
 **Kanvasnya sendiri, dan itu bukan pilihan.** Intro mengembalikan konteks
 WebGL-nya saat selesai, dan kanvas yang sudah kena `forceContextLoss()` tidak
 bisa menampung renderer kedua — `getContext()` mengembalikan `null` sejak itu.

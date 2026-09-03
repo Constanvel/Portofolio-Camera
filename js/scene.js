@@ -184,6 +184,14 @@ export class GL {
       this._raf = requestAnimationFrame(loop);
       const t = now - this._t0;
       for (const a of this.acts) a.tick && a.tick(t, now);
+      /* An act can end the whole sequence from inside its own tick: CameraAct
+         calls onDone() there, onDone is finish(), and finish() now disposes
+         this renderer and hands its context back. Without this guard the very
+         next line draws against a context that no longer exists — it does not
+         throw, it just leaves whatever the driver leaves, which is how the
+         last frame of the intro turned into a blank one. stop() zeroes _raf,
+         so _raf is the flag; it needs no second variable. */
+      if (!this._raf) return;
       this.renderer.render(this.scene, this.camera);
     };
     this._raf = requestAnimationFrame(loop);
@@ -892,9 +900,16 @@ export class LensAct {
        the body arrives, the blades open behind it, and the whole thing leaves.
        No bounce anywhere — expo out and a cubic bézier, the same law the
        digicam obeys. */
-    const pIn   = clamp01(e / 380);
-    const pOpen = clamp01((e - 140) / 520);
-    const pOut  = clamp01((e - 760) / 420);
+    /* Measured off the flash's own curve rather than guessed: it holds full
+       to 60ms, is at 0.30 by 100ms, 0.12 by 150ms and effectively gone by
+       200ms. Starting the lens at 0 meant it did the first 40% of its arrival
+       underneath the light and was already open when the light cleared — it
+       had appeared before anyone could see it appear. HOLD puts its first
+       frame where the flash is decaying, so the fade is what reveals it. */
+    const HOLD  = 90;
+    const pIn   = clamp01((e - HOLD) / 380);
+    const pOpen = clamp01((e - HOLD - 140) / 520);
+    const pOut  = clamp01((e - HOLD - 730) / 420);
 
     this.rig.scale.setScalar(lerp(0.82, 1, POP(pIn)) * lerp(1, 1.12, inOut(pOut)));
     this.rig.rotation.z = lerp(-0.22, 0, GLIDE(pIn)) + lerp(0, 0.12, pOut);
