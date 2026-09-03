@@ -731,3 +731,195 @@ export class CameraAct {
     purge(this.shadow);              // its own canvas texture, built in env.js
   }
 }
+
+/* ── act three · the lens ─────────────────────────────────────────────────
+   The one object on this site that was not modelled by somebody else. It is
+   built from three built-in geometries and a Shape, which is the same bargain
+   env.js already takes for the studios: a thing described in code costs no
+   bytes, needs no licence, and cannot be the wrong size on a phone.
+
+   It is an iris — the same gesture as the clip-path in style.css and the same
+   gesture the digicam's own aperture makes, at a third scale. The section
+   behind it opens through a 2D circle; this opens in front of it in six blades.
+
+   The material is CameraAct's, copied deliberately rather than shared: the same
+   roughness, metalness and clearcoat under the same studio room, so the thing
+   that arrives on a section reads as the same manufactured object as the camera
+   the visitor just watched. That is the whole point of it being here. */
+export class LensAct {
+  constructor(gl, { blades = 6, onDone = () => {} } = {}){
+    this.gl = gl;
+    this.onDone = onDone;
+    this.blades = [];
+
+    /* Machined metal for the blades, not the camera's painted shell. They are
+       lit only by the studio's reflections — there is no albedo to fall back on
+       at this metalness — so the first pass at 0x2a2a30 came out as a black
+       ring on a black page. A blade has to be bright enough to be a blade. */
+    const steel = new THREE.MeshPhysicalMaterial({
+      color: 0x9aa0aa, roughness: 0.22, metalness: 0.90,
+      clearcoat: 1.0, clearcoatRoughness: 0.065
+    });
+    const barrelMat = new THREE.MeshPhysicalMaterial({
+      color: 0x1c1c22, roughness: 0.38, metalness: 0.55,
+      clearcoat: 0.6, clearcoatRoughness: 0.18
+    });
+    this.mats = [steel, barrelMat];
+
+    this.rig = new THREE.Group();
+
+    /* the barrel, open at both ends so the blades read against nothing rather
+       than against a disc — an iris with a back to it is a button, not a lens */
+    const barrel = new THREE.Mesh(
+      new THREE.CylinderGeometry(5.25, 5.25, 1.6, 64, 1, true), barrelMat);
+    barrel.rotation.x = Math.PI / 2;
+    this.rig.add(barrel);
+
+    /* The faceplate, and it is not decoration — it is what makes the mechanism
+       work on screen. A rigid blade cannot have an outer edge that stays on the
+       barrel wall through its own rotation: at shut its corners sat at 3.02 and
+       left six notches around the rim, and at open the trailing corner swings
+       out to 3.62 and burst through the wall. Both were visible.
+       A real lens has the same problem and solves it the same way: the blades
+       run BEHIND a plate, and all you ever see is the round window cut in it.
+       The window is 3.0, the blades sweep to 3.62, and the difference is hidden
+       rather than engineered away. */
+    /* Outer radius 4.8, not 3.92. A blade's blunt end swings furthest at full
+       aperture, not at shut: at 2.05 rad it reaches r = 4.59, and the first
+       plate stopped at 3.92 — so six grey petals appeared around the ring at
+       exactly the moment the shot is supposed to be at its cleanest. The plate
+       has to be as wide as the widest thing behind it.
+       5.25 is not arithmetic either: every vertex of a blade was transformed
+       through the whole sweep and the furthest reached 5.15, at 2.05 rad. Two
+       guesses at this number were both short. */
+    const face = new THREE.Mesh(new THREE.RingGeometry(3.0, 5.25, 64), barrelMat);
+    face.position.z = 0.62;
+    this.rig.add(face);
+
+    // the machined lip of the window, sitting on the faceplate's inner edge
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(3.0, 0.15, 16, 64), steel);
+    ring.position.z = 0.62;
+    this.rig.add(ring);
+
+    /* One blade, six pivots. A blade pivots on the ring and swings inward, which
+       is what makes the opening a rotating hexagon instead of a shrinking hole —
+       the giveaway that separates an iris from a circle getting smaller. */
+    const s = new THREE.Shape();
+    /* w 1.25 so that at shut the corners reach 3.02, just past the 3.0 window,
+       and the aperture closes with no gap at the rim. What they do beyond that
+       is the faceplate's problem, not the blade's. */
+    const w = 1.25, len = 2.9, pivotR = 2.75;
+    /* A BLUNT inner end, not a point. The first shape tapered to a tip, and six
+       tips only ever meet at one exact rotation — measured by reading the centre
+       pixel across the whole sweep, the aperture was open at every angle but
+       0.00. An iris closes because its blades OVERLAP each other, which needs an
+       inner edge with width to it. */
+    s.moveTo(0, -w);
+    s.lineTo(0, w);
+    s.quadraticCurveTo(-len * 0.72, w * 1.04, -len, w * 0.42);
+    s.quadraticCurveTo(-len * 1.06, 0, -len, -w * 0.42);
+    s.quadraticCurveTo(-len * 0.72, -w * 1.04, 0, -w);
+    const bladeGeo = new THREE.ExtrudeGeometry(s, {
+      depth: 0.07, bevelEnabled: true, bevelSize: 0.03,
+      bevelThickness: 0.02, bevelSegments: 2, curveSegments: 12
+    });
+    this.geos = [barrel.geometry, face.geometry, ring.geometry, bladeGeo];
+
+    for (let i = 0; i < blades; i++){
+      const pivot = new THREE.Group();
+      pivot.rotation.z = (i / blades) * Math.PI * 2;
+      const blade = new THREE.Mesh(bladeGeo, steel);
+      blade.position.set(pivotR, 0, 0);
+      // stacked so no two blades share a plane and z-fight, and all of them
+      // behind the faceplate at 0.62
+      blade.position.z = 0.10 + i * 0.06;
+      pivot.add(blade);
+      this.rig.add(pivot);
+      this.blades.push(blade);
+    }
+
+    this.rig.visible = false;
+    gl.scene.add(this.rig);
+
+    /* The rig stays at the origin and the CAMERA moves, which is how both acts
+       before it are framed — see IpodAct.resize(). Writing the distance into
+       rig.position.z instead put the object at -22.6 while the camera sat at
+       +24, so it was framed at nearly twice the distance asked for and came out
+       half the size it should have been. */
+    const box = new THREE.Box3().setFromObject(this.rig);
+    const size = box.getSize(new THREE.Vector3());
+    this.worldW = size.x; this.worldH = size.y;
+    this.resize();
+    this.t0 = 0;
+    this.done = true;      // nothing to draw until begin() says so
+  }
+
+  /* Same split IpodAct uses: a narrow screen gives the object more of the
+     frame, because the frame itself is smaller. */
+  resize(){
+    const fill = window.innerWidth < 640 ? 0.62 : 0.46;
+    this.gl.camera.position.set(0, 0, this.gl.distanceFor(this.worldW, this.worldH, fill));
+  }
+
+  begin(){
+    /* The wall clock, the way IpodAct and CameraAct both take it — not the
+       elapsed `t` latched on first tick. Latching read `if (!this.t0)`, which
+       cannot tell an unset clock from a real zero and re-latches every frame
+       until the number happens to be truthy. */
+    this.t0 = performance.now();
+    this.done = false;
+    this.rig.visible = true;
+  }
+
+  /* Measured, not guessed: with the blades swept through their whole range and
+     the centre pixel read back at each step, the aperture is covered from
+     -0.20 to +0.20 and clear outside it. 0 is the middle of that band, so it
+     is the safest shut. The first pair of numbers here were -0.30 and 0.62 —
+     BOTH outside the band — so the iris opened, closed through the middle, and
+     opened again, which is not what a shutter does. */
+  static get SHUT(){ return 0.00; }
+  /* 2.05, measured the same way as SHUT: the clear area of the window was read
+     back across the sweep, and 0.62 — the first guess — left it only 6% open,
+     which is a lens stopped down to a pinhole rather than one wide open. 2.05
+     reads 70%. */
+  static get OPEN(){ return 2.05; }
+
+  tick(t, now){
+    if (this.done) return;
+    const e = (now ?? performance.now()) - this.t0;
+
+    /* Three moves on one clock, the way the two acts before it are written:
+       the body arrives, the blades open behind it, and the whole thing leaves.
+       No bounce anywhere — expo out and a cubic bézier, the same law the
+       digicam obeys. */
+    const pIn   = clamp01(e / 380);
+    const pOpen = clamp01((e - 140) / 520);
+    const pOut  = clamp01((e - 760) / 420);
+
+    this.rig.scale.setScalar(lerp(0.82, 1, POP(pIn)) * lerp(1, 1.12, inOut(pOut)));
+    this.rig.rotation.z = lerp(-0.22, 0, GLIDE(pIn)) + lerp(0, 0.12, pOut);
+
+    const a = lerp(LensAct.SHUT, LensAct.OPEN, expoOut(pOpen));
+    for (const b of this.blades) b.rotation.z = a;
+
+    /* It has to leave, and it has to leave through transparency rather than by
+       shrinking to nothing: the section is already lit underneath, and an
+       object that scales away reads as retreating rather than dissolving. */
+    const fade = 1 - inOut(pOut);
+    for (const m of this.mats){
+      m.transparent = pOut > 0;
+      m.opacity = fade;
+      m.depthWrite = pOut === 0;
+    }
+    if (pOut >= 1){
+      this.done = true;
+      this.rig.visible = false;
+      this.onDone();
+    }
+  }
+
+  dispose(){
+    this.gl.scene.remove(this.rig);
+    purge(this.rig);
+  }
+}

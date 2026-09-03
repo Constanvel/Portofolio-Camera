@@ -93,6 +93,20 @@
   <!-- ── the lens vignette · rides the whole intro, lifts as the page lands ─ -->
   <div class="vig" id="vig" aria-hidden="true"></div>
 
+  <!-- ── the shutter, on the way into a section ───────────────────────────
+       Its own canvas rather than the one above, and not by choice: the intro
+       hands its WebGL context back when it finishes (see finish() in main.js),
+       and a canvas that has had forceContextLoss() called on it cannot host a
+       second renderer — getContext() returns null from then on. Measured, not
+       assumed. It stays empty and costs nothing until the first section is
+       opened on a pointer-fine device; the lite path never creates a renderer
+       for it at all. -->
+  <canvas class="glx" id="glx" aria-hidden="true" hidden></canvas>
+  <!-- The frame is exposed. White, 90ms, over everything including the section
+       that is arriving — a flash is the one thing on this page that is allowed
+       to be louder than the content. -->
+  <div class="flash" id="flash" aria-hidden="true"></div>
+
   <!-- ── stage 4 · home · the canvas of work ──────────────────────────── -->
   <main class="work" id="work" hidden>
     <!-- The home page IS this canvas, and a canvas says nothing to a screen

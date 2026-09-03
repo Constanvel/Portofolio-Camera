@@ -238,6 +238,65 @@ memanggil `showWork()` juga, dan di sana bidangnya sudah disingkap oleh monitor
 kamera yang menutup ke tepi viewport — apertur di atasnya berarti dua penyingkap
 berebut. Jalur LITE tidak punya apa-apa di sana, dan itu justru alasannya.
 
+## Kilatan dan lensa
+
+Klik nav memicu dua hal sebelum bagiannya muncul: kilatan putih, lalu sebuah
+iris 3D di tengah layar yang membuka, lalu larut.
+
+**Kilatannya tidak simetris.** Naik 8%, turun 92%. Kilatan sungguhan itu lonjakan
+— terang hampir seketika, lalu peluruhan yang panjang dibanding naiknya. Kurva
+simetris terbaca sebagai kartu putih yang di-fade, dan itu dissolve, bukan
+eksposur. Ia juga putih di kedua tema dengan sengaja: ini tabung xenon, bukan
+permukaan, jadi tidak ikut palet halaman.
+
+**Lensanya prosedural, bukan `.glb`.** Empat geometri bawaan dan satu `Shape` —
+tawaran yang sama yang sudah diambil `env.js` untuk studionya: benda yang
+dijelaskan lewat kode tidak memakan byte, tidak butuh lisensi, dan tidak bisa
+salah ukuran di layar mana pun. Materialnya disalin dari `CameraAct` supaya
+benda yang datang di tiap bagian terbaca sebagai barang buatan pabrik yang sama
+dengan kamera yang baru saja ditonton pengunjung.
+
+**Empat angka di dalamnya diukur, bukan dikira, dan keempat tebakan awal saya
+salah:**
+
+| | tebakan | terukur | caranya |
+|---|---|---|---|
+| sudut tertutup | −0,30 | **0,00** | piksel tengah dibaca di sepanjang sapuan; tertutup hanya di −0,20…+0,20, dan tebakan lama ada di luar itu — irisnya membuka, menutup, lalu membuka lagi |
+| sudut terbuka | 0,62 | **2,05** | luas bersih jendela dihitung per sudut; 0,62 cuma 6% terbuka, 2,05 memberi 70% |
+| lebar bilah | 1,0 | **1,25** | pada 1,0 bilahnya bertemu di tengah tapi menyisakan enam takik di pinggir |
+| radius pelat muka | 3,92 | **5,25** | tiap verteks bilah ditransformasi sepanjang sapuan; yang terjauh mencapai 5,15 |
+
+**Bilahnya berujung tumpul, bukan runcing.** Bentuk pertama meruncing ke satu
+titik, dan enam titik hanya bertemu di satu rotasi persis — terukur, apertur-nya
+terbuka di setiap sudut kecuali 0,00. Iris menutup karena bilahnya **saling
+menindih**, dan itu butuh sisi dalam yang punya lebar.
+
+**Pelat mukanya bukan hiasan, ia yang membuat mekanismenya bekerja di layar.**
+Bilah kaku tidak bisa punya sisi luar yang selalu menempel di dinding tabung
+sepanjang rotasinya sendiri: saat tertutup sudutnya di 3,02 dan meninggalkan
+takik, saat terbuka sudut belakangnya menyapu ke 3,62 dan menembus dinding.
+Keduanya terlihat. Lensa sungguhan punya masalah yang sama dan menyelesaikannya
+dengan cara yang sama — bilahnya berjalan **di belakang** pelat, dan yang pernah
+terlihat cuma jendela bundar yang dilubangi di sana.
+
+**Kanvasnya sendiri, dan itu bukan pilihan.** Intro mengembalikan konteks
+WebGL-nya saat selesai, dan kanvas yang sudah kena `forceContextLoss()` tidak
+bisa menampung renderer kedua — `getContext()` mengembalikan `null` sejak itu.
+Diukur, bukan diasumsikan.
+
+**Ponsel tidak mendapat lensanya.** Jalur LITE sengaja tidak memuat three.js
+sama sekali, dan itu yang menjaga muatan ponsel di 1,08 MB. Ponsel dapat
+kilatan dan apertur CSS-nya; renderer tidak pernah dibuat. Cabut `LITE ||` dari
+penjaga di `fireLens()` untuk memberikannya juga, dengan ongkos mengirim
+renderer ke sana.
+
+Renderer-nya dibuat sekali lalu disimpan — yang mahal di `S.GL` adalah dua bakar
+PMREM di konstruktornya, dan mengulang itu tiap klik jauh lebih mahal daripada
+konteks yang ia pegang. Tapi loop-nya **tidak** dibiarkan jalan: `restLens()`
+menghentikannya begitu irisnya selesai atau pengunjung kembali ke home, karena
+menggambar scene kosong 60 kali sedetik di atas kanvas karya persis tagihan yang
+`finish()` ditulis untuk berhenti membayar.
+
 ## Panel proyek
 
 Menekan sebuah karya membuka penjelasannya, dari dua arah: tile di kanvas
