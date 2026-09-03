@@ -87,18 +87,42 @@ bidang tidak perlu digambar ulang enam puluh kali sedetik di bawahnya.
 
 ## Tayang
 
-Berkas statis, tanpa langkah build — arahkan GitHub Pages ke branch `main`,
-folder root. `.nojekyll` ada supaya Pages tidak membuang apa pun yang berawalan
-garis bawah; `404.html` menangkap alamat yang tidak ada, dan meneruskan
-`/experience` ke `#/experience` karena itu bukan alamat salah, cuma alamat yang
-ditulis dengan cara lama. Alamat kanonik dan semua tag `og:` menunjuk ke
-`https://constanvel.github.io/Portofolio-Camera/` — ubah keduanya kalau
-domainnya pindah, termasuk `og:image`, yang **harus** absolut: setiap pengambil
-pratinjau menariknya tanpa halaman untuk melandaskan path relatif.
+Berkas statis, tanpa langkah build. Di Vercel: impor repo-nya, lalu **kosongkan
+Build Command, Output Directory dan Install Command**, dan setel Framework
+Preset ke **Other**. Dibiarkan menebak, Vercel akan mencari `package.json` yang
+tidak ada di sini dan build-nya gagal. Root Directory default sudah benar —
+akar git repo ini memang akar situsnya.
 
-`assets/og.jpg` (1200×630) dibuat ulang dengan skrip di riwayat commit, memakai
-`assets/fonts/SFProDisplay-*.woff2` — kartu bagikan pakai huruf yang sama dengan
-halamannya.
+`404.html` menangkap alamat yang tidak ada, dan meneruskan `/experience` ke
+`#/experience` karena itu bukan alamat salah, cuma alamat yang ditulis dengan
+cara lama. Skripnya jalan di sisi klien, jadi tidak bergantung pada host.
+
+`.nojekyll` sudah tidak berguna di Vercel — itu khusus GitHub Pages, supaya ia
+tidak membuang berkas berawalan garis bawah. Dibiarkan karena tidak mengganggu
+dan berguna kalau suatu saat kembali ke Pages.
+
+**Lima alamat harus ikut pindah kalau domainnya berubah**, dan semuanya mutlak:
+
+    index.html   canonical, og:url, og:image
+    sitemap.xml  <loc>
+    robots.txt   Sitemap:
+
+Satu perintah mengganti kelimanya:
+
+    grep -rl 'portofolio-camera.vercel.app' index.html sitemap.xml robots.txt       | xargs sed -i 's|https://portofolio-camera.vercel.app/|https://DOMAIN-BARU/|g'
+
+`og:image` yang paling tidak memaafkan: setiap pengambil pratinjau menariknya
+**tanpa halaman** untuk melandaskan path relatif, jadi alamat yang salah berarti
+kartu bagikan di WhatsApp dan LinkedIn jadi kotak abu-abu. `canonical` yang
+menunjuk ke alamat mati juga memberi tahu mesin pencari bahwa halaman aslinya
+ada di tempat yang 404.
+
+Path aset tidak perlu disentuh — semuanya relatif, dan justru lebih aman di akar
+domain daripada di sub-direktori.
+
+`assets/og.jpg` (1200×630) dibuat ulang dengan skrip di riwayat commit. Skrip itu
+memakai SF Pro, yang sudah tidak ada di repo ini — lihat bagian lisensi aset —
+jadi membuatnya ulang sekarang perlu huruf pengganti.
 
 Halaman ini juga punya versi tanpa JS. Tiap bagian dimulai `hidden` dan dibuka
 oleh router, jadi tanpa skrip yang tampil bukan versi polos melainkan halaman

@@ -4,7 +4,7 @@
      same document seven times. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://constanvel.github.io/Portofolio-Camera/</loc>
+    <loc>https://portofolio-camera.vercel.app/</loc>
     <changefreq>monthly</changefreq>
   </url>
 </urlset>
