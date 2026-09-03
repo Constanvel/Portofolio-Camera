@@ -10,6 +10,7 @@
 
 import * as THREE from 'three';
 import { GLTFLoader } from './vendor/GLTFLoader.js';
+import { MeshoptDecoder } from './vendor/meshopt_decoder.module.js';
 import { studioEnvironment, shadowSprite, STUDIO, RIM } from './env.js';
 // the iPod's screen is the only text this file paints — see paintScreen. No
 // cycle: i18n.js imports nothing, and main.js has already loaded it by the time
@@ -239,8 +240,13 @@ export class GL {
   }
 }
 
-/* ── loader ─────────────────────────────────────────────────────────── */
-const loader = new GLTFLoader();
+/* ── loader ───────────────────────────────────────────────────────────
+   Both models are meshopt-compressed, so the decoder is not optional: without
+   it GLTFLoader throws on EXT_meshopt_compression, which is in their
+   extensionsRequired. It costs 24 KB against the 1.4 MB the compression takes
+   off the two files, and unlike Draco it is one module with its wasm inlined
+   rather than a decoder directory to keep in sync with the loader. */
+const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
 export function load(url){
   return new Promise((res, rej) => loader.load(url, g => res(g.scene), undefined, rej));
 }
