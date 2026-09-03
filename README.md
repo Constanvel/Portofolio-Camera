@@ -300,7 +300,7 @@ Simanjuntak. Yang berikut **bukan**, dan didaftar di sini serta di bagian
 | `assets/models/camera.glb` | [Dokono Kinokoda](https://sketchfab.com/JunkWren) — [Digital Camera](https://sketchfab.com/3d-models/digital-camera-5b2573eab7bf48f2bb8cd5a6026795b1) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | `assets/models/ipod.glb` | [Timothy Ahene](https://sketchfab.com/timothyahene) — [iPod Classic](https://sketchfab.com/3d-models/ipod-classic-13dbe30b0e45408c8bfaddfe6a4e8786) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | `assets/fonts/VCR.woff2` | Riciery Leal — VCR OSD Mono | bebas, termasuk untuk komersial dan redistribusi |
-| `assets/audio/theme.mp3` | [Nihilore](https://www.nihilore.com/) — [Something Meaningful](https://www.nihilore.com/postrock) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+| `assets/audio/theme.mp3` | [Nihilore](https://www.nihilore.com/) — [Something Meaningful](https://www.nihilore.com/postrock), putaran 48 detik | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 
 Keduanya sudah dimodifikasi: mesh dan tekstur dikompres ulang lewat
 glTF-Transform, dan materialnya ditukar saat runtime di `js/scene.js`. CC BY
@@ -319,18 +319,57 @@ bukan dari Free Music Archive: di sana beberapa lagunya bertanda CC BY-**NC**,
 padahal di profil FMA yang sama ia menulis semuanya CC BY *"even the ones i
 messed up and can't change"*. Pernyataan di situsnya sendiri yang dipakai.
 
-Encode-nya 320 kbps jadi 96 kbps, 11,5 MB jadi 3,46 MB. Bukan 64 kbps seperti
-berkas lama: diukur terhadap sumbernya, 64 kbps memangkas 6 dB di 14 kHz dan
-16 dB di 18 kHz — untuk shoegaze, yang justru hidup di frekuensi tinggi, itu
-pertukaran yang salah. 96 kbps menempel ke sumber sampai 16 kHz.
+Encode-nya 320 kbps jadi 96 kbps. Bukan 64 kbps seperti berkas lama: diukur
+terhadap sumbernya, 64 kbps memangkas 6 dB di 14 kHz dan 16 dB di 18 kHz —
+untuk shoegaze, yang justru hidup di frekuensi tinggi, itu pertukaran yang
+salah. 96 kbps menempel ke sumber sampai 16 kHz.
 
 Dinamikanya tidak disentuh: `loudnorm` sempat dicoba dan memakan 3,5 LU dari
-rentangnya, jadi yang dipakai hanya gain rata −2 dB supaya true peak turun dari
-+0,9 ke −1,1 dBFS. LRA tetap 7,6 LU, sama persis dengan sumbernya.
+rentangnya, jadi yang dipakai hanya gain rata −2 dB.
 
-Karena itu `level` di `js/main.js` naik 0,42 → 0,66. Lagu ini −15,0 LUFS
-sementara yang lama −11,0; empat desibel itu nyata, dan pengalinya (×1,585)
-mengembalikan kekerasan yang terdengar ke titik semula.
+### Kenapa 48 detik, bukan lagu utuh
+
+Berkasnya bukan lagu penuh, melainkan **48,000 detik pertama yang dibuat
+berputar mulus** — 11,5 MB jadi 577 KB. Ini yang paling mahal di situs: dengan
+`preload="auto"` ia terunduh sebelum ada gerakan apa pun, dan di jalur LITE
+seluruh halaman ponsel cuma 516 KB, jadi lagu 3,6 MB adalah 88% dari muatan.
+
+48 detik bukan tebakan. Selubung energinya diukur per 10 ms, lalu dicari
+panjang putaran yang bagian awalnya paling mirip dengan bagian setelahnya
+(korelasi silang ternormalisasi, jendela 4 detik):
+
+| panjang | birama | korelasi |
+|---|---|---|
+| 24,0 s | 8 | 0,980 |
+| **48,0 s** | **16** | **0,969** |
+| 72,0 s | 24 | 0,843 |
+| 96,0 s | 32 | 0,725 |
+
+Puncaknya tepat di kelipatan 24 detik, jadi lagunya memang memutar figur
+8-birama pada 80 BPM. 24 detik menang tipis tapi terlalu pendek untuk didengar
+berulang; 48 detik hampir sama mulusnya dengan dua kali materi. Sapuan dua
+dimensi atas titik-mulai dan panjang menaruh L = 48,00 s di **setiap** kandidat
+teratas, apa pun titik mulainya. Chroma-nya juga dicek — bagian ini vamp yang
+harmoninya diam (cos-sim 0,96), jadi sambungannya tidak pindah akor.
+
+Sambungannya di-crossfade 2 detik, dan kurvanya **linear, bukan equal-power**.
+Equal-power itu yang benar untuk dua sinyal tak berkorelasi; di sini keduanya
+justru figur yang sama, jadi ia menjumlah berlebih — terukur +3,05 dB benjolan
+di titik sambung. Linear menekannya ke +0,13 dB. Lompatan antar-sampel di titik
+putar 1,1% dari lompatan terburuk di dalam berkas, jadi tidak ada klik, dan
+panjang ter-decode-nya persis 2.116.800 sampel tanpa sisa, jadi `loop` di
+`<audio>` tidak menyisipkan celah.
+
+Yang membuat sambungan ini bersih justru cacat kecil di sumbernya: ada 0,7
+detik hening di depan lagu. Ekor yang masuk mengisi hening itu, jadi tidak ada
+dua lapis musik yang saling menumpuk. Mulai dari 0,75 detik — sesudah hening —
+justru memberi benjolan +6,5 dB.
+
+`level` di `js/main.js` **tidak berubah** dan tetap 0,66. Putaran ini −17,7
+LUFS, dan 48 detik pertama berkas lama juga −17,7 LUFS — itu perbandingan yang
+benar, karena itulah yang sebenarnya didengar pengunjung. Angka −15,0 LUFS
+milik lagu utuh terangkat oleh klimaks di menit ketiga, yang hampir tidak ada
+yang bertahan selama itu.
 
 iPod milik Harrison Sikora sebelumnya ada di sini dengan lisensi Sketchfab
 Standard, yang melarang redistribusi berkas modelnya — dan menaruh `.glb` di
