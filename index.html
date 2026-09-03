@@ -318,7 +318,10 @@
        body differs, and js/main.js fills that from WORKS in js/data.js so the
        tile on the canvas and the card in `works` cannot drift apart. -->
   <dialog class="cert" id="workPanel">
-    <img class="wk__shot" id="workShot" alt="">
+    <!-- the tiles are all 1440x810; the attributes are here for the RATIO,
+         so the panel reserves the box before the picture lands instead of
+         growing under the heading. CSS still decides the actual size. -->
+    <img class="wk__shot" id="workShot" width="1440" height="810" alt="">
     <h2 class="wk__t" id="workTitle"></h2>
     <p class="wk__meta" id="workMeta" hidden></p>
     <p class="wk__p" id="workBlurb"></p>

@@ -727,7 +727,10 @@ function openWork(i){
   if (!w || !workDlg?.showModal) return;
   lastWork = i;
   $('workShot').src = w.src;
-  $('workShot').alt = w.label;
+  /* The note, not the label. The label is the <h2> directly underneath, so an
+     alt of the same words made a reader say the project's name twice and never
+     say what the screenshot actually shows. */
+  $('workShot').alt = t(w, 'note') || w.label;
   $('workTitle').textContent = w.label;
 
   // year and role are optional and usually not known yet; an empty line is
