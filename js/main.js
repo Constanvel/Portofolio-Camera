@@ -165,7 +165,17 @@ async function applyRoute(){
   openNav(false);
   for (const [name, el] of Object.entries(pages)){
     if (name === r) continue;
-    if (!el.hidden){ el.classList.remove('is-lit'); await sleep(reduced ? 0 : 260); el.hidden = true; }
+    if (!el.hidden){
+      /* is-shut closes the aperture over the section on its way out, on the
+         260ms this already waited. Removed again on the far side: it holds its
+         last frame, so a section left carrying it would open next time from a
+         shutter that is already shut and never animate at all. */
+      el.classList.remove('is-lit');
+      el.classList.add('is-shut');
+      await sleep(reduced ? 0 : 260);
+      el.hidden = true;
+      el.classList.remove('is-shut');
+    }
   }
   if (r){
     const el = pages[r];
@@ -440,6 +450,11 @@ function lite(){
   glCanvas.hidden = true;
   skipBtn.classList.remove('is-lit');
   showWork();
+  /* Here rather than inside showWork(): the desktop path calls that too, and
+     there the plane is already being revealed by the camera's own monitor
+     closing in on the viewport. An aperture over the top of that would be two
+     reveals fighting. This path has nothing, which is the whole point. */
+  workWrap.classList.add('is-iris');
   const t0 = performance.now(), D = reduced ? 1 : 1000;
   const ease = (now) => {
     const p = Math.max(0, Math.min(1, (now - t0) / D));

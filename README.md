@@ -196,6 +196,48 @@ tidak terus jalan di belakang iPod, dan potongan 12% untuk menyembunyikan tanda
 tangan generatornya. Sebuah `<img>` menggambar atau tidak. Berat aset intronya
 turun dari 1,86 MB ke 131 KB.
 
+## Rana
+
+Tiap bagian membuka seperti lensa, dan menutup dengan cara yang sama waktu
+ditinggalkan. Ini satu-satunya bagian kosakata intro yang bisa diulang tanpa
+biaya: tidak ada model, tidak ada renderer, tidak ada berkas — cuma `clip-path`
+dan easing yang sudah ada.
+
+**75% bukan angka selera.** `circle()` menghitung radius persen terhadap
+`sqrt(w²+h²)/sqrt(2)`, jadi radius yang tepat mencapai sudut dari tengah adalah
+`sqrt(2)/2` = 70,71% — angka yang sama di setiap rasio layar, dan itulah kenapa
+ini tidak butuh breakpoint. 75% adalah angka itu plus margin.
+
+**Rana menggantikan fade, bukan menghiasinya.** Percobaan pertama menjalankan
+keduanya bersamaan dan apertur-nya hilang sama sekali: pada 140 ms lingkarannya
+sudah setengah terbuka tapi dibaca lewat lembar beropasitas 22%, jadi tidak ada
+tepi yang terlihat. Rana tidak melarut — ia opak, dan yang bergerak cuma
+bukaannya. Karena itu kedua kelasnya memaksa `opacity:1; transition:none`.
+
+**Tema gelap butuh tepinya sendiri.** Di tema terang lingkaran putih di atas
+bidang gelap sudah kontras. Di tema gelap `--paper` dan bidang di belakangnya
+cuma beda beberapa level, dan apertur-nya praktis tak terlihat. `--iris-glow`
+memberi cahaya yang bocor lewat tepi bilahnya, dan itu ditaruh **di dalam
+keyframe**, bukan di kelasnya — `.is-lit` menetap selamanya, jadi filter yang
+ditaruh di sana akan membebani setiap frame scroll seumur kunjungan. Di dalam
+keyframe ia ikut hilang begitu rananya terbuka. Kebetulan yang menguntungkan:
+blur-nya paling besar justru saat bentuk terkliping paling kecil, jadi lintasan
+mahalnya tidak pernah bertepatan dengan area besar.
+
+**`iris` sengaja tanpa fill mode, dan itu keputusan keamanan.** `backwards`
+memang menggambar keadaan tertutup sebelum frame pertama, tapi artinya di mana
+pun animasinya tidak maju, bagian itu tetap terkliping jadi nol dan halamannya
+diam-diam kosong permanen. Tanpa itu, kasus terburuknya cuma satu frame konten
+tanpa klip. Tidak ada delay yang perlu ditutup: animasi menerapkan keyframe
+pertamanya di paint yang sama saat ia mulai. `irisOut` justru **butuh**
+`forwards` — `applyRoute()` menunggu 260 ms sebelum menyetel `hidden`, dan tanpa
+menahan frame terakhir rananya membuka lagi tepat sebelum elemennya hilang.
+
+Di ponsel rana ini dipasang di `lite()`, bukan di `showWork()`. Jalur desktop
+memanggil `showWork()` juga, dan di sana bidangnya sudah disingkap oleh monitor
+kamera yang menutup ke tepi viewport — apertur di atasnya berarti dua penyingkap
+berebut. Jalur LITE tidak punya apa-apa di sana, dan itu justru alasannya.
+
 ## Panel proyek
 
 Menekan sebuah karya membuka penjelasannya, dari dua arah: tile di kanvas

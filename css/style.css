@@ -25,6 +25,10 @@
   --hair:#e4e2e6;
   --sunk:#f2f1f4;          /* a tile whose picture has not arrived */
   --scrim:255,255,255;     /* the navbar's own ground, over photographs */
+  /* the light that leaks past the aperture's edge while it opens. Dark on
+     paper; on the dark theme the page and the plane behind it are within a few
+     levels of each other, and without this the shutter is invisible there. */
+  --iris-glow:rgba(17,16,20,.50);
   --ease-out:cubic-bezier(.16,1,.3,1);          /* expo-out */
   --ease-in-out:cubic-bezier(.65,0,.35,1);
   --t-slow:1100ms;
@@ -60,6 +64,7 @@ body{ transition:background-color 800ms var(--ease-in-out); }
    Only the tokens move — every rule below already reads them. */
 :root[data-theme="dark"]{
   color-scheme:dark;
+  --iris-glow:rgba(241,240,244,.30);
   --paper:#0e0e11;
   --ink:#f1f0f4;
   --ink-2:#a09eaa;
@@ -265,6 +270,57 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
    must not feel like a wait.
    `backwards` matters: without it a delayed child sits at its FINAL position
    until its turn comes, flashes, and then animates. */
+/* ── the aperture ────────────────────────────────────────────────────────
+   A section opens the way the lens in the intro does, and closes the same way
+   on the way out. It is the one piece of the intro's vocabulary that costs
+   nothing to repeat: no model, no renderer, no file — a clip and an easing.
+
+   75% is a margin on a number that is not a taste decision. circle() resolves
+   a percentage radius against sqrt(w²+h²)/sqrt(2), so the radius that exactly
+   reaches a corner from the centre is sqrt(2)/2 = 70.71% — the same figure at
+   every aspect ratio, which is why this needs no breakpoints.
+
+   An animation rather than a transition, and `iris` deliberately has no fill
+   mode: when it finishes the clip-path goes back to none. These sections
+   scroll (.page is overflow-y:auto), and a clip left in place would be
+   re-resolved against the scroll position on every frame to hide nothing. */
+@keyframes iris{
+  from{ clip-path:circle(0% at 50% 50%);  filter:drop-shadow(0 0 22px var(--iris-glow)); }
+  to  { clip-path:circle(75% at 50% 50%); filter:drop-shadow(0 0  0px transparent); }
+}
+/* the closing half DOES hold its last frame: applyRoute() waits 260ms and then
+   sets hidden, and without `forwards` the shutter springs back open for those
+   last few frames before the element disappears. */
+@keyframes irisOut{
+  from{ clip-path:circle(75% at 50% 50%); filter:drop-shadow(0 0  0px transparent); }
+  to  { clip-path:circle(0% at 50% 50%);  filter:drop-shadow(0 0 22px var(--iris-glow)); }
+}
+/* opacity:1 with no transition on BOTH halves, and that is the point rather
+   than an oversight. The fade and the aperture were two reveals running over
+   each other: at 140ms the clip was already half open and completely invisible,
+   because it was being read through a sheet at 22% opacity. A shutter does not
+   dissolve — it is opaque, and the opening is the only thing that moves. The
+   fade is what the aperture replaces, not something it decorates.
+   No fill mode, and that is a safety decision rather than a detail. `backwards`
+   would paint the shut state before the first frame — but it also means that
+   anywhere the animation does not advance, the section stays clipped to nothing
+   and the page is silently, permanently blank. Without it the worst case is a
+   single frame of un-clipped content. There is no delay to cover anyway: the
+   animation applies its own first keyframe in the same paint that starts it. */
+.page.is-lit {
+  opacity:1; transition:none;
+  animation:iris var(--t-mid) var(--ease-out);
+}
+.page.is-shut{
+  opacity:1; transition:none;
+  animation:irisOut 260ms var(--ease-in-out) forwards;
+}
+/* The phone never sees the iPod or the camera — LITE goes mark, then straight
+   to the plane of work. This is the only thing it gets of the intro's language,
+   and it is the moment that was bare. Slower than a section, because it is an
+   arrival rather than a change of page. */
+.work.is-iris{ animation:iris var(--t-slow) var(--ease-out); }
+
 @keyframes rise{
   from{ opacity:0; transform:translate3d(0,14px,0); }
   to  { opacity:1; transform:none; }
@@ -642,4 +698,11 @@ button.rows__btn{
      that loses the cascade is an accessibility rule that does nothing. */
   .page.is-lit .page__in > *,
   .page.is-lit .rows__r{ animation-duration:1ms !important; animation-delay:0ms !important; }
+  /* the aperture is travel too — the section still arrives, it just does not
+     open. Duration rather than `animation:none`, because irisOut holds its
+     last frame and removing it outright would leave the closing section
+     sitting fully open for its 260ms. */
+  .page.is-lit,
+  .page.is-shut,
+  .work.is-iris{ animation-duration:1ms !important; }
 }
