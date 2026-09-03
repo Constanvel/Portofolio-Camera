@@ -53,6 +53,21 @@ const TAP        = COARSE ? 12 : 8;   // a finger wanders; a mouse does not
    that moves as fast as a hand does. 50ms also sits under the 64ms clamp on
    dt below, so a skipped frame never loses time out of the easing. */
 const IDLE_MS    = COARSE ? 50 : 0;
+/* ── the ceiling on a high-refresh phone ─────────────────────────────────
+   requestAnimationFrame runs at the PANEL's rate, not at sixty. Mid-range
+   Androids are 90 and 120 Hz now — a Galaxy A23 is one or the other depending
+   on which of the two it is — so on those this file was asked for a frame
+   every 8.3 or 11.1ms instead of every 16.7. Twice the work per second, on
+   exactly the class of gpu least able to give it. Nothing here is worth more
+   than sixty: it is a plane of stills that drifts, and sixty is what every
+   constant in this file was tuned against.
+   Spent from an accumulator rather than compared against a fixed gap, because
+   a fixed gap only divides cleanly on a panel whose tick happens to fit it —
+   16.7 halves 120 Hz to a clean sixty and would halve 90 Hz to forty-five,
+   which is worse than either. The accumulator measures the panel instead of
+   assuming it: 120 Hz draws every second tick, 90 Hz draws two of every three,
+   60 Hz draws every one, and all three land on sixty. */
+const MOVE_MS    = COARSE ? 1000 / 60 : 0;
 
 /* ── the repeating block ────────────────────────────────────────────────
    Four columns, five rows, five slots deliberately left empty so the plane
@@ -208,6 +223,13 @@ export class WorkCanvas {
     // two full-frame passes every frame: past roughly 3.2 Mpx a phone drops
     // frames faster than the extra resolution buys anything back
     if (COARSE) while (this.dpr > 1 && w * h * this.dpr * this.dpr > 3.2e6) this.dpr -= 0.25;
+    /* Nothing to do when nothing changed, and it often has not: window resize
+       and visualViewport resize both fire for the same url bar sliding away,
+       and orientationchange fires alongside them. Setting canvas.width at all
+       reallocates the bitmap and clears it, twice over at 786x1606 here, so
+       the no-op cost a real stall and a blank frame. */
+    if (w === this.w && h === this.h && this.dpr === this._dpr) return;
+    this._dpr = this.dpr;
     for (const c of [this.cv, this.buf]){
       c.width = Math.round(w * this.dpr);
       c.height = Math.round(h * this.dpr);
@@ -386,6 +408,14 @@ export class WorkCanvas {
        dt, so they run at the same speed however few frames they are given. */
     if (IDLE_MS && raw < IDLE_MS && !this.drag && this.px < -9998
         && Math.abs(this.tx - this.x) < 0.05 && Math.abs(this.ty - this.y) < 0.05) return;
+    if (MOVE_MS){
+      this._acc = (this._acc || 0) + (now - (this._tick ?? now));
+      this._tick = now;
+      if (this._acc < MOVE_MS) return;
+      // never bank more than one frame: a tab returning from the background
+      // must not owe a burst of them
+      this._acc = Math.min(this._acc - MOVE_MS, MOVE_MS);
+    }
     const dt = Math.min(64, raw); this._last = now;
     const k = 1 - Math.pow(0.0009, dt / 1000);       // frame-rate independent
     const nx = this.x + (this.tx - this.x) * k;
