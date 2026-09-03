@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "headers": [
+    {
+      "//": "Vercel's default for a static file is max-age=0, must-revalidate: every asset costs a round trip on every visit, and on cellular that latency is most of what a repeat visitor waits for even though almost nothing comes back. stale-while-revalidate hands over the cached copy at once and checks behind it, so the second visit paints immediately. Bounded on purpose — an hour fresh, a day stale at worst — rather than the year you would use if these filenames carried a content hash. They do not: there is no build step to add one, so a long cache would mean a replaced picture staying replaced for nobody. Only assets/, because js/ and css/ have to stay in step with the html that loads them, and html itself must never be stale or a deploy is invisible.",
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=86400" }
+      ]
+    }
+  ]
+}
