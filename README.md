@@ -238,78 +238,58 @@ memanggil `showWork()` juga, dan di sana bidangnya sudah disingkap oleh monitor
 kamera yang menutup ke tepi viewport — apertur di atasnya berarti dua penyingkap
 berebut. Jalur LITE tidak punya apa-apa di sana, dan itu justru alasannya.
 
-## Kilatan dan lensa
+## Kilatan
 
-Klik nav memicu dua hal sebelum bagiannya muncul: kilatan putih, lalu sebuah
-iris 3D di tengah layar yang membuka, lalu larut.
+Klik nav memicu kilatan putih sepersekian detik sebelum bagiannya membuka. Nol
+aset, nol dependensi.
 
-**Kilatannya tidak simetris.** Naik 8%, turun 92%. Kilatan sungguhan itu lonjakan
-— terang hampir seketika, lalu peluruhan yang panjang dibanding naiknya. Kurva
-simetris terbaca sebagai kartu putih yang di-fade, dan itu dissolve, bukan
-eksposur. Ia juga putih di kedua tema dengan sengaja: ini tabung xenon, bukan
-permukaan, jadi tidak ikut palet halaman.
+**Kilatannya tidak simetris.** Naik 8%, turun 92%. Kilatan sungguhan itu
+lonjakan — terang hampir seketika, lalu peluruhan yang panjang dibanding
+naiknya. Kurva simetris terbaca sebagai kartu putih yang di-fade, dan itu
+dissolve, bukan eksposur. Ia juga putih di kedua tema dengan sengaja: ini
+tabung xenon, bukan permukaan, jadi tidak ikut palet halaman.
 
-**Aperturnya model sungguhan, bukan prosedural lagi.** Versi pertama saya bangun
-dari empat primitif three.js. Ia diganti [Aperture milik
-forneha](https://sketchfab.com/3d-models/aperture-3b55e54a06a544438820937f49670dd0),
-CC BY 4.0, dan modelnya menang di setiap sumbu yang penting di sini: 44 KB dan
-**nol tekstur**, delapan bilah lawan enam, dan engsel yang ditaruh perancangnya
-alih-alih yang saya turunkan dengan membaca piksel balik dari render. Lisensi
-dan penulisnya ikut **di dalam berkasnya** — `asset.extras` di glTF — jadi
-atribusinya tidak bisa terlepas dari benda yang diatribusikan.
+Kurvanya terukur: penuh sampai 60 ms, 0,30 di 100 ms, 0,12 di 150 ms, praktis
+habis di 200 ms.
 
-Empat angka yang dulu harus diukur untuk versi prosedural — sudut tertutup,
-sudut terbuka, lebar bilah, radius pelat muka — hilang bersamanya, karena
-rignya sudah tahu di mana bilahnya sendiri berada. Yang tersisa satu: seberapa
-jauh bilahnya mengayun. Rest pose-nya **sudah** tertutup (terukur 0% terang di
-rotasi 0), dan jendelanya membuka 17% di 0,6 · 29% di 0,8 · 41% di 1,0 · 49% di
-1,2 · dan masih 49% di 1,4 — jadi 1,20 itu lututnya, lewat situ bilahnya terus
-berjalan tanpa meloloskan cahaya lagi.
+`prefers-reduced-motion` mematikannya sepenuhnya — kilatan itu strobo, satu-
+satunya hal di sini yang benar-benar bisa menyakiti orang.
 
-Bilahnya diambil **lewat nama**, bukan indeks anak. Eksportir Sketchfab menulis
-urutannya sesuai berkas sumbernya — pivotnya keluar di −161°, −116°, −71°,
-−26°, 19°, 64°, 108°, 153°, cincin yang benar dalam urutan yang salah — dan apa
-pun yang bergantung pada urutan itu akan membuka irisnya secara acak.
+### Iris 3D yang dicabut lagi
 
-Model kedua yang ditawarkan bersamanya, Camera Lens milik sujirour, tidak
-dipakai dan memang **tidak bisa**: satu mesh, satu material, 5,15 MB yang 4,32
-MB-nya PNG. Mesh tunggal tidak punya bilah untuk digerakkan, jadi ia bisa muncul
-dan larut tapi tidak akan pernah bisa membuka.
+Sempat ada objek 3D di sini: apertur ter-rig milik forneha, CC BY, delapan
+bilah yang membuka saat kilatannya surut. Secara mekanis ia bekerja — bilahnya
+diambil lewat nama karena eksportir Sketchfab menulis pivotnya dalam urutan
+yang salah, dan ayunannya 1,20 rad diukur dari luas jendela yang terbuka.
 
-**Lensanya masuk saat kilatannya surut, bukan bersamaan.** Kurva kilatannya
-diukur: penuh sampai 60 ms, 0,30 di 100 ms, 0,12 di 150 ms, praktis habis di
-200 ms. Versi pertama memulai lensa di 0, jadi ia menjalani 40% kedatangannya
-**di bawah** cahaya dan sudah terbuka waktu cahayanya hilang — ia muncul
-sebelum ada yang sempat melihatnya muncul. `HOLD` 90 ms menaruh frame
-pertamanya tepat saat kilatannya meluruh, jadi yang menyingkapnya justru
-pudarnya cahaya itu.
+Ia tetap dibuang. Di tema terang rumahnya adalah cincin nyaris hitam yang
+menutupi tengah bagian selama 1,2 detik — sebuah lubang yang dilubangkan
+menembus teks yang baru saja diklik orang untuk dibaca. Mengecilkannya dari
+49% ke 26% tinggi viewport membantu, tapi tidak mengubah bahwa benda paling
+menonjol di sebuah bagian jadi bukan isinya.
 
-**Dan satu bug yang saya buat sendiri di `GL.start()`.** Sebuah act bisa
-mengakhiri seluruh sekuens dari dalam tick-nya: `CameraAct` memanggil
-`onDone()` di sana, `onDone` itu `finish()`, dan sejak `finish()` membuang
-renderer-nya, baris **tepat sesudah** loop act menggambar ke konteks yang sudah
-tidak ada. Ia tidak melempar error — ia cuma meninggalkan apa pun yang
-ditinggalkan driver, dan itulah kenapa frame terakhir intro berubah jadi
-kosong. `stop()` menolkan `_raf`, jadi `_raf` sendiri yang jadi penjaganya dan
-tidak perlu variabel kedua.
+Yang tersisa dari percobaan itu satu perbaikan yang layak disimpan, dan ia ada
+di `GL.start()` — lihat di bawah.
 
-**Kanvasnya sendiri, dan itu bukan pilihan.** Intro mengembalikan konteks
-WebGL-nya saat selesai, dan kanvas yang sudah kena `forceContextLoss()` tidak
-bisa menampung renderer kedua — `getContext()` mengembalikan `null` sejak itu.
-Diukur, bukan diasumsikan.
+## Kartu works
 
-**Ponsel tidak mendapat lensanya.** Jalur LITE sengaja tidak memuat three.js
-sama sekali, dan itu yang menjaga muatan ponsel di 1,08 MB. Ponsel dapat
-kilatan dan apertur CSS-nya; renderer tidak pernah dibuat. Cabut `LITE ||` dari
-penjaga di `fireLens()` untuk memberikannya juga, dengan ongkos mengirim
-renderer ke sana.
+Galeri masuk dengan cara yang sama dengan daftar-daftar lain, dan alasannya
+sama dengan yang membuat `.rows` harus ditulis dua kali: `<ul>`-nya satu slot
+anak tapi isinya lima kartu, jadi pada hitungan biasa kelimanya mendarat
+serentak sebagai satu blok — sementara isi tiap bagian lain datang satu per
+satu. `works` satu-satunya bagian yang isinya tidak bergerak, dan justru itu
+bagian yang memuat karyanya.
 
-Renderer-nya dibuat sekali lalu disimpan — yang mahal di `S.GL` adalah dua bakar
-PMREM di konstruktornya, dan mengulang itu tiap klik jauh lebih mahal daripada
-konteks yang ia pegang. Tapi loop-nya **tidak** dibiarkan jalan: `restLens()`
-menghentikannya begitu irisnya selesai atau pengunjung kembali ke home, karena
-menggambar scene kosong 60 kali sedetik di atas kanvas karya persis tagihan yang
-`finish()` ditulis untuk berhenti membayar.
+Selektornya `.grid > li`, bukan kelas: `<li>`-nya dibangun di `js/main.js` dan
+tidak membawa kelas apa pun, dan daftarnya `list-style:none` yang tidak pernah
+berisi hal lain.
+
+Dua aturan tambahan yang bukan hiasan, keduanya menyalin pelajaran dari
+`.rows`. Pertama, tutup ekornya: kartu keenam yang ditambahkan ke `data.js`
+akan jatuh balik ke 0 ms dan mendarat **paling dulu**, mendahului kartu satu —
+diuji dengan menyisipkan dua kartu palsu, keduanya mendarat di 480 ms. Kedua,
+tombol `back` harus melewati kelimanya: pada hitungan biasa ia anak ketiga dan
+mendarat di 180 ms, bersama kartu pertama dan di atas empat yang belum datang.
 
 ## Panel proyek
 
@@ -472,7 +452,6 @@ Simanjuntak. Yang berikut **bukan**, dan didaftar di sini serta di bagian
 |---|---|---|
 | `assets/models/camera.glb` | [Dokono Kinokoda](https://sketchfab.com/JunkWren) — [Digital Camera](https://sketchfab.com/3d-models/digital-camera-5b2573eab7bf48f2bb8cd5a6026795b1) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | `assets/models/ipod.glb` | [Timothy Ahene](https://sketchfab.com/timothyahene) — [iPod Classic](https://sketchfab.com/3d-models/ipod-classic-13dbe30b0e45408c8bfaddfe6a4e8786) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
-| `assets/models/aperture.glb` | [forneha](https://sketchfab.com/forneha) — [Aperture](https://sketchfab.com/3d-models/aperture-3b55e54a06a544438820937f49670dd0) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | `assets/fonts/VCR.woff2` | Riciery Leal — VCR OSD Mono | bebas, termasuk untuk komersial dan redistribusi |
 | `assets/audio/theme.mp3` | [Nihilore](https://www.nihilore.com/) — [Something Meaningful](https://www.nihilore.com/postrock), putaran 48 detik | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 

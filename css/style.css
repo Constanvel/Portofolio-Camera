@@ -153,8 +153,8 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 .work__hint.is-gone{ opacity:0; }
 
 /* ── the exposure ────────────────────────────────────────────────────────
-   Above the section (z 60) and above the lens (z 70), because a flash is light
-   in the room rather than an object in it — nothing is in front of it.
+   Above the section (z 60), because a flash is light in the room rather than an
+   object in it — nothing is in front of it.
 
    The shape of the curve is the whole effect. A real flash is a spike: full
    brightness almost immediately, then a decay that is long compared to the
@@ -173,12 +173,6 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
    does not take the page's palette */
 .flash.is-fire{ animation:expose 420ms var(--ease-out); }
 
-/* the lens sits over the arriving section, under the flash */
-.glx{
-  position:fixed; inset:0; width:100%; height:100%; display:block;
-  z-index:70; pointer-events:none;
-}
-.glx[hidden]{ display:none; }
 
 /* ── pages ──────────────────────────────────────────────────────────── */
 .page{
@@ -382,6 +376,29 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
    below them to win, and it has to clear the capped tail above — not just the
    five rows it was written for. */
 .page.is-lit .page__in > .rows ~ *{ animation-delay:660ms; }
+
+/* The gallery arrives the same way the lists do, and for the same reason it
+   had to be said twice for .rows: the <ul> is one child slot but five cards,
+   so on the plain count they all land together as a block while every other
+   section's contents come in one at a time. `works` was the only section whose
+   content did not move — and it is the one holding the work.
+
+   `.grid > li` rather than a class, because these <li> are built in main.js and
+   carry none. The list is list-style:none and never holds anything else. */
+.page.is-lit .grid{ animation:none; }
+.page.is-lit .grid > li{ animation:rise 560ms var(--ease-out) backwards; }
+.page.is-lit .grid > li:nth-child(1){ animation-delay:180ms; }
+.page.is-lit .grid > li:nth-child(2){ animation-delay:240ms; }
+.page.is-lit .grid > li:nth-child(3){ animation-delay:300ms; }
+.page.is-lit .grid > li:nth-child(4){ animation-delay:360ms; }
+.page.is-lit .grid > li:nth-child(5){ animation-delay:420ms; }
+/* same cap as the rows, and the same reason: a sixth project added to data.js
+   would otherwise fall back to 0ms and arrive FIRST, ahead of card one. */
+.page.is-lit .grid > li:nth-child(n+6){ animation-delay:480ms; }
+/* and the back button has to clear them. On the plain count it is the third
+   child and lands at 180ms — with the first card, and above four that have not
+   arrived yet. */
+.page.is-lit .page__in > .grid ~ *{ animation-delay:540ms; }
 .page.is-lit .page__in > .rows ~ * ~ *{ animation-delay:720ms; }
 
 /* ── rows · the key/value lists the sections are made of ─────────────── */
@@ -725,6 +742,7 @@ button.rows__btn{
      .rows, and every one of those selectors outweighs this one — an override
      that loses the cascade is an accessibility rule that does nothing. */
   .page.is-lit .page__in > *,
+  .page.is-lit .grid > li,
   .page.is-lit .rows__r{ animation-duration:1ms !important; animation-delay:0ms !important; }
   /* the aperture is travel too — the section still arrives, it just does not
      open. Duration rather than `animation:none`, because irisOut holds its
@@ -735,6 +753,6 @@ button.rows__btn{
   .work.is-iris{ animation-duration:1ms !important; }
   /* A flash is not travel, it is a strobe — the one thing in here that can
      actually hurt someone. Anybody who has asked for reduced motion gets no
-     flash at all, and main.js skips the lens on the same query. */
+     flash at all. */
   .flash.is-fire{ animation:none !important; opacity:0 !important; }
 }

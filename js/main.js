@@ -27,7 +27,6 @@ const setPanel  = $('settingsPanel');
 const modeBtn   = $('themeBtn');
 const volRange  = $('volRange');
 const vig       = $('vig');
-const glxCanvas = $('glx');
 const flashEl   = $('flash');
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -148,58 +147,6 @@ function expose(){
   flashEl.classList.add('is-fire');
 }
 
-/* ── the lens ────────────────────────────────────────────────────────────
-   Built on first use and kept, because the expensive part of S.GL is the two
-   PMREM bakes in its constructor and doing those on every nav click would cost
-   far more than the context it holds. Everything else about it is small: one
-   44 KB model that carries no textures at all, fetched once on the first
-   section a visitor opens.
-
-   Never on the lite path. Phones deliberately have no three.js at all — see
-   LITE — and the whole point of that decision was to keep the mobile payload
-   where it is. They get the exposure and the aperture in css, and no renderer.
-   Flip `LITE ||` out of the guard below to give phones the lens too, at the
-   cost of shipping the renderer to them. */
-let glx = null, lens = null, lensBusy = false, apertureModel = null;
-async function fireLens(){
-  if (LITE || reduced || !S || lensBusy) return;
-  lensBusy = true;
-  try {
-    if (!glx){
-      glxCanvas.hidden = false;
-      glx = new S.GL(glxCanvas);
-      glx.look('studio');   // the digicam's room, not the iPod's
-    }
-    /* 44 KB, and only on the first section a visitor opens — not with the two
-       intro models, which are already the largest thing on the page. Somebody
-       who never leaves the canvas of work never pays for it. */
-    if (!apertureModel) apertureModel = S.load('./assets/models/aperture.glb');
-    const model = await apertureModel;
-    if (!lens) lens = new S.LensAct(glx, model, { onDone: restLens });
-    if (!glx.acts.includes(lens)) glx.acts.push(lens);
-    glx.start();          // idempotent
-    glxCanvas.hidden = false;
-    glx.resize();
-    lens.begin();
-  } catch (e){
-    /* a section that arrives without its lens is a section that arrived. This
-       is decoration on top of a route that has already worked. */
-    glxCanvas.hidden = true;
-  } finally {
-    lensBusy = false;
-  }
-}
-
-/* The renderer is kept but not left running. Between sections there is nothing
-   on this canvas to draw, and a loop that renders an invisible empty scene at
-   60fps over the canvas of work is exactly the bill finish() was written to
-   stop paying. */
-function restLens(){
-  if (!glx) return;
-  glx.stop();
-  glxCanvas.hidden = true;
-}
-
 function routeFromHash(){
   const h = (location.hash || '').replace(/^#\/?/, '');
   return pages[h] ? h : '';
@@ -255,7 +202,6 @@ async function applyRoute(){
        swap, which is the one frame where the outgoing section is gone and the
        incoming one has not painted. */
     expose();
-    fireLens();
     el.hidden = false;
     void el.offsetWidth;
     el.classList.add('is-lit');
@@ -268,7 +214,6 @@ async function applyRoute(){
     el.querySelector('.page__back, .page__cta, .page__t')?.focus?.();
   } else if (body.dataset.stage === 'page'){
     body.dataset.stage = lastStage;
-    restLens();
   }
 }
 window.addEventListener('hashchange', applyRoute);
@@ -572,7 +517,6 @@ window.__PORTFOLIO = {
   lite: LITE,
   get gl(){ return gl; }, get ipod(){ return ipod; },
   get cam(){ return cam; }, get work(){ return work; },
-  get glx(){ return glx; }, get lens(){ return lens; },
   /** hold an act at a fixed moment so a frame can be captured deterministically */
   freeze(act, ms){
     const a = act === 'cam' ? cam : ipod;
