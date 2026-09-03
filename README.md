@@ -315,6 +315,22 @@ diuji dengan menyisipkan dua kartu palsu, keduanya mendarat di 480 ms. Kedua,
 tombol `back` harus melewati kelimanya: pada hitungan biasa ia anak ketiga dan
 mendarat di 180 ms, bersama kartu pertama dan di atas empat yang belum datang.
 
+## Warna teks paling sunyi
+
+`--ink-3` dulu `#a9a7b0`, yang mengukur **2,38** terhadap kertas — separuh dari
+4,5 yang diminta WCAG AA untuk teks normal. Dan yang memakainya bukan hiasan:
+tahun dan peran di bawah tiap kartu karya pada 11 px, dan blok kredit di
+`about` pada 13 px — yang justru **atribusi yang disyaratkan CC BY**. Atribusi
+yang tidak terbaca cara yang lemah untuk memenuhi syarat lisensi.
+
+Sekarang `#77757c` (4,55) di terang dan `#7b7988` (4,53) di gelap. Hue-nya
+dipertahankan, dan hierarki tiga tingkatnya utuh:
+
+| | ink | ink-2 | ink-3 |
+|---|---|---|---|
+| terang | 18,95 | 6,68 | **4,55** |
+| gelap | 16,99 | 7,31 | **4,53** |
+
 ## Panel proyek
 
 Menekan sebuah karya membuka penjelasannya, dari dua arah: tile di kanvas

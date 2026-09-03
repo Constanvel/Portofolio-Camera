@@ -21,7 +21,14 @@
   --paper:#ffffff;         /* exactly the paper the mark video was shot on */
   --ink:#111014;           /* tinted near-black, never #000 */
   --ink-2:#5d5b63;
-  --ink-3:#a9a7b0;         /* quieter than ink-2: a label holding an empty tile */
+  /* The quietest ink, and it still has to be READ. At #a9a7b0 it measured 2.38
+     against paper — half of what WCAG AA asks for normal text — and the two
+     things wearing it are not decoration: the year and role under every project
+     card at 11px, and the credits block in `about`, which is the attribution
+     CC BY actually requires. Attribution nobody can read is a poor way to meet
+     a licence condition. #77757c measures 4.55, keeps the same blue-grey hue,
+     and stays well below ink-2 at 6.68 so the three steps still read as three. */
+  --ink-3:#77757c;
   --hair:#e4e2e6;
   --sunk:#f2f1f4;          /* a tile whose picture has not arrived */
   --scrim:255,255,255;     /* the navbar's own ground, over photographs */
@@ -68,7 +75,7 @@ body{ transition:background-color 800ms var(--ease-in-out); }
   --paper:#0e0e11;
   --ink:#f1f0f4;
   --ink-2:#a09eaa;
-  --ink-3:#6d6b78;
+  --ink-3:#7b7988;         /* 3.69 -> 4.53 against the dark paper */
   --hair:#26262c;
   --sunk:#17171b;
   --scrim:14,14,17;

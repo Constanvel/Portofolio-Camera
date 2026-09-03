@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Constantine Rainer Simanjuntak</title>
 <meta name="description" content="Constantine Rainer Simanjuntak — PPLG student at SMK Telkom Purwokerto. Web apps and AI tools, built end to end.">
+<!-- The browser's own chrome, not the page. applyMode() in js/main.js already
+     rewrites every one of these to match the theme, and it is the better source
+     of truth because the theme here is a SAVED CHOICE rather than the OS
+     preference — someone on a dark phone who picked light must get a white bar.
+     So this line is not the mechanism. It covers the two moments the script
+     cannot: the frame before main.js runs, and the <noscript> path further
+     down, where applyMode never runs at all and a dark-OS visitor would keep a
+     white bar over a black page for the whole visit.
+     The unqualified one stays last as the fallback for anything that does not
+     understand the media attribute. -->
+<meta name="theme-color" content="#0e0e11" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#ffffff">
 <link rel="canonical" href="https://portofolio-camera.vercel.app/">
