@@ -648,8 +648,38 @@ body[data-stage="page"] .set{ background:var(--paper); }
   width:min(92vw,52rem); max-width:none; max-height:88vh;
   padding:1.1rem 1.1rem 1.4rem; border:0; border-radius:14px;
   background:var(--paper); color:var(--ink); font-family:inherit;
+  /* The CLOSED state, which is also the state it opens from — see the
+     @starting-style below. `overlay` and `display` have to be in the list and
+     have to be allow-discrete: a <dialog> leaves the top layer and goes
+     display:none the instant it closes, so without those two the box is gone
+     before a single frame of the fade has run and only the opening animates.
+     260ms to match the section transition rather than the 620ms furniture —
+     a panel you asked for should already be there. */
+  opacity:0; transform:translateY(10px) scale(.985);
+  transition:opacity 260ms var(--ease-out), transform 260ms var(--ease-out),
+             overlay 260ms allow-discrete, display 260ms allow-discrete;
 }
-.cert::backdrop{ background:rgba(17,16,20,.72); }
+.cert[open]{ opacity:1; transform:none; }
+/* An element entering the top layer has no previous state to transition FROM,
+   so without this the open state just applies and nothing moves. A browser
+   that does not know the rule ignores it and the dialog snaps in, which is
+   what it did before any of this. */
+@starting-style{
+  .cert[open]{ opacity:0; transform:translateY(10px) scale(.985); }
+}
+
+/* The backdrop fades on its own timeline — it is a separate box with its own
+   transition, and leaving it out is what makes a dialog look like it was cut
+   in rather than opened. */
+.cert::backdrop{
+  background:rgba(17,16,20,0);
+  transition:background 260ms var(--ease-out),
+             overlay 260ms allow-discrete, display 260ms allow-discrete;
+}
+.cert[open]::backdrop{ background:rgba(17,16,20,.72); }
+@starting-style{
+  .cert[open]::backdrop{ background:rgba(17,16,20,0); }
+}
 /* a PDF is a frame the browser fills itself; a photograph is sized by its own
    proportions, so it gets a ceiling and keeps its shape rather than a width */
 /* short of the dialog's own 88vh ceiling: the link and the back button live
@@ -739,7 +769,10 @@ button.rows__btn{
 
 @media (prefers-reduced-motion:reduce){
   /* keep every state reachable, just without the travel */
-  .mark,.gl,.page,.page.is-lit,.work__hint,.skip,.nav,.nav__a::after{ transition-duration:1ms; }
+  .mark,.gl,.page,.page.is-lit,.work__hint,.skip,.nav,.nav__a::after,
+  .cert,.cert[open],.cert::backdrop,.cert[open]::backdrop{ transition-duration:1ms; }
+  /* the panel still arrives, it just does not travel to get here */
+  .cert{ transform:none; }
   /* the ring still has to say "waiting", so it is not removed — it breathes
      in place instead of turning */
   .mark__ring{ animation:none; opacity:.55; }
