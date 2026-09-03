@@ -14,7 +14,7 @@ python -m http.server 8000
 - `js/main.js` — orkestrasi intro (mark → iPod → kamera → kanvas karya)
 - `js/scene.js`, `js/env.js` — WebGL, three.js
 - `js/canvas.js` — kanvas karya yang bisa di-drag
-- `assets/tiles/` — berkas karya; film `.mp4` butuh kembaran 640px di `assets/tiles-sm/` untuk HP, gambar diam tidak
+- `assets/tiles/` — berkas karya, satu ukuran untuk semua layar; kelimanya gambar diam
 - `assets/certs/` — berkas sertifikat yang ditautkan dari baris `achievements` dan `experience`
 
 ## Bagian halaman
@@ -120,6 +120,49 @@ lewat `querySelector`, dan salah satu pilihannya dulu `h1` — cocok karena tag.
 Sekarang `.page__t`. Kalau dibiarkan, selektornya akan mengembalikan `null` di
 tiap bagian yang tidak punya tombol kembali atau cta, dan `null.focus?.()`
 melempar: optional chaining menjaga metodenya, bukan objek tempat ia menempel.
+
+## Membongkar intro
+
+Intro itu satu-satunya yang pernah memakai WebGL, dan tidak ada jalan kembali
+ke sana setelah selesai. Dulu `finish()` cuma memanggil `gl.stop()` — itu
+menghentikan loop-nya, dan meninggalkan semua yang sudah diunggah tetap duduk
+di driver sepanjang sisa kunjungan sambil tidak menggambar apa pun.
+
+Terukur di jalur skip, sebelum dan sesudah:
+
+| | sebelum | sesudah |
+|---|---|---|
+| geometri | 33 | **0** |
+| program shader | 13 | **0** |
+| tekstur | 17 | 3 |
+| konteks WebGL | hidup | dilepas |
+
+Tiga hal yang tidak terduga muncul waktu mengerjakannya.
+
+**PMREM tidak bisa dibebaskan lewat teksturnya.** `js/env.js` dulu
+mengembalikan `pmrem.fromEquirectangular(tex).texture` dan membuang render
+target-nya. Memanggil `dispose()` pada tekstur render target tidak melakukan
+apa-apa — memorinya milik target, dan `pmrem.dispose()` juga tidak menutupnya,
+itu cuma membebaskan buffer kerja generatornya. Dua kubus mip half-float per
+kunjungan, tidak pernah dikembalikan. Sekarang fungsinya mengembalikan
+target-nya utuh dan pemanggilnya membaca `.texture`.
+
+**`renderer.dispose()` tidak menutup konteksnya.** Ia membebaskan apa yang
+three.js alokasikan; konteks WebGL-nya sendiri hidup terus. `forceContextLoss()`
+yang benar-benar mengembalikannya.
+
+**`warm()` mengunggah dua model, dan skip cuma membuang satu.** Ia menggambar
+keduanya satu frame sebelum salah satunya jadi act, jadi pengunjung yang skip
+saat iPod sudah mengunggah seluruh kamera dan tidak pernah membuat `CameraAct`
+untuk membuangnya — 44 ribu vertex plus teksturnya, cuma bisa dicapai lewat
+promise tempatnya datang. Itu 25 geometri yang tertinggal. `finish()` sekarang
+melepasnya lewat `landed`, pegangan sinkron ke model yang sudah mendarat:
+`finish()` bukan fungsi async dan tidak bisa menunggu promise, dan melepasnya
+di dalam `.then()` menaruhnya sesudah konteksnya hilang — dan three.js
+mengabaikan `dispose()` sesudah itu, karena peta properti yang mau ia kurangi
+sudah ikut hilang. Urutannya penting: model dulu, konteks terakhir.
+
+Sisa tiga teksturnya internal three.js, di atas konteks yang sudah dilepas.
 
 ## Mark pembuka
 
@@ -446,7 +489,7 @@ mengambil sentroid tanda yang lebih terang dari cincinnya.
 
 Teksturnya juga dikecilkan: lima PNG 2048px jadi WebP 1024px, dan dua peta yang
 memang tidak pernah dibaca — emissive dan transmission, keduanya dibuang saat
-`scene.js` menyusun ulang materialnya — diganti gambar 4x4. 5,49 MB jadi 249 KB,
+`js/scene.js` menyusun ulang materialnya — diganti gambar 4x4. 5,49 MB jadi 249 KB,
 lebih kecil daripada model yang digantikannya, tanpa beda yang terlihat.
 
 SF Pro Display pernah ada di sini dan sudah dibuang. Apple melisensikannya untuk

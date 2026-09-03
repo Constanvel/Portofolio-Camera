@@ -1,8 +1,10 @@
 // The work. Order is the order they tile across the canvas.
 // `src` takes a film (.mp4) or a still (.png .jpg .webp .gif .avif) — a still is
-// drawn the same way, minus the decoder. Films need a 640-wide twin in
-// assets/tiles-sm/ for phones; stills are served at one size, which is why the
-// five below are stills: a screenshot is what these projects look like.
+// drawn the same way, minus the decoder. Everything is served at one size; the
+// five below are stills, because a screenshot is what these projects look like.
+// A film would be the first thing here big enough to be worth a phone-sized
+// second copy, and canvas.js has no such swap any more — the folder it used to
+// point at was never created.
 // `label` holds the slot until the picture arrives — canvas.js draws it in
 // place of a tile whose file is missing, and nothing once the file is there.
 // The extension in `src` is not decoration: it is how canvas.js decides between

@@ -90,9 +90,17 @@ export function studioEnvironment(renderer, o = STUDIO){
   tex.needsUpdate = true;
   const pmrem = new THREE.PMREMGenerator(renderer);
   pmrem.compileEquirectangularShader();
-  const env = pmrem.fromEquirectangular(tex).texture;
+  const target = pmrem.fromEquirectangular(tex);
   tex.dispose(); pmrem.dispose();
-  return env;
+  /* The RENDER TARGET, not its `.texture`. This used to hand back the texture
+     and drop the target on the floor, which made the cube unfreeable: the
+     texture is a render-target texture, and calling dispose() on one of those
+     does nothing — the memory belongs to the target. pmrem.dispose() does not
+     cover it either, that frees the generator's own scratch buffers and leaves
+     the thing it just handed you. Two of these are built per visit and each is
+     a full mip chain in half float, so they were the largest single thing the
+     page never gave back. The caller reads `.texture` off it. */
+  return target;
 }
 
 /** A soft cast shadow sprite: offset and blurred, never a zero-offset halo. */

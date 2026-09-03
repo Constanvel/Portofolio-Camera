@@ -139,8 +139,8 @@ export class WorkCanvas {
     /* Films and stills share the plane. An <img> is handed the four bits of the
        <video> interface the rest of this file reads — play, pause, the natural
        size and readyState — so nothing downstream has to ask which one it got.
-       Stills are served at one size: they cost a fraction of a film, and a
-       missing /tiles-sm/ copy would blank the tile on a phone. */
+       Stills are served at one size: they cost a fraction of a film, which is
+       the whole reason the five works here are screenshots. */
     this.media = WORKS.map(w => {
       const loaded = () => { this.ready = true; };
       if (/\.(png|jpe?g|webp|gif|avif)$/i.test(w.src)){
@@ -158,9 +158,15 @@ export class WorkCanvas {
         return im;
       }
       const v = document.createElement('video');
-      // a phone gets the 640-wide set: 3.2 MB instead of 13, and a frame the
-      // hardware decoder can actually keep up with
-      v.src = COARSE ? w.src.replace('/tiles/', '/tiles-sm/') : w.src;
+      /* This used to swap in a 640-wide copy from assets/tiles-sm/ on a phone.
+         That folder does not exist and never has, so the line was a trap rather
+         than an optimisation: every work is a .jpg today, which means the branch
+         has never run, and the first .mp4 anyone adds would have gone looking
+         for a file that is not there and blanked the tile — on phones only, and
+         with nothing in the console to say why.
+         If films come back, the saving is real and worth rebuilding: make the
+         640-wide set first, then put the swap back. */
+      v.src = w.src;
       v.muted = true; v.loop = true; v.playsInline = true;
       v.preload = 'auto'; v.setAttribute('playsinline','');
       v.addEventListener('loadeddata', loaded);

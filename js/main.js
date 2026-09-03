@@ -10,6 +10,7 @@ import { WORKS } from './data.js';
 
 let S = null;                       // the scene module, once asked for
 let ipodModel = null, camModel = null;   // in flight from the moment it is
+const landed = { ipod: null, cam: null };   // ...and here once they arrive
 
 const $ = id => document.getElementById(id);
 const body      = document.body;
@@ -299,6 +300,13 @@ async function main(){
     ipodModel = S.load('./assets/models/ipod.glb');
     camModel  = S.load('./assets/models/camera.glb');
     ipodModel.catch(() => {}); camModel.catch(() => {});
+    /* A synchronous handle on whatever has actually landed. finish() is not
+       async and cannot await these, and releasing a model in a `.then()` puts
+       it after the renderer has already handed its context back — at which
+       point three.js drops the dispose on the floor, because the properties
+       map it would have decremented is gone. */
+    ipodModel.then(m => { landed.ipod = m; }, () => {});
+    camModel .then(m => { landed.cam  = m; }, () => {});
   }
 
   /* ── the mark ─────────────────────────────────────────────────────────
@@ -396,7 +404,11 @@ async function toCamera(){
   ipod = null;
   glCanvas.classList.remove('is-live', 'is-hot');
   await act.fadeOut(reduced ? 60 : 560);
-  gl.acts = gl.acts.filter(a => a !== act);
+  /* Skip can land inside that await, and finish() drops `gl` when it does.
+     `act` was detached from `ipod` at the top of this function, so finish()
+     never saw it and these two lines are the only thing that will free it —
+     they have to run either way, and only the list needs the guard. */
+  if (gl) gl.acts = gl.acts.filter(a => a !== act);
   act.dispose();
   if (skipped) return;
 
@@ -441,7 +453,25 @@ function lite(){
 function finish(){
   if (cam){ gl.acts = gl.acts.filter(a => a !== cam); cam.dispose(); cam = null; }
   if (ipod){ gl.acts = gl.acts.filter(a => a !== ipod); ipod.dispose(); ipod = null; }
-  if (gl){ gl.stop(); }
+  /* The models, which are not the acts. warm() draws BOTH of them one frame
+     before either becomes an act, so skipping during the iPod uploads the whole
+     camera and then never builds a CameraAct to dispose it — 44k vertices of
+     typed array and its textures, reachable only from the promise they arrived
+     on. Measured on the skip path before this: 25 geometries left behind. */
+  if (S){
+    if (landed.ipod) S.release(landed.ipod);
+    if (landed.cam)  S.release(landed.cam);
+  }
+  landed.ipod = landed.cam = null;
+  ipodModel = camModel = null;
+  /* And last, because it ends with the context: gl.stop() was all this used to
+     do, which halted the loop and left everything already uploaded sitting in
+     the driver — both models, both PMREM cubemaps and the context itself — for
+     the rest of the visit, drawing nothing. There is no way back into the intro
+     once it has finished, so none of it is being kept for later. Nulled as well
+     as disposed: `finish()` is reachable twice, by skip and by the sequence
+     ending on its own, and the reference is the guard. */
+  if (gl){ gl.dispose(); gl = null; }
   glCanvas.classList.remove('is-lit', 'is-live', 'is-hot');
   glCanvas.hidden = true;
   skipBtn.classList.remove('is-lit');

@@ -81,6 +81,34 @@ function bez(x1, y1, x2, y2){
 const POP   = bez(0.22, 0.86, 0.28, 1.00);   // emerges quickly, settles
 const GLIDE = bez(0.40, 0.02, 0.05, 1.00);   // eases in, long tail into place
 
+/* Free what the garbage collector cannot see. A geometry's vertex buffer and a
+   texture's image live in the driver, not in the JS heap, so dropping the last
+   reference to a Mesh collects the wrapper and leaves the GPU memory resident
+   for the rest of the visit. Both acts and GL call this, because the three of
+   them own overlapping pieces of the same two models.
+
+   The Set is not an optimisation. This model shares one material across several
+   meshes and one texture across several materials, and three.js fires a
+   `dispose` event each time — the second one for the same object is dispatched
+   against a renderer entry that is already gone. */
+export function release(root){ purge(root); }
+
+function purge(root){
+  const seen = new Set();
+  root.traverse(o => {
+    if (o.geometry && !seen.has(o.geometry)){ seen.add(o.geometry); o.geometry.dispose(); }
+    for (const m of (Array.isArray(o.material) ? o.material : [o.material])){
+      if (!m || seen.has(m)) continue;
+      seen.add(m);
+      for (const k in m){
+        const v = m[k];
+        if (v && v.isTexture && !seen.has(v)){ seen.add(v); v.dispose(); }
+      }
+      m.dispose();
+    }
+  });
+}
+
 /* ── shared renderer ─────────────────────────────────────────────────── */
 export class GL {
   constructor(canvas){
@@ -129,7 +157,7 @@ export class GL {
     if (this._look === name) return;
     this._look = name;
     const rim = name === 'rim';
-    this.scene.environment = rim ? this.rooms.rim : this.rooms.studio;
+    this.scene.environment = (rim ? this.rooms.rim : this.rooms.studio).texture;
     this.hemi.intensity  = rim ? 0.05 : 0.32;
     this.key.intensity   = rim ? 0.34 : 1.25;
     this.rim.intensity   = rim ? 0.12 : 0.42;
@@ -161,6 +189,28 @@ export class GL {
     this._raf = requestAnimationFrame(loop);
   }
   stop(){ cancelAnimationFrame(this._raf); this._raf = 0; }
+
+  /** Hand the GPU back. stop() only ends the loop — the context, both PMREM
+      cubemaps and every buffer the two models uploaded stayed resident for the
+      whole visit afterwards, drawing nothing. Nothing renders after this: the
+      intro is the only thing that ever used the renderer, and main.js drops
+      its reference in the same breath. */
+  dispose(){
+    this.stop();
+    window.removeEventListener('resize', this._onResize);
+    purge(this.scene);
+    /* The rooms are render targets rather than scene children, so traversing
+       the graph never reaches them — and they are the expensive pair here, a
+       mip chain each. Disposing the TARGET is what frees them; env.js returns
+       it whole for exactly this reason. */
+    for (const room of Object.values(this.rooms)) room.dispose();
+    this.scene.environment = null;
+    this.renderer.dispose();
+    /* dispose() releases what three.js allocated; the WebGL context itself
+       outlives it, and on a machine with few context slots that is the thing
+       worth giving back. */
+    this.renderer.forceContextLoss();
+  }
 
   /** Distance at which a world-space box of the given size sits inside the
       frame at `fill` of the smaller viewport axis (contain), or covers it. */
@@ -199,6 +249,11 @@ export function load(url){
    every property the program cache keys on, so the compiled program is a hit,
    and it shares the texture objects outright. */
 export async function warm(gl, ...models){
+  /* `gl` can be null by the time the two model promises settle: this runs off
+     the back of the download, and skip disposes the renderer and drops the
+     reference underneath it. There is nothing to warm for a run that is
+     already over. */
+  if (!gl) return;
   const parked = models.filter(m => m && !m.parent);
   if (!parked.length) return;
   /* Parked VISIBLE, at a millionth of their size. Invisible is not enough:
@@ -475,7 +530,10 @@ export class IpodAct {
     });
   }
 
-  dispose(){ this.gl.scene.remove(this.rig); }
+  dispose(){
+    this.gl.scene.remove(this.rig);
+    purge(this.rig);                 // the model, its screen quad and its hit target
+  }
 }
 
 /* ── act two · the digicam ──────────────────────────────────────────── */
@@ -666,5 +724,10 @@ export class CameraAct {
     if (lit > 0.01) this.mtex.needsUpdate = true;   // the page is live
   }
 
-  dispose(){ this.gl.scene.remove(this.rig); this.gl.scene.remove(this.shadow); }
+  dispose(){
+    this.gl.scene.remove(this.rig);
+    this.gl.scene.remove(this.shadow);
+    purge(this.rig);                 // takes this.panel and this.mtex with it
+    purge(this.shadow);              // its own canvas texture, built in env.js
+  }
 }
