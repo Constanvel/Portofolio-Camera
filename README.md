@@ -249,35 +249,32 @@ simetris terbaca sebagai kartu putih yang di-fade, dan itu dissolve, bukan
 eksposur. Ia juga putih di kedua tema dengan sengaja: ini tabung xenon, bukan
 permukaan, jadi tidak ikut palet halaman.
 
-**Lensanya prosedural, bukan `.glb`.** Empat geometri bawaan dan satu `Shape` —
-tawaran yang sama yang sudah diambil `env.js` untuk studionya: benda yang
-dijelaskan lewat kode tidak memakan byte, tidak butuh lisensi, dan tidak bisa
-salah ukuran di layar mana pun. Materialnya disalin dari `CameraAct` supaya
-benda yang datang di tiap bagian terbaca sebagai barang buatan pabrik yang sama
-dengan kamera yang baru saja ditonton pengunjung.
+**Aperturnya model sungguhan, bukan prosedural lagi.** Versi pertama saya bangun
+dari empat primitif three.js. Ia diganti [Aperture milik
+forneha](https://sketchfab.com/3d-models/aperture-3b55e54a06a544438820937f49670dd0),
+CC BY 4.0, dan modelnya menang di setiap sumbu yang penting di sini: 44 KB dan
+**nol tekstur**, delapan bilah lawan enam, dan engsel yang ditaruh perancangnya
+alih-alih yang saya turunkan dengan membaca piksel balik dari render. Lisensi
+dan penulisnya ikut **di dalam berkasnya** — `asset.extras` di glTF — jadi
+atribusinya tidak bisa terlepas dari benda yang diatribusikan.
 
-**Empat angka di dalamnya diukur, bukan dikira, dan keempat tebakan awal saya
-salah:**
+Empat angka yang dulu harus diukur untuk versi prosedural — sudut tertutup,
+sudut terbuka, lebar bilah, radius pelat muka — hilang bersamanya, karena
+rignya sudah tahu di mana bilahnya sendiri berada. Yang tersisa satu: seberapa
+jauh bilahnya mengayun. Rest pose-nya **sudah** tertutup (terukur 0% terang di
+rotasi 0), dan jendelanya membuka 17% di 0,6 · 29% di 0,8 · 41% di 1,0 · 49% di
+1,2 · dan masih 49% di 1,4 — jadi 1,20 itu lututnya, lewat situ bilahnya terus
+berjalan tanpa meloloskan cahaya lagi.
 
-| | tebakan | terukur | caranya |
-|---|---|---|---|
-| sudut tertutup | −0,30 | **0,00** | piksel tengah dibaca di sepanjang sapuan; tertutup hanya di −0,20…+0,20, dan tebakan lama ada di luar itu — irisnya membuka, menutup, lalu membuka lagi |
-| sudut terbuka | 0,62 | **2,05** | luas bersih jendela dihitung per sudut; 0,62 cuma 6% terbuka, 2,05 memberi 70% |
-| lebar bilah | 1,0 | **1,25** | pada 1,0 bilahnya bertemu di tengah tapi menyisakan enam takik di pinggir |
-| radius pelat muka | 3,92 | **5,25** | tiap verteks bilah ditransformasi sepanjang sapuan; yang terjauh mencapai 5,15 |
+Bilahnya diambil **lewat nama**, bukan indeks anak. Eksportir Sketchfab menulis
+urutannya sesuai berkas sumbernya — pivotnya keluar di −161°, −116°, −71°,
+−26°, 19°, 64°, 108°, 153°, cincin yang benar dalam urutan yang salah — dan apa
+pun yang bergantung pada urutan itu akan membuka irisnya secara acak.
 
-**Bilahnya berujung tumpul, bukan runcing.** Bentuk pertama meruncing ke satu
-titik, dan enam titik hanya bertemu di satu rotasi persis — terukur, apertur-nya
-terbuka di setiap sudut kecuali 0,00. Iris menutup karena bilahnya **saling
-menindih**, dan itu butuh sisi dalam yang punya lebar.
-
-**Pelat mukanya bukan hiasan, ia yang membuat mekanismenya bekerja di layar.**
-Bilah kaku tidak bisa punya sisi luar yang selalu menempel di dinding tabung
-sepanjang rotasinya sendiri: saat tertutup sudutnya di 3,02 dan meninggalkan
-takik, saat terbuka sudut belakangnya menyapu ke 3,62 dan menembus dinding.
-Keduanya terlihat. Lensa sungguhan punya masalah yang sama dan menyelesaikannya
-dengan cara yang sama — bilahnya berjalan **di belakang** pelat, dan yang pernah
-terlihat cuma jendela bundar yang dilubangi di sana.
+Model kedua yang ditawarkan bersamanya, Camera Lens milik sujirour, tidak
+dipakai dan memang **tidak bisa**: satu mesh, satu material, 5,15 MB yang 4,32
+MB-nya PNG. Mesh tunggal tidak punya bilah untuk digerakkan, jadi ia bisa muncul
+dan larut tapi tidak akan pernah bisa membuka.
 
 **Lensanya masuk saat kilatannya surut, bukan bersamaan.** Kurva kilatannya
 diukur: penuh sampai 60 ms, 0,30 di 100 ms, 0,12 di 150 ms, praktis habis di
@@ -475,6 +472,7 @@ Simanjuntak. Yang berikut **bukan**, dan didaftar di sini serta di bagian
 |---|---|---|
 | `assets/models/camera.glb` | [Dokono Kinokoda](https://sketchfab.com/JunkWren) — [Digital Camera](https://sketchfab.com/3d-models/digital-camera-5b2573eab7bf48f2bb8cd5a6026795b1) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | `assets/models/ipod.glb` | [Timothy Ahene](https://sketchfab.com/timothyahene) — [iPod Classic](https://sketchfab.com/3d-models/ipod-classic-13dbe30b0e45408c8bfaddfe6a4e8786) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+| `assets/models/aperture.glb` | [forneha](https://sketchfab.com/forneha) — [Aperture](https://sketchfab.com/3d-models/aperture-3b55e54a06a544438820937f49670dd0) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | `assets/fonts/VCR.woff2` | Riciery Leal — VCR OSD Mono | bebas, termasuk untuk komersial dan redistribusi |
 | `assets/audio/theme.mp3` | [Nihilore](https://www.nihilore.com/) — [Something Meaningful](https://www.nihilore.com/postrock), putaran 48 detik | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 

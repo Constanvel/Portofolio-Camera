@@ -152,14 +152,15 @@ function expose(){
    Built on first use and kept, because the expensive part of S.GL is the two
    PMREM bakes in its constructor and doing those on every nav click would cost
    far more than the context it holds. Everything else about it is small: one
-   procedural object, no models, no textures, no downloads.
+   44 KB model that carries no textures at all, fetched once on the first
+   section a visitor opens.
 
    Never on the lite path. Phones deliberately have no three.js at all — see
    LITE — and the whole point of that decision was to keep the mobile payload
    where it is. They get the exposure and the aperture in css, and no renderer.
    Flip `LITE ||` out of the guard below to give phones the lens too, at the
    cost of shipping the renderer to them. */
-let glx = null, lens = null, lensBusy = false;
+let glx = null, lens = null, lensBusy = false, apertureModel = null;
 async function fireLens(){
   if (LITE || reduced || !S || lensBusy) return;
   lensBusy = true;
@@ -169,7 +170,12 @@ async function fireLens(){
       glx = new S.GL(glxCanvas);
       glx.look('studio');   // the digicam's room, not the iPod's
     }
-    if (!lens) lens = new S.LensAct(glx, { onDone: restLens });
+    /* 44 KB, and only on the first section a visitor opens — not with the two
+       intro models, which are already the largest thing on the page. Somebody
+       who never leaves the canvas of work never pays for it. */
+    if (!apertureModel) apertureModel = S.load('./assets/models/aperture.glb');
+    const model = await apertureModel;
+    if (!lens) lens = new S.LensAct(glx, model, { onDone: restLens });
     if (!glx.acts.includes(lens)) glx.acts.push(lens);
     glx.start();          // idempotent
     glxCanvas.hidden = false;
