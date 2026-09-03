@@ -331,6 +331,35 @@ dipertahankan, dan hierarki tiga tingkatnya utuh:
 | terang | 18,95 | 6,68 | **4,55** |
 | gelap | 16,99 | 7,31 | **4,53** |
 
+## Kapan musiknya diunduh
+
+`preload="none"` di markup, tapi atribut itu cuma separuhnya: `main.js` dulu
+memanggil `rollMuted()` di baris pertamanya, dan `play()` mengunduh berkasnya
+**apa pun isi atribut itu**. Jadi 563 KB berlomba dengan three.js, dua model,
+dan huruf di satu-satunya koneksi yang penting — untuk sesuatu yang **tidak
+bisa terdengar** sampai ada gerakan. Di jalur LITE ia 52% dari seluruh yang
+diambil ponsel.
+
+**`load` sendirian bukan sinyalnya**, dan pengukuran yang mengatakan itu: ia
+menyala di 33 ms sementara `camera.glb` baru selesai di 274 ms. Model diambil
+oleh skrip, dan event `load` cuma menunggu apa yang ditemukan parser. Jadi
+jalur penuh menunggu **modelnya sendiri**, dan hanya jalur LITE — yang tidak
+punya model — yang jatuh ke `load`.
+
+Terbukti dari log server, yang mencatat urutan permintaan dari luar peramban:
+
+    GET /js/vendor/three.module.js
+    GET /assets/models/ipod.glb
+    GET /assets/models/camera.glb
+    GET /assets/audio/theme.mp3     <- terakhir
+
+Ada jalur ketiga yang tidak melewati keduanya: membuka `#/about` langsung
+membuat `main()` keluar lebih awal, jadi tidak ada pra-buffer sama sekali. Itu
+disengaja dan diuji — pengunjung yang datang untuk membaca satu bagian tidak
+perlu membayar musiknya di muka, dan gerakan pertamanya tetap menyalakan lewat
+`goAudible()`: terukur, dari `buffered 0, paused` ke `buffered 48, volume 0.66`
+dalam satu klik.
+
 ## Panel proyek
 
 Menekan sebuah karya membuka penjelasannya, dari dua arah: tile di kanvas

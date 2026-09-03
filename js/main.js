@@ -43,8 +43,10 @@ const LITE = matchMedia('(pointer: coarse)').matches
              && !/[?&]full(&|=|$)/.test(location.search);
 
 /* ── audio ──────────────────────────────────────────────────────────────
-   Muted playback is always permitted, so the track is set rolling muted on
-   the first frame: it buffers, and the user's gesture only has to unmute.
+   Muted playback is always permitted, so the track rolls muted and the user's
+   gesture only has to unmute it — but it starts rolling AFTER `load`, not on
+   the first frame, because those bytes were racing the models for the one
+   connection that matters. See main() below.
    goAudible() is single-flight — two overlapping attempts once corrupted the
    saved mute state and left the track silent *and* paused. Never disarm
    except on confirmed success. */
@@ -105,6 +107,22 @@ async function goAudible(){
   }
   return audioOn;
 }
+/* Hold the track back until the things a visitor can actually SEE have landed,
+   then let it buffer. Called once, with whatever that path's "landed" is: both
+   model promises on the full path, the window's load event on the lite one.
+   allSettled and the second handler because a model that fails to download must
+   not also cost the visitor the music. */
+let buffering = false;
+function bufferTrackAfter(...waits){
+  if (buffering) return;
+  buffering = true;
+  const go = () => rollMuted();
+  Promise.allSettled(waits).then(go, go);
+}
+const domSettled = () => document.readyState === 'complete'
+  ? Promise.resolve()
+  : new Promise(res => addEventListener('load', res, { once: true }));
+
 // a late safety net: if the intro was skipped by an odd path, any first
 // gesture still lights the track. Removed only on confirmed success.
 function armGlobalGesture(){
@@ -293,7 +311,20 @@ const vignetteDriver = {
 
 async function main(){
   armGlobalGesture();
-  rollMuted();
+  /* Not here any more. rollMuted() calls play(), and play() downloads the track
+     whatever the preload attribute says — 563 KB racing three.js, two models
+     and the font on the one connection that matters, for something that CANNOT
+     be heard until a gesture lands. On the lite path it was 52% of everything
+     the phone fetched.
+     `load` alone is NOT the signal, and measuring said so: it fired at 33ms
+     while camera.glb was still going at 274ms, because the models are fetched
+     by script and the load event only waits for what the parser found. So the
+     full path waits on the models themselves, and only the lite path — which
+     has no models — falls back to `load`.
+     A visitor who gestures before any of that still gets sound: goAudible()
+     calls play() itself, and starting the fetch is what they just asked for.
+     The call is further down, once each path knows what it is waiting for —
+     up here `ipodModel` is still null. */
 
   // fonts must be resident before anything paints canvas type
   try {
@@ -325,6 +356,7 @@ async function main(){
     // so the camera is resident long before anyone presses play
     ipodModel = S.load('./assets/models/ipod.glb');
     camModel  = S.load('./assets/models/camera.glb');
+    bufferTrackAfter(ipodModel, camModel);   // the music goes last
     ipodModel.catch(() => {}); camModel.catch(() => {});
     /* A synchronous handle on whatever has actually landed. finish() is not
        async and cannot await these, and releasing a model in a `.then()` puts
@@ -463,6 +495,7 @@ async function toCamera(){
    the frame, which can predate the performance.now() that scheduled it, and
    an unclamped p goes negative. */
 function lite(){
+  bufferTrackAfter(domSettled());   // no models on this path to wait behind
   glCanvas.hidden = true;
   skipBtn.classList.remove('is-lit');
   showWork();

@@ -329,7 +329,10 @@
     <form method="dialog"><button class="page__back" type="submit">back</button></form>
   </dialog>
 
-  <audio id="theme" src="./assets/audio/theme.mp3" loop preload="auto"></audio>
+  <!-- preload="none", and the attribute is only half of it: main.js used to
+       call play() on its first line, and play() fetches the whole track no
+       matter what this says. Both had to move. See the buffering note there. -->
+  <audio id="theme" src="./assets/audio/theme.mp3" loop preload="none"></audio>
 
   <!-- Every section starts `hidden` and is opened by the router, so a page
        whose script never ran showed nothing at all — not a plain version, a
