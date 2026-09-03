@@ -39,6 +39,20 @@ const COARSE     = matchMedia('(pointer: coarse)').matches;
 const EDGE_GRID  = COARSE;
 const MAX_DECODE = COARSE ? 3 : 99;   // concurrent hardware decoders to ask for
 const TAP        = COARSE ? 12 : 8;   // a finger wanders; a mouse does not
+/* ── the idle frame rate on touch ────────────────────────────────────────
+   A frame here is four full-screen operations: the buffer is cleared and
+   repapered, then the screen is cleared and the buffer blitted onto it. At
+   750x1624 that is the whole cost of this file, and it was being paid sixty
+   times a second whether or not anything had moved.
+   At rest the only thing still moving is the tracker ornament, and its blobs
+   take between twenty-five and forty-seven seconds to go round once — about
+   thirty pixels a second. Redrawing that twenty times a second is
+   indistinguishable and costs a third as much, which on a phone is the
+   difference between a warm gpu and an idle one.
+   Zero on a mouse: the desktop has the headroom, and it has a cursor to chase
+   that moves as fast as a hand does. 50ms also sits under the 64ms clamp on
+   dt below, so a skipped frame never loses time out of the easing. */
+const IDLE_MS    = COARSE ? 50 : 0;
 
 /* ── the repeating block ────────────────────────────────────────────────
    Four columns, five rows, five slots deliberately left empty so the plane
@@ -363,7 +377,16 @@ export class WorkCanvas {
   }
 
   frame(now){
-    const dt = Math.min(64, now - this._last); this._last = now;
+    const raw = now - this._last;
+    /* Moving means a finger is down, the plane is still easing toward its
+       target — a flick decays here rather than in the handler, so this covers
+       momentum too — or a cursor is on the glass. `_last` is deliberately NOT
+       advanced when the draw is skipped, so the dt that finally arrives is the
+       real elapsed time: the easing and the trackers are both written against
+       dt, so they run at the same speed however few frames they are given. */
+    if (IDLE_MS && raw < IDLE_MS && !this.drag && this.px < -9998
+        && Math.abs(this.tx - this.x) < 0.05 && Math.abs(this.ty - this.y) < 0.05) return;
+    const dt = Math.min(64, raw); this._last = now;
     const k = 1 - Math.pow(0.0009, dt / 1000);       // frame-rate independent
     const nx = this.x + (this.tx - this.x) * k;
     const ny = this.y + (this.ty - this.y) * k;
@@ -392,6 +415,10 @@ export class WorkCanvas {
   drawPlane(dt){
     const c = this.bctx, dpr = this.dpr;
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    /* The clear is not redundant next to the fill that follows it, however it
+       reads. Measured both ways: a clear that covers the WHOLE surface lets
+       the driver discard the previous frame instead of loading it back in to
+       be painted over, and dropping it made the frame slower, not faster. */
     c.clearRect(0, 0, this.w, this.h);
     c.fillStyle = this.pal.paper;
     c.fillRect(0, 0, this.w, this.h);
@@ -521,6 +548,7 @@ export class WorkCanvas {
   drawGrid(){
     const ctx = this.ctx, dpr = this.dpr;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // same as in drawPlane: the clear is the discard hint, not waste
     ctx.clearRect(0, 0, this.cv.width, this.cv.height);
     ctx.drawImage(this.buf, 0, 0);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
