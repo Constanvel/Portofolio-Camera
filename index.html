@@ -35,6 +35,16 @@
      are legible over it. The work stage takes it off again. -->
 <body data-stage="mark" class="is-dark">
 
+  <!-- The document's own heading, and the only <h1> on it. It is not visible
+       because there is nowhere on this design for it to be: the home stage is
+       a canvas of tiles and the intro before it is a film. But every section
+       below used to declare itself an <h1>, which left seven of them competing
+       and the one thing a portfolio has to be findable by — the name — present
+       only in <title> and a meta tag. A crawler ranking this page for its
+       author had nothing above prose to go on. The sections are <h2> now, and
+       this is what they sit under. -->
+  <h1 class="vh">Constantine Rainer Simanjuntak — PPLG student at SMK Telkom Purwokerto</h1>
+
   <!-- ── the navbar ───────────────────────────────────────────────────────
        Hidden through the intro and lit by [data-stage] alone — see style.css.
        Eight links do not fit a phone, so the bar scrolls sideways rather than
@@ -109,7 +119,7 @@
        section is this block plus one line in the nav above, and nothing else. -->
   <section class="page" id="pageAbout" hidden>
     <div class="page__in">
-      <h1 class="page__t">about</h1>
+      <h2 class="page__t">about</h2>
       <p class="page__p" id="aboutBody">Constantine Rainer Simanjuntak — PPLG, SMK Telkom Purwokerto. I build for the
       web with React, Tailwind and Node — a reading and essay platform, an art
       community, my school&rsquo;s own site, a spending tracker — and AI tools on top
@@ -141,7 +151,7 @@
 
   <section class="page" id="pageSkills" hidden>
     <div class="page__in">
-      <h1 class="page__t">skills</h1>
+      <h2 class="page__t">skills</h2>
       <ul class="rows">
         <li class="rows__r"><span class="rows__k">frontend</span><span class="rows__v">React 19, Next.js 16 (App Router), Vite, React Router, Tailwind CSS</span></li>
         <li class="rows__r"><span class="rows__k">languages</span><span class="rows__v">TypeScript, JavaScript, HTML, CSS, SQL</span></li>
@@ -160,7 +170,7 @@
        edit in one file. -->
   <section class="page" id="pageWorks" hidden>
     <div class="page__in page__in--wide">
-      <h1 class="page__t">works</h1>
+      <h2 class="page__t">works</h2>
       <ul class="grid" id="worksGrid"></ul>
       <button class="page__back" type="button" data-back>back</button>
     </div>
@@ -168,7 +178,7 @@
 
   <section class="page" id="pageExperience" hidden>
     <div class="page__in">
-      <h1 class="page__t">experience</h1>
+      <h2 class="page__t">experience</h2>
       <ul class="rows">
         <li class="rows__r"><span class="rows__k">now</span><span class="rows__v">PPLG, SMK Telkom Purwokerto — software engineering track.</span></li>
         <li class="rows__r"><span class="rows__k">2026</span><span class="rows__v">School AI club — language models, from a prototype through to a demo.</span></li>
@@ -182,7 +192,7 @@
 
   <section class="page" id="pageServices" hidden>
     <div class="page__in">
-      <h1 class="page__t">services</h1>
+      <h2 class="page__t">services</h2>
       <ul class="rows">
         <li class="rows__r"><span class="rows__k">web</span><span class="rows__v">React, Next.js and Tailwind, on Supabase — from an empty repo to something deployed.</span></li>
         <li class="rows__r"><span class="rows__k">ui / ux</span><span class="rows__v">Layout, type and flow. Figma through to the code that ships it.</span></li>
@@ -197,7 +207,7 @@
 
   <section class="page" id="pageAchievements" hidden>
     <div class="page__in">
-      <h1 class="page__t">achievements</h1>
+      <h2 class="page__t">achievements</h2>
       <ul class="rows">
         <li class="rows__r"><span class="rows__k">2025</span><span class="rows__v"><a class="rows__a" href="./assets/certs/sevent-9-uiux-finalis.pdf" target="_blank" rel="noopener">Finalist — UI/UX Design competition, Sevent 9.0, Telkom University Purwokerto.</a></span></li>
         <li class="rows__r"><span class="rows__k">jan–mar 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/toeic-excellence-program.pdf" target="_blank" rel="noopener">TOEIC Excellence Program, English Discoveries — Edusoft, a subsidiary of ETS.</a></span></li>
@@ -216,7 +226,7 @@
        <a class="nav__a" href="#/testimonials">testimonials</a> to the nav.
   <section class="page" id="pageTestimonials" hidden>
     <div class="page__in">
-      <h1 class="page__t">testimonials</h1>
+      <h2 class="page__t">testimonials</h2>
       <ul class="rows">
         <li class="rows__r"><span class="rows__k">name, role</span><span class="rows__v">What they actually said.</span></li>
       </ul>
@@ -227,7 +237,7 @@
 
   <section class="page" id="pageContact" hidden>
     <div class="page__in">
-      <h1 class="page__t">contact</h1>
+      <h2 class="page__t">contact</h2>
       <p class="page__p">Open to collaborations, competitions, and anything that needs building.</p>
       <!-- The channels are a rows list like every other section, not a strip of
            logos: an icon is a brand's mark, not an address, and the address is

@@ -179,7 +179,12 @@ async function applyRoute(){
     void el.offsetWidth;
     el.classList.add('is-lit');
     body.dataset.stage = 'page';
-    el.querySelector('.page__back, .page__cta, h1').focus?.();
+    /* `.page__t`, not `h1`: the section headings are <h2> now, because the one
+       <h1> belongs to the document and carries the name. This selector matched
+       the heading by tag, so leaving it would have returned null on every
+       section without a back button or a cta — and `null.focus?.()` throws,
+       optional chaining guards the method, not the object it hangs off. */
+    el.querySelector('.page__back, .page__cta, .page__t')?.focus?.();
   } else if (body.dataset.stage === 'page'){
     body.dataset.stage = lastStage;
   }

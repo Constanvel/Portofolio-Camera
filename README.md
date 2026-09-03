@@ -106,6 +106,21 @@ putih; `<noscript>` di `index.html` membuka semuanya dan membuang urutan intro.
 Kanvas karya punya `aria-label` dan isi cadangan di dalam elemennya, karena
 halaman `home` itu kanvas, dan kanvas tidak mengatakan apa pun ke pembaca layar.
 
+Ada tepat satu `<h1>` di dokumen ini dan isinya nama. Ia tidak terlihat —
+`.vh` di `css/style.css` memotongnya jadi kotak 1px, bukan `display:none`,
+karena itu akan menyembunyikannya dari pembaca layar juga dan justru itu yang
+tidak diinginkan. Sebelumnya tiap bagian mengaku `<h1>` sendiri, jadi ada tujuh
+yang bersaing dan namanya sendiri tidak pernah jadi heading sama sekali, cuma
+ada di `<title>`, `<meta>`, dan satu kalimat prosa di `about`. Mesin pencari
+yang memeringkat halaman ini atas nama penulisnya tidak punya apa pun di atas
+prosa untuk dijadikan pegangan. Ketujuhnya `<h2>` sekarang.
+
+Konsekuensinya ada di `js/main.js`: `applyRoute()` memilih apa yang difokuskan
+lewat `querySelector`, dan salah satu pilihannya dulu `h1` — cocok karena tag.
+Sekarang `.page__t`. Kalau dibiarkan, selektornya akan mengembalikan `null` di
+tiap bagian yang tidak punya tombol kembali atau cta, dan `null.focus?.()`
+melempar: optional chaining menjaga metodenya, bukan objek tempat ia menempel.
+
 ## Mark pembuka
 
 `assets/mark/crest.webp` dan `assets/mark/ring.webp` — satu gambar diam dan satu

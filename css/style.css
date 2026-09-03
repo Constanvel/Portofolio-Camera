@@ -209,6 +209,15 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
   font-size:.6875rem; letter-spacing:.14em; text-transform:uppercase;
 }
 .grid__b:focus-visible .grid__img{ opacity:.82; }
+/* Read but not seen — the page's <h1>. Not display:none and not
+   visibility:hidden, because both of those take the text away from a screen
+   reader as well as from the eye, which is the opposite of the point. A 1px
+   clipped box stays in the accessibility tree. white-space:nowrap keeps it
+   from wrapping into a tall sliver that could still be scrolled to. */
+.vh{
+  position:absolute; width:1px; height:1px; margin:-1px; padding:0; border:0;
+  overflow:hidden; clip-path:inset(50%); white-space:nowrap;
+}
 .page__t{
   margin:0 0 1.6rem; font-size:clamp(2rem,5vw,3rem); font-weight:500;
   letter-spacing:-.035em; line-height:1.04;
