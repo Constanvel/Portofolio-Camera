@@ -888,6 +888,10 @@ function renderLang(l, save){
   // running it again is only that plus two idempotent writes
   applyMode(document.documentElement.dataset.theme, false);
   buildWorks();
+  // and the iPod's screen, if the intro is still on it — that word is painted
+  // into a texture rather than laid out by the browser, so nothing else here
+  // would have touched it
+  ipod?.repaint?.();
   // a panel that is already open is rewritten where it stands
   if (workDlg?.open && lastWork > -1) openWork(lastWork);
   if (save) remember('lang', lang);

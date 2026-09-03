@@ -62,6 +62,9 @@ const ID = {
   'set.theme':    'tema',
   'set.volume':   'volume',
   'set.lang':     'bahasa',
+  // painted into the iPod's screen by js/scene.js rather than laid out by the
+  // browser, which is why the switch has to ask that act to repaint
+  'ipod.play':    'tekan play',
   'mode.light':   'terang',
   'mode.dark':    'gelap',
 

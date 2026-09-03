@@ -11,6 +11,10 @@
 import * as THREE from 'three';
 import { GLTFLoader } from './vendor/GLTFLoader.js';
 import { studioEnvironment, shadowSprite, STUDIO, RIM } from './env.js';
+// the iPod's screen is the only text this file paints — see paintScreen. No
+// cycle: i18n.js imports nothing, and main.js has already loaded it by the time
+// this module is dynamically imported.
+import { s } from './i18n.js';
 
 /* ── measured off the models, once, offline ──────────────────────────────
    iPod (raw model space): front face is +X, up is +Y. The whole front is ONE
@@ -477,6 +481,14 @@ export class IpodAct {
     }
   }
 
+  /* The screen repaints only when its own animation moves — right for sixty
+     frames a second, wrong for a language change, because once the entrance
+     settles both values are pinned and the word would never be redrawn.
+     Invalidating the comparison rather than painting here: the next tick then
+     redraws at whatever the entrance has actually reached, so this is correct
+     mid-flight as well as after it has landed. */
+  repaint(){ this._wake = this._type = -1; }
+
   paintScreen(lit, txt){
     const ctx = this.screenCtx, w = ctx.canvas.width, h = ctx.canvas.height;
     ctx.clearRect(0, 0, w, h);
@@ -496,7 +508,11 @@ export class IpodAct {
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       const px = Math.round(h * 0.125);
       ctx.font = `${px}px "VCR OSD Mono", monospace`;
-      ctx.fillText('press play', w / 2, h / 2);
+      /* The one string on this site that tells a visitor to do something, so
+         it is also the one that most has to follow the language. Both words
+         are ten characters in either language, which the monospace face on
+         this screen is entitled to care about. */
+      ctx.fillText(s('ipod.play', 'press play'), w / 2, h / 2);
       ctx.globalAlpha = 1;
     }
     this.screenTex.needsUpdate = true;

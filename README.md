@@ -475,6 +475,18 @@ frame, jadi membaca label kartu lewat `t()` sudah seluruh biayanya. Lebar kotak
 sentuhnya diukur dari kata yang benar-benar dilukis — `achievements` dan
 `pencapaian` tidak selebar itu sama.
 
+Satu string tidak ditata peramban sama sekali: `press play` di layar iPod
+dilukis ke tekstur oleh `js/scene.js`. Itu satu-satunya kalimat di situs ini yang
+**menyuruh** pengunjung berbuat sesuatu, jadi justru itu yang paling harus ikut —
+dan layarnya hanya menggambar ulang saat animasinya sendiri bergerak, yang benar
+untuk enam puluh frame per detik dan salah untuk pergantian bahasa: begitu
+entrance-nya selesai, kedua nilainya terkunci dan katanya tidak akan pernah
+digambar ulang. `repaint()` membatalkan pembandingnya, bukan melukis di tempat,
+supaya tick berikutnya menggambar pada posisi yang benar-benar dicapai entrance
+— benar di tengah jalan maupun sesudah mendarat. Kebetulan yang enak: `tekan
+play` dan `press play` sama-sama sepuluh karakter, dan huruf di layar itu
+monospace. `MENU` di roda tetap Inggris; itu sablon perangkatnya sendiri.
+
 Mengganti bahasa **tidak** memanggil `applyRoute()`. Fungsi itu memicu kilatan
 dan memindahkan fokus, dan itu bukan yang pantas dilakukan sebuah setelan pada
 halaman di belakangnya; label tombol menu satu-satunya bagian rute yang benar-benar
