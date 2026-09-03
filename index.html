@@ -354,7 +354,15 @@
   <!-- preload="none", and the attribute is only half of it: main.js used to
        call play() on its first line, and play() fetches the whole track no
        matter what this says. Both had to move. See the buffering note there. -->
-  <audio id="theme" src="./assets/audio/theme.mp3" loop preload="none"></audio>
+  <audio id="theme" loop preload="none">
+    <!-- Opus first: forty-eight kilobits of it is better than the ninety-six
+         this mp3 spends, and two hundred and twenty kilobytes lighter. The
+         mp3 stays because Safari only learned to read Ogg in 17.5, and an
+         older iPhone should get the music rather than silence. The browser
+         takes the first line it understands and never fetches the other. -->
+    <source src="./assets/audio/theme.opus" type="audio/ogg; codecs=opus">
+    <source src="./assets/audio/theme.mp3" type="audio/mpeg">
+  </audio>
 
   <!-- Every section starts `hidden` and is opened by the router, so a page
        whose script never ran showed nothing at all — not a plain version, a

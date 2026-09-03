@@ -112,8 +112,10 @@ async function goAudible(){
   return audioOn;
 }
 /* Hold the track back until the things a visitor can actually SEE have landed,
-   then let it buffer. Called once, with whatever that path's "landed" is: both
-   model promises on the full path, the window's load event on the lite one.
+   then let it buffer. The full path only: it has models to wait behind, a
+   connection wide enough to be worth pre-filling, and a sequence long enough
+   that the music has somewhere to arrive. The touch path buffers nothing and
+   waits for a gesture — see lite().
    allSettled and the second handler because a model that fails to download must
    not also cost the visitor the music. */
 let buffering = false;
@@ -123,9 +125,6 @@ function bufferTrackAfter(...waits){
   const go = () => rollMuted();
   Promise.allSettled(waits).then(go, go);
 }
-const domSettled = () => document.readyState === 'complete'
-  ? Promise.resolve()
-  : new Promise(res => addEventListener('load', res, { once: true }));
 
 // a late safety net: if the intro was skipped by an odd path, any first
 // gesture still lights the track. Removed only on confirmed success.
@@ -503,7 +502,16 @@ async function toCamera(){
    the frame, which can predate the performance.now() that scheduled it, and
    an unclamped p goes negative. */
 function lite(){
-  bufferTrackAfter(domSettled());   // no models on this path to wait behind
+  /* No speculative buffer on this path. rollMuted() calls play(), and play()
+     downloads the whole track whatever preload says — and on a phone that was
+     the single biggest thing fetched, larger than every picture on the page
+     put together, for something that cannot be heard until a gesture lands.
+     Most visits never make that gesture, and those now cost nothing at all.
+     The ones that do lose nothing that matters: armGlobalGesture() is already
+     armed by main() above, the first drag on the plane calls goAudible(), and
+     so does the volume slider — every one of those calls play() itself, which
+     is what starts the fetch. All a tap costs now is the fraction of a second
+     the file takes to arrive, and the volume ramp covers that anyway. */
   glCanvas.hidden = true;
   skipBtn.classList.remove('is-lit');
   showWork();
