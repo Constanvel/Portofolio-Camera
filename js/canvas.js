@@ -12,6 +12,10 @@
 // with a plain critically-damped lerp so the site carries no CDN.
 
 import { WORKS, CARDS } from './data.js';
+// the cards are the only text this file owns, and the plane is redrawn from
+// scratch every frame — so reading the label through t() is the whole of what
+// switching language costs here. Nothing has to tell the canvas about it.
+import { t } from './i18n.js';
 import { Trackers } from './track.js';
 
 /* The same stack css/style.css sets on <body>, because canvas type and page
@@ -498,17 +502,18 @@ export class WorkCanvas {
   paintCard(c, card, x, y){
     const w = this.tileW, h = this.tileH;
     const size = Math.round(clamp(this.tileW * 0.115, 17, 34));
+    const label = t(card, 'text');
     c.fillStyle = this.pal.ink;
     c.textAlign = 'center'; c.textBaseline = 'middle';
     c.font = `500 ${size}px ${UI}`;
     const cx = x + w / 2, cy = y + h / 2;
-    c.fillText(card.text, cx, cy);
+    c.fillText(label, cx, cy);
     // the mark's asterisk, used once, as the only ornament on the plane
     c.font = `400 ${Math.round(size * 0.8)}px ${UI}`;
     c.fillStyle = this.pal.ink;
     c.fillText('*', cx, cy - size * 1.35);
 
-    const tw = Math.max(size * 4.2, c.measureText(card.text).width);
+    const tw = Math.max(size * 4.2, c.measureText(label).width);
     return { x: cx - tw / 2 - 12, y: cy - size * 2.1, w: tw + 24, h: size * 3.4 };
   }
 
