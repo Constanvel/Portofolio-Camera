@@ -396,7 +396,7 @@ sebelum sempat terlihat.
 
 ## Setelan
 
-Satu tombol di pojok kiri bawah membuka panel berisi tiga baris: tema, suara,
+Satu tombol di pojok kiri bawah membuka panel berisi tiga baris: tema, bahasa,
 dan volume. Bukan `<dialog>` — modal akan menaruh seluruh situs di balik lembar
 gelap hanya untuk mengecilkan volume. Panel biasa yang tertutup oleh Escape atau
 tekanan di luar; tekanan yang **membuka**-nya adalah `pointerdown` saat panel
@@ -424,11 +424,72 @@ nyala atau mati; slider membuatnya setelan, dan ramp serta jaring pengaman di
 itu sebabnya menggeser slider sebelum ada bunyi pun tetap mendarat di tempat
 yang benar.
 
-Tema dan volume disimpan di `localStorage`, dan setiap sentuhannya dibungkus
+Tema, bahasa dan volume disimpan di `localStorage`, dan setiap sentuhannya dibungkus
 `try/catch`: di sebagian mode privasi `localStorage` melempar, bukan
 mengembalikan `null`. Tema mengikuti `prefers-color-scheme` **hanya** selama
 pengunjung belum memilih sendiri; setelah memilih, sistem operasi tidak berhak
 membatalkannya.
+
+## Dua bahasa
+
+Bahasa Inggrisnya **tidak** ada di kamus. Ia tetap di tempat ia dibaca — di
+`index.html` dan `js/data.js` — karena salinan itulah yang diindeks perayap,
+yang didapat pengunjung `<noscript>`, dan yang tergambar di frame sebelum modul
+mana pun sempat jalan. Menuliskannya sekali lagi di tabel berarti setiap suntingan
+berikutnya harus mendarat di dua tempat, dan hari ia mendarat di satu tempat saja
+adalah hari situs ini mulai mengatakan hal berbeda dalam bahasa berbeda.
+
+`js/i18n.js` karena itu hanya memuat bahasa Indonesianya. Bahasa Inggrisnya
+diambil dari DOM saat pertama kali sebuah kunci diminta, dan disimpan di `snap`
+— dikunci oleh `data-t`, bukan oleh elemennya, yang juga alasan sembilan tombol
+`back` jadi satu entri dan bukan sembilan.
+
+Tiga jalan masuk, karena stringnya datang lewat tiga jalan:
+
+| | untuk |
+|---|---|
+| `applyLang(l)` | semua yang **ada** di markup, dicocokkan lewat `data-t` |
+| `t(obj, 'note')` | satu field di `WORKS` atau `CARDS` — membaca `note_id` |
+| `s('nav.about')` | string yang tidak pernah ada di markup, dibangun `js/main.js` |
+
+Terjemahan proyek duduk di `js/data.js` sebagai `note_id`, `blurb_id`,
+`points_id` — bukan di kamus. File itulah yang terbuka saat sebuah proyek
+ditambahkan, dan terjemahan yang tinggal dua file jauhnya adalah terjemahan yang
+tidak ditulis siapa pun. Terjemahan yang hilang jatuh ke bahasa Inggris, bukan ke
+kunci atau ke kosong: setengah-diterjemahkan adalah keadaan yang benar-benar akan
+dialami situs ini, setiap kali satu baris ditambah tanpa membuka `i18n.js`.
+
+`year` ikut diterjemahkan, tapi hanya karena singkatan bulannya berbeda — `aug`
+jadi `agu`, `may` jadi `mei`. `label` sebuah proyek adalah namanya sendiri dan
+tidak ikut. Begitu juga nama kanal di `contact` dan judul yang tercetak di
+sertifikat: yang berpindah cuma kata-kata di sekelilingnya.
+
+Yang berpindah bukan hanya apa yang **terbaca**, tapi juga apa yang
+**dibacakan**. Beberapa kontrol di sini hanya bernama lewat `aria-label` —
+bidang yang digeser, navbar, grup setelan — dan meninggalkannya berarti
+menerjemahkan situs untuk semua orang kecuali yang membacanya lewat pembaca
+layar. `data-ta` menangani itu, lewat tabel `SLOTS` yang sama.
+
+Kanvas tidak perlu diberi tahu apa-apa. Bidangnya digambar ulang dari nol tiap
+frame, jadi membaca label kartu lewat `t()` sudah seluruh biayanya. Lebar kotak
+sentuhnya diukur dari kata yang benar-benar dilukis — `achievements` dan
+`pencapaian` tidak selebar itu sama.
+
+Mengganti bahasa **tidak** memanggil `applyRoute()`. Fungsi itu memicu kilatan
+dan memindahkan fokus, dan itu bukan yang pantas dilakukan sebuah setelan pada
+halaman di belakangnya; label tombol menu satu-satunya bagian rute yang benar-benar
+soal bahasa, dan `labelNav()` yang mengurusnya. Panel proyek yang sedang terbuka
+ditulis ulang di tempat, bukan ditutup.
+
+Pilihan yang tersimpan menang. Kalau belum ada, `navigator.languages` yang
+ditanya — dan pengujiannya berjangkar, `/^id\b/i`, bukan “mengandung id”. Mesin
+tempat ini diuji melaporkan `["en-US", "en-ID"]`: orang berbahasa Inggris di
+Indonesia. Uji substring akan membalik mereka ke bahasa Indonesia, begitu juga
+untuk `nl-ID` dan `ide`. Selain itu, dan pada peramban yang tidak menjawab apa
+pun, jawabannya bahasa Inggris — itu yang sudah tertulis di dokumennya.
+
+Satu hal yang tidak ikut: `404.html` tetap bahasa Inggris. Halaman itu `noindex`,
+tidak punya panel setelan, dan hanya melempar orang kembali ke indeks.
 
 ## Navbar di layar sempit
 

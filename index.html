@@ -70,15 +70,15 @@
        fall out of step. -->
   <button class="navbtn" id="navBtn" type="button"
           aria-expanded="false" aria-controls="nav">menu</button>
-  <nav class="nav" id="nav" aria-label="sections">
-    <a class="nav__a" href="#/">home</a>
-    <a class="nav__a" href="#/about">about</a>
-    <a class="nav__a" href="#/skills">skills</a>
-    <a class="nav__a" href="#/works">works</a>
-    <a class="nav__a" href="#/experience">experience</a>
-    <a class="nav__a" href="#/services">services</a>
-    <a class="nav__a" href="#/achievements">achievements</a>
-    <a class="nav__a" href="#/contact">contact</a>
+  <nav class="nav" id="nav" aria-label="sections" data-ta="nav.label">
+    <a class="nav__a" href="#/" data-t="nav.home">home</a>
+    <a class="nav__a" href="#/about" data-t="nav.about">about</a>
+    <a class="nav__a" href="#/skills" data-t="nav.skills">skills</a>
+    <a class="nav__a" href="#/works" data-t="nav.works">works</a>
+    <a class="nav__a" href="#/experience" data-t="nav.experience">experience</a>
+    <a class="nav__a" href="#/services" data-t="nav.services">services</a>
+    <a class="nav__a" href="#/achievements" data-t="nav.achievements">achievements</a>
+    <a class="nav__a" href="#/contact" data-t="nav.contact">contact</a>
   </nav>
 
   <!-- ── stage 1 · the mark ───────────────────────────────────────────── -->
@@ -115,18 +115,18 @@
          reader — so the whole first page read as blank. The fallback inside
          the element is what that reader gets, and it is also what a browser
          with no canvas draws: the same sections, as links. -->
-    <canvas class="work__cv" id="cv" aria-label="The work, tiled across a plane you can drag. Every section is also a link below.">
+    <canvas class="work__cv" id="cv" data-ta="ui.canvas" aria-label="The work, tiled across a plane you can drag. Every section is also a link below.">
       <ul>
-        <li><a href="#/about">about</a></li>
-        <li><a href="#/skills">skills</a></li>
-        <li><a href="#/works">works</a></li>
-        <li><a href="#/experience">experience</a></li>
-        <li><a href="#/services">services</a></li>
-        <li><a href="#/achievements">achievements</a></li>
-        <li><a href="#/contact">contact</a></li>
+        <li><a href="#/about" data-t="nav.about">about</a></li>
+        <li><a href="#/skills" data-t="nav.skills">skills</a></li>
+        <li><a href="#/works" data-t="nav.works">works</a></li>
+        <li><a href="#/experience" data-t="nav.experience">experience</a></li>
+        <li><a href="#/services" data-t="nav.services">services</a></li>
+        <li><a href="#/achievements" data-t="nav.achievements">achievements</a></li>
+        <li><a href="#/contact" data-t="nav.contact">contact</a></li>
       </ul>
     </canvas>
-    <p class="work__hint" id="hint">drag to explore</p>
+    <p class="work__hint" id="hint" data-t="ui.drag">drag to explore</p>
   </main>
 
   <!-- ── pages ────────────────────────────────────────────────────────────
@@ -135,8 +135,8 @@
        section is this block plus one line in the nav above, and nothing else. -->
   <section class="page" id="pageAbout" hidden>
     <div class="page__in">
-      <h2 class="page__t">about</h2>
-      <p class="page__p" id="aboutBody">Constantine Rainer Simanjuntak — PPLG, SMK Telkom Purwokerto. I build for the
+      <h2 class="page__t" data-t="nav.about">about</h2>
+      <p class="page__p" id="aboutBody" data-t="about.body">Constantine Rainer Simanjuntak — PPLG, SMK Telkom Purwokerto. I build for the
       web with React, Tailwind and Node — a reading and essay platform, an art
       community, my school&rsquo;s own site, a spending tracker — and AI tools on top
       of open models. Finalist in the UI/UX Design
@@ -151,32 +151,32 @@
            It sits here rather than in the nav because a ninth link stops fitting
            the bar at 720px — and because "what this is made of" is an `about`
            sentence anyway. -->
-      <p class="page__c">Built with borrowed parts, listed here because they were
+      <p class="page__c" data-t="about.credits">Built with borrowed parts, listed here because they were
       borrowed — every one of them under a licence that allows it. The
       photographs, the writing and the code are mine.</p>
       <ul class="rows rows--fine">
-        <li class="rows__r"><span class="rows__k">3d · camera</span><span class="rows__v"><a class="rows__a" href="https://sketchfab.com/3d-models/digital-camera-5b2573eab7bf48f2bb8cd5a6026795b1" target="_blank" rel="noopener">Digital Camera</a> by Dokono Kinokoda — <a class="rows__a" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, meshes and textures recompressed.</span></li>
-        <li class="rows__r"><span class="rows__k">3d · ipod</span><span class="rows__v"><a class="rows__a" href="https://sketchfab.com/3d-models/ipod-classic-13dbe30b0e45408c8bfaddfe6a4e8786" target="_blank" rel="noopener">iPod Classic</a> by Timothy Ahene — <a class="rows__a" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, textures halved and recompressed.</span></li>
-        <li class="rows__r"><span class="rows__k">type</span><span class="rows__v">VCR OSD Mono by Riciery Leal. Everything else is the system's own UI face.</span></li>
-        <li class="rows__r"><span class="rows__k">music</span><span class="rows__v">“<a class="rows__a" href="https://www.nihilore.com/postrock" target="_blank" rel="noopener">Something Meaningful</a>” by Nihilore — <a class="rows__a" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> — a 48-second loop from the opening, re-encoded quieter and smaller.</span></li>
+        <li class="rows__r"><span class="rows__k" data-t="cr.cam.k">3d · camera</span><span class="rows__v" data-t="cr.cam.v"><a class="rows__a" href="https://sketchfab.com/3d-models/digital-camera-5b2573eab7bf48f2bb8cd5a6026795b1" target="_blank" rel="noopener">Digital Camera</a> by Dokono Kinokoda — <a class="rows__a" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, meshes and textures recompressed.</span></li>
+        <li class="rows__r"><span class="rows__k">3d · ipod</span><span class="rows__v" data-t="cr.ipod.v"><a class="rows__a" href="https://sketchfab.com/3d-models/ipod-classic-13dbe30b0e45408c8bfaddfe6a4e8786" target="_blank" rel="noopener">iPod Classic</a> by Timothy Ahene — <a class="rows__a" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, textures halved and recompressed.</span></li>
+        <li class="rows__r"><span class="rows__k" data-t="cr.type.k">type</span><span class="rows__v" data-t="cr.type.v">VCR OSD Mono by Riciery Leal. Everything else is the system's own UI face.</span></li>
+        <li class="rows__r"><span class="rows__k" data-t="cr.music.k">music</span><span class="rows__v" data-t="cr.music.v">“<a class="rows__a" href="https://www.nihilore.com/postrock" target="_blank" rel="noopener">Something Meaningful</a>” by Nihilore — <a class="rows__a" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> — a 48-second loop from the opening, re-encoded quieter and smaller.</span></li>
       </ul>
 
-      <button class="page__back" type="button" data-back>back</button>
+      <button class="page__back" type="button" data-back data-t="ui.back">back</button>
     </div>
   </section>
 
   <section class="page" id="pageSkills" hidden>
     <div class="page__in">
-      <h2 class="page__t">skills</h2>
+      <h2 class="page__t" data-t="nav.skills">skills</h2>
       <ul class="rows">
         <li class="rows__r"><span class="rows__k">frontend</span><span class="rows__v">React 19, Next.js 16 (App Router), Vite, React Router, Tailwind CSS</span></li>
-        <li class="rows__r"><span class="rows__k">languages</span><span class="rows__v">TypeScript, JavaScript, HTML, CSS, SQL</span></li>
-        <li class="rows__r"><span class="rows__k">backend</span><span class="rows__v">Supabase — Postgres with schema migrations, auth, storage, and Edge Functions in TypeScript</span></li>
-        <li class="rows__r"><span class="rows__k">ai</span><span class="rows__v">Language-model APIs with provider fallback and a spend guard, shipped as edge functions</span></li>
-        <li class="rows__r"><span class="rows__k">design</span><span class="rows__v">UI/UX, Figma, design systems and component states, motion and video editing</span></li>
-        <li class="rows__r"><span class="rows__k">tools</span><span class="rows__v">Git, Vite, ESLint, Node — including a Vite dev-server plugin written for one of these projects</span></li>
+        <li class="rows__r"><span class="rows__k" data-t="sk.lang.k">languages</span><span class="rows__v">TypeScript, JavaScript, HTML, CSS, SQL</span></li>
+        <li class="rows__r"><span class="rows__k">backend</span><span class="rows__v" data-t="sk.back.v">Supabase — Postgres with schema migrations, auth, storage, and Edge Functions in TypeScript</span></li>
+        <li class="rows__r"><span class="rows__k">ai</span><span class="rows__v" data-t="sk.ai.v">Language-model APIs with provider fallback and a spend guard, shipped as edge functions</span></li>
+        <li class="rows__r"><span class="rows__k" data-t="sk.design.k">design</span><span class="rows__v" data-t="sk.design.v">UI/UX, Figma, design systems and component states, motion and video editing</span></li>
+        <li class="rows__r"><span class="rows__k" data-t="sk.tools.k">tools</span><span class="rows__v" data-t="sk.tools.v">Git, Vite, ESLint, Node — including a Vite dev-server plugin written for one of these projects</span></li>
       </ul>
-      <button class="page__back" type="button" data-back>back</button>
+      <button class="page__back" type="button" data-back data-t="ui.back">back</button>
     </div>
   </section>
 
@@ -186,53 +186,53 @@
        edit in one file. -->
   <section class="page" id="pageWorks" hidden>
     <div class="page__in page__in--wide">
-      <h2 class="page__t">works</h2>
+      <h2 class="page__t" data-t="nav.works">works</h2>
       <ul class="grid" id="worksGrid"></ul>
-      <button class="page__back" type="button" data-back>back</button>
+      <button class="page__back" type="button" data-back data-t="ui.back">back</button>
     </div>
   </section>
 
   <section class="page" id="pageExperience" hidden>
     <div class="page__in">
-      <h2 class="page__t">experience</h2>
+      <h2 class="page__t" data-t="nav.experience">experience</h2>
       <ul class="rows">
-        <li class="rows__r"><span class="rows__k">now</span><span class="rows__v">PPLG, SMK Telkom Purwokerto — software engineering track.</span></li>
-        <li class="rows__r"><span class="rows__k">2026</span><span class="rows__v">School AI club — language models, from a prototype through to a demo.</span></li>
+        <li class="rows__r"><span class="rows__k" data-t="d.now">now</span><span class="rows__v" data-t="xp.now.v">PPLG, SMK Telkom Purwokerto — software engineering track.</span></li>
+        <li class="rows__r"><span class="rows__k">2026</span><span class="rows__v" data-t="xp.club.v">School AI club — language models, from a prototype through to a demo.</span></li>
         <li class="rows__r"><span class="rows__k">feb 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/seminar-nasional-uiux.jpg" target="_blank" rel="noopener">Seminar Nasional UI/UX Design, “Smart Design for the New Era” — HIMASI, Universitas Widyatama.</a></span></li>
-        <li class="rows__r"><span class="rows__k">aug 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/ai-ignition-training.jpg" target="_blank" rel="noopener">AI Ignition Training, KUMPUL.ID — thirty hours across nine modules, under the AI Opportunity Fund with Google.org and AVPN.</a></span></li>
-        <li class="rows__r"><span class="rows__k">ongoing</span><span class="rows__v">Personal projects — React, Tailwind and Node, shipped end to end.</span></li>
+        <li class="rows__r"><span class="rows__k" data-t="d.aug26">aug 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/ai-ignition-training.jpg" target="_blank" rel="noopener" data-t="xp.kumpul.v">AI Ignition Training, KUMPUL.ID — thirty hours across nine modules, under the AI Opportunity Fund with Google.org and AVPN.</a></span></li>
+        <li class="rows__r"><span class="rows__k" data-t="d.ongoing">ongoing</span><span class="rows__v" data-t="xp.own.v">Personal projects — React, Tailwind and Node, shipped end to end.</span></li>
       </ul>
-      <button class="page__back" type="button" data-back>back</button>
+      <button class="page__back" type="button" data-back data-t="ui.back">back</button>
     </div>
   </section>
 
   <section class="page" id="pageServices" hidden>
     <div class="page__in">
-      <h2 class="page__t">services</h2>
+      <h2 class="page__t" data-t="nav.services">services</h2>
       <ul class="rows">
-        <li class="rows__r"><span class="rows__k">web</span><span class="rows__v">React, Next.js and Tailwind, on Supabase — from an empty repo to something deployed.</span></li>
-        <li class="rows__r"><span class="rows__k">ui / ux</span><span class="rows__v">Layout, type and flow. Figma through to the code that ships it.</span></li>
-        <li class="rows__r"><span class="rows__k">platforms</span><span class="rows__v">Accounts, uploads, feeds and every page between them.</span></li>
-        <li class="rows__r"><span class="rows__k">ai integration</span><span class="rows__v">Assistants and summarisers on top of language-model APIs.</span></li>
-        <li class="rows__r"><span class="rows__k">video</span><span class="rows__v">Short-form edits and motion for the web.</span></li>
+        <li class="rows__r"><span class="rows__k">web</span><span class="rows__v" data-t="sv.web.v">React, Next.js and Tailwind, on Supabase — from an empty repo to something deployed.</span></li>
+        <li class="rows__r"><span class="rows__k">ui / ux</span><span class="rows__v" data-t="sv.ux.v">Layout, type and flow. Figma through to the code that ships it.</span></li>
+        <li class="rows__r"><span class="rows__k" data-t="sv.plat.k">platforms</span><span class="rows__v" data-t="sv.plat.v">Accounts, uploads, feeds and every page between them.</span></li>
+        <li class="rows__r"><span class="rows__k" data-t="sv.ai.k">ai integration</span><span class="rows__v" data-t="sv.ai.v">Assistants and summarisers on top of language-model APIs.</span></li>
+        <li class="rows__r"><span class="rows__k">video</span><span class="rows__v" data-t="sv.video.v">Short-form edits and motion for the web.</span></li>
       </ul>
-      <a class="page__cta" href="#/contact">start something</a>
-      <button class="page__back" type="button" data-back>back</button>
+      <a class="page__cta" href="#/contact" data-t="sv.cta">start something</a>
+      <button class="page__back" type="button" data-back data-t="ui.back">back</button>
     </div>
   </section>
 
   <section class="page" id="pageAchievements" hidden>
     <div class="page__in">
-      <h2 class="page__t">achievements</h2>
+      <h2 class="page__t" data-t="nav.achievements">achievements</h2>
       <ul class="rows">
-        <li class="rows__r"><span class="rows__k">2025</span><span class="rows__v"><a class="rows__a" href="./assets/certs/sevent-9-uiux-finalis.pdf" target="_blank" rel="noopener">Finalist — UI/UX Design competition, Sevent 9.0, Telkom University Purwokerto.</a></span></li>
-        <li class="rows__r"><span class="rows__k">jan–mar 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/toeic-excellence-program.pdf" target="_blank" rel="noopener">TOEIC Excellence Program, English Discoveries — Edusoft, a subsidiary of ETS.</a></span></li>
-        <li class="rows__r"><span class="rows__k">feb 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/wise-innovera-uiux.jpg" target="_blank" rel="noopener">National UI/UX Design Competition, WISE InnoVera — Universitas Widyatama.</a></span></li>
-        <li class="rows__r"><span class="rows__k">mar 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/ai-ready-asean.pdf" target="_blank" rel="noopener">AI Ready ASEAN — every AI module completed. ASEAN Foundation, with Google.org.</a></span></li>
-        <li class="rows__r"><span class="rows__k">jun 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/efun-ted-like-presentation.pdf" target="_blank" rel="noopener">English Fun (E-Fun) — TED-like presentation, Cabang Dinas Pendidikan Wilayah X, Central Java.</a></span></li>
-        <li class="rows__r"><span class="rows__k">aug 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/google-ai-educators.jpg" target="_blank" rel="noopener">Google, AI for primary and secondary educators — completed, scored 100.</a></span></li>
+        <li class="rows__r"><span class="rows__k">2025</span><span class="rows__v"><a class="rows__a" href="./assets/certs/sevent-9-uiux-finalis.pdf" target="_blank" rel="noopener" data-t="ach.sevent.v">Finalist — UI/UX Design competition, Sevent 9.0, Telkom University Purwokerto.</a></span></li>
+        <li class="rows__r"><span class="rows__k">jan–mar 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/toeic-excellence-program.pdf" target="_blank" rel="noopener" data-t="ach.toeic.v">TOEIC Excellence Program, English Discoveries — Edusoft, a subsidiary of ETS.</a></span></li>
+        <li class="rows__r"><span class="rows__k">feb 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/wise-innovera-uiux.jpg" target="_blank" rel="noopener" data-t="ach.wise.v">National UI/UX Design Competition, WISE InnoVera — Universitas Widyatama.</a></span></li>
+        <li class="rows__r"><span class="rows__k">mar 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/ai-ready-asean.pdf" target="_blank" rel="noopener" data-t="ach.asean.v">AI Ready ASEAN — every AI module completed. ASEAN Foundation, with Google.org.</a></span></li>
+        <li class="rows__r"><span class="rows__k">jun 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/efun-ted-like-presentation.pdf" target="_blank" rel="noopener" data-t="ach.efun.v">English Fun (E-Fun) — TED-like presentation, Cabang Dinas Pendidikan Wilayah X, Central Java.</a></span></li>
+        <li class="rows__r"><span class="rows__k" data-t="d.aug26">aug 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/google-ai-educators.jpg" target="_blank" rel="noopener" data-t="ach.google.v">Google, AI for primary and secondary educators — completed, scored 100.</a></span></li>
       </ul>
-      <button class="page__back" type="button" data-back>back</button>
+      <button class="page__back" type="button" data-back data-t="ui.back">back</button>
     </div>
   </section>
 
@@ -246,15 +246,15 @@
       <ul class="rows">
         <li class="rows__r"><span class="rows__k">name, role</span><span class="rows__v">What they actually said.</span></li>
       </ul>
-      <button class="page__back" type="button" data-back>back</button>
+      <button class="page__back" type="button" data-back data-t="ui.back">back</button>
     </div>
   </section>
   -->
 
   <section class="page" id="pageContact" hidden>
     <div class="page__in">
-      <h2 class="page__t">contact</h2>
-      <p class="page__p">Open to collaborations, competitions, and anything that needs building.</p>
+      <h2 class="page__t" data-t="nav.contact">contact</h2>
+      <p class="page__p" data-t="ct.body">Open to collaborations, competitions, and anything that needs building.</p>
       <!-- The channels are a rows list like every other section, not a strip of
            logos: an icon is a brand's mark, not an address, and the address is
            the thing worth showing. Same .rows__a hairline as the certificates —
@@ -270,13 +270,13 @@
         <li class="rows__r"><span class="rows__k"><svg class="rows__i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg>instagram</span><span class="rows__v"><a class="rows__a" href="https://instagram.com/constanvel" target="_blank" rel="noopener">@constanvel</a></span></li>
         <li class="rows__r"><span class="rows__k"><svg class="rows__i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>tiktok</span><span class="rows__v"><a class="rows__a" href="https://tiktok.com/@constanvel" target="_blank" rel="noopener">@constanvel</a></span></li>
       </ul>
-      <a class="page__cta" id="mailCta" href="mailto:rainersimanjuntak59@gmail.com">write to me</a>
-      <button class="page__back" type="button" data-back>back</button>
+      <a class="page__cta" id="mailCta" href="mailto:rainersimanjuntak59@gmail.com" data-t="ct.cta">write to me</a>
+      <button class="page__back" type="button" data-back data-t="ui.back">back</button>
     </div>
   </section>
 
   <!-- ── skip / accessibility fallback ────────────────────────────────── -->
-  <button class="skip" id="skip" type="button">skip intro</button>
+  <button class="skip" id="skip" type="button" data-t="ui.skip">skip intro</button>
 
   <!-- Theme and sound both follow you out of the room, so their control has to
        be reachable from every stage — the opposite corner to skip, the same
@@ -284,18 +284,28 @@
        One button rather than two floating in the corner: the volume needs a
        slider, and a slider needs somewhere to live. -->
   <button class="skip set" id="settingsBtn" type="button"
-          aria-expanded="false" aria-controls="settingsPanel">settings</button>
-  <div class="set__panel" id="settingsPanel" role="group" aria-label="settings" hidden>
+          aria-expanded="false" aria-controls="settingsPanel" data-t="ui.settings">settings</button>
+  <div class="set__panel" id="settingsPanel" role="group" aria-label="settings" data-ta="ui.settings" hidden>
     <div class="set__row">
-      <span class="set__k">theme</span>
+      <span class="set__k" data-t="set.theme">theme</span>
       <button class="set__v" id="themeBtn" type="button">light</button>
+    </div>
+    <!-- Third row rather than a control of its own in a corner: language is a
+         preference that follows you between sections exactly the way the theme
+         does, and this panel is already the place preferences live. The button
+         says which language you are IN, like the theme button beside it — and
+         it says it in that language, which is how anyone finds their own in a
+         list they cannot read. -->
+    <div class="set__row">
+      <span class="set__k" data-t="set.lang">language</span>
+      <button class="set__v" id="langBtn" type="button">english</button>
     </div>
     <!-- No separate on/off row. The slider already has an off — its left end —
          and two controls for one thing means they can disagree: mute on with
          the slider at 70 is a state a visitor has to reason about. Dragging to
          zero is the mute, and it is the same gesture that lights the track. -->
     <div class="set__row set__row--wide">
-      <span class="set__k">volume</span>
+      <span class="set__k" data-t="set.volume">volume</span>
       <input class="set__range" id="volRange" type="range"
              min="0" max="100" step="1" value="66" aria-label="volume">
     </div>
@@ -314,7 +324,7 @@
     <p class="wk__p" id="workBlurb"></p>
     <ul class="wk__l" id="workPoints"></ul>
     <p class="cert__f" id="workLinkRow" hidden><a class="rows__a" id="workLink" target="_blank" rel="noopener">open the project</a></p>
-    <form method="dialog"><button class="page__back" type="submit">back</button></form>
+    <form method="dialog"><button class="page__back" type="submit" data-t="ui.back">back</button></form>
   </dialog>
 
   <!-- ── a certificate, opened in place ─────────────────────────────────
@@ -325,8 +335,8 @@
        was never a button the visitor had. -->
   <dialog class="cert" id="cert">
     <div class="cert__v" id="certView"></div>
-    <p class="cert__f"><a class="rows__a" id="certOpen" href="#" target="_blank" rel="noopener">open the file itself</a></p>
-    <form method="dialog"><button class="page__back" type="submit">back</button></form>
+    <p class="cert__f"><a class="rows__a" id="certOpen" href="#" target="_blank" rel="noopener" data-t="wk.file">open the file itself</a></p>
+    <form method="dialog"><button class="page__back" type="submit" data-t="ui.back">back</button></form>
   </dialog>
 
   <!-- preload="none", and the attribute is only half of it: main.js used to

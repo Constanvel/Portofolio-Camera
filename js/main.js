@@ -7,6 +7,10 @@
 import { WorkCanvas } from './canvas.js';
 // the same table the canvas draws from, so a tile and its panel cannot drift
 import { WORKS } from './data.js';
+/* Two languages, one document. The English is the markup itself — see
+   js/i18n.js — so this import is only the parts that are not in it: t() for a
+   field off WORKS, s() for a string this file builds, applyLang() for the rest. */
+import { applyLang, lang, t, s, LANGS } from './i18n.js';
 
 let S = null;                       // the scene module, once asked for
 let ipodModel = null, camModel = null;   // in flight from the moment it is
@@ -165,6 +169,10 @@ function expose(){
   flashEl.classList.add('is-fire');
 }
 
+function labelNav(r){
+  const k = r || 'menu';
+  navBtn.textContent = s('nav.' + k, k);
+}
 function routeFromHash(){
   const h = (location.hash || '').replace(/^#\/?/, '');
   return pages[h] ? h : '';
@@ -191,7 +199,7 @@ async function applyRoute(){
      which section you are in — otherwise the only thing telling you is hidden
      inside the thing you have not opened. "menu" is the honest word for home,
      where no section is current. */
-  navBtn.textContent = r || 'menu';
+  labelNav(r);
   openNav(false);
   for (const [name, el] of Object.entries(pages)){
     if (name === r) continue;
@@ -631,7 +639,7 @@ const MODES = ['light', 'dark'];
 function applyMode(m, save){
   m = MODES.includes(m) ? m : 'light';
   document.documentElement.dataset.theme = m;
-  modeBtn.textContent = m;
+  modeBtn.textContent = s('mode.' + m, m);
   // the browser chrome around the page, on phones
   for (const meta of document.querySelectorAll('meta[name="theme-color"]')){
     meta.content = m === 'dark' ? '#0e0e11' : '#ffffff';
@@ -709,23 +717,31 @@ function hostOf(u){
   try { return new URL(u).hostname; } catch (e) { return ''; }
 }
 const workDlg = $('workPanel');
+/* Which project is on screen, so that switching language while a panel is open
+   rewrites it in place rather than leaving one section of the site in English
+   until it is closed and reopened. -1 is "none", which is why the test below
+   is `> -1` and not truthiness — index 0 is a real project. */
+let lastWork = -1;
 function openWork(i){
   const w = WORKS[i];
   if (!w || !workDlg?.showModal) return;
+  lastWork = i;
   $('workShot').src = w.src;
   $('workShot').alt = w.label;
   $('workTitle').textContent = w.label;
 
   // year and role are optional and usually not known yet; an empty line is
   // worse than no line, so the row only exists when there is something in it
-  const meta = [w.year, w.role].filter(Boolean).join(' · ');
+  const meta = [t(w, 'year'), t(w, 'role')].filter(Boolean).join(' · ');
   $('workMeta').textContent = meta;
   $('workMeta').hidden = !meta;
 
-  $('workBlurb').textContent = w.blurb || '';
-  $('workPoints').replaceChildren(...(w.points || []).map(t => {
+  $('workBlurb').textContent = t(w, 'blurb') || '';
+  /* `line`, not `t` — t() is the translation helper now, and the parameter was
+     shadowing it inside exactly the callback that needs it. */
+  $('workPoints').replaceChildren(...(t(w, 'points') || []).map(line => {
     const li = document.createElement('li');
-    li.textContent = t;
+    li.textContent = line;
     return li;
   }));
 
@@ -735,8 +751,9 @@ function openWork(i){
      does not leave it announcing a repo that is not there. */
   const link = $('workLink');
   link.href = w.href || '#';
-  link.textContent = /(^|\.)github\.com$/.test(hostOf(w.href)) ? 'open the repo on GitHub'
-                                                              : 'open the project';
+  link.textContent = /(^|\.)github\.com$/.test(hostOf(w.href))
+    ? s('wk.repo', 'open the repo on GitHub')
+    : s('wk.open', 'open the project');
   $('workLinkRow').hidden = !w.href;
 
   workDlg.showModal();
@@ -746,8 +763,9 @@ function openWork(i){
    panel above read. Adding a project stays one edit in one file, and the three
    places it appears cannot disagree. The buttons carry data-work, so the
    delegated handler below opens them with no extra wiring. */
-const worksGrid = $('worksGrid');
-if (worksGrid){
+function buildWorks(){
+  const worksGrid = $('worksGrid');
+  if (!worksGrid) return;
   worksGrid.replaceChildren(...WORKS.map(w => {
     const li = document.createElement('li');
     const b  = document.createElement('button');
@@ -762,21 +780,25 @@ if (worksGrid){
        so every one is a cache hit. */
     img.decoding = 'async';
 
-    const t = document.createElement('span');
-    t.className = 'grid__t'; t.textContent = w.label;
+    /* `title`, not `t`: t() is the translation helper, and a local const of
+       that name shadowed it for the whole of this callback — including the
+       three calls below it, which is a TDZ error rather than a wrong string. */
+    const title = document.createElement('span');
+    title.className = 'grid__t'; title.textContent = w.label;
 
-    b.append(img, t);
+    b.append(img, title);
 
     /* Reading order on a card: what it is called, what it is, then when and
        with whom. The meta line is the most incidental of the three, so it goes
        last rather than between the name and the sentence that explains it. */
-    if (w.note){
+    const note = t(w, 'note');
+    if (note){
       const n = document.createElement('span');
-      n.className = 'grid__d'; n.textContent = w.note;
+      n.className = 'grid__d'; n.textContent = note;
       b.append(n);
     }
     // year and role only when they are known — an empty line reads as a fault
-    const meta = [w.year, w.role].filter(Boolean).join(' · ');
+    const meta = [t(w, 'year'), t(w, 'role')].filter(Boolean).join(' · ');
     if (meta){
       const m = document.createElement('span');
       m.className = 'grid__m'; m.textContent = meta;
@@ -843,6 +865,42 @@ if (certDlg?.showModal){
   // the backdrop is painted by the dialog's own box — see closeOnBackdrop
   closeOnBackdrop(certDlg);
 }
+
+/* ── the language ────────────────────────────────────────────────────────
+   Last in the file because switching rebuilds things every block above it
+   defines — the gallery, the menu button, the theme button — and running it
+   here means none of them need a forward reference to get built the first
+   time. The English in the markup is what paints before this line: a visitor
+   whose browser asks for Indonesian gets one frame of English, behind the
+   intro, which is the same deal the theme already makes. */
+const langBtn = $('langBtn');
+function renderLang(l, save){
+  applyLang(l);
+  /* A language is named in its own language wherever it is offered as a
+     choice — that is how anyone finds theirs in a list they cannot read — so
+     these two are the same in both and are not translations at all. */
+  langBtn.textContent = { en: 'english', id: 'indonesia' }[lang];
+  /* Not applyRoute(). That fires the exposure and moves focus, which is not
+     what changing a setting in a panel should do to the page behind it — the
+     button's label is the only part of a route that is language at all. */
+  labelNav(routeFromHash());
+  // applyMode rather than a second lookup: it owns the button's text, and
+  // running it again is only that plus two idempotent writes
+  applyMode(document.documentElement.dataset.theme, false);
+  buildWorks();
+  // a panel that is already open is rewritten where it stands
+  if (workDlg?.open && lastWork > -1) openWork(lastWork);
+  if (save) remember('lang', lang);
+}
+/* Saved choice first, then what the browser asked for — navigator.languages is
+   ordered by preference and carries regional tags, so id-ID has to match as
+   well as id. Anything else, and anything at all on a browser that answers
+   nothing, is English: that is what the document already says. */
+const savedLang = recall('lang');
+renderLang(LANGS.includes(savedLang) ? savedLang
+  : (navigator.languages || [navigator.language || '']).some(l => /^id\b/i.test(l)) ? 'id' : 'en',
+  false);
+langBtn.addEventListener('click', () => renderLang(lang === 'id' ? 'en' : 'id', true));
 
 applyRoute();
 main();
