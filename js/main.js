@@ -871,6 +871,11 @@ if (certDlg?.showModal){
     // way out would need the close event, which is one more thing to be right
     // about for a hidden frame that costs nothing.
     certView.replaceChildren(el);
+    /* The dialog's name, set here because its body is injected: without it
+       a reader announces "dialog" and then an <iframe> or an <img>, and
+       never says which certificate was opened. The row's own text is
+       already the answer, and it is already translated. */
+    certDlg.setAttribute('aria-label', a.textContent.trim());
     certDlg.showModal();
   });
   // the backdrop is painted by the dialog's own box — see closeOnBackdrop

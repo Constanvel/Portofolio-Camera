@@ -81,6 +81,10 @@ const ID = {
   'mode.light':   'terang',
   'mode.dark':    'gelap',
 
+  /* The document's only <h1>. Visually hidden, so this is a string almost
+     nobody sees and everybody using a reader hears first. */
+  'h1': 'Constantine Rainer Simanjuntak — siswa PPLG di SMK Telkom Purwokerto',
+
   /* about */
   'about.body': 'Constantine Rainer Simanjuntak — PPLG, SMK Telkom Purwokerto. Saya membangun untuk web dengan React, Tailwind dan Node — platform baca dan esai, komunitas seni, situs sekolah saya sendiri, pelacak pengeluaran — dan perkakas AI di atas model terbuka. Finalis lomba UI/UX Design di Sevent 9.0, Telkom University Purwokerto. Di luar jam kerja saya bikin video desktop aesthetic untuk TikTok, biasanya dengan lagu shoegaze.',
   'about.credits': 'Dibangun dengan bagian-bagian pinjaman, didaftar di sini justru karena dipinjam — semuanya di bawah lisensi yang mengizinkannya. Foto, tulisan dan kodenya milik saya.',

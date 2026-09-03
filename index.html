@@ -54,7 +54,7 @@
        only in <title> and a meta tag. A crawler ranking this page for its
        author had nothing above prose to go on. The sections are <h2> now, and
        this is what they sit under. -->
-  <h1 class="vh">Constantine Rainer Simanjuntak — PPLG student at SMK Telkom Purwokerto</h1>
+  <h1 class="vh" data-t="h1">Constantine Rainer Simanjuntak — PPLG student at SMK Telkom Purwokerto</h1>
 
   <!-- ── the navbar ───────────────────────────────────────────────────────
        Hidden through the intro and lit by [data-stage] alone — see style.css.
@@ -326,7 +326,10 @@
        that opens over the page is a panel however it was asked for. Only the
        body differs, and js/main.js fills that from WORKS in js/data.js so the
        tile on the canvas and the card in `works` cannot drift apart. -->
-  <dialog class="cert" id="workPanel">
+  <!-- aria-labelledby, because a <dialog> with no accessible name is
+       announced as "dialog" and nothing else. The heading is already in
+       here and is already the right words. -->
+  <dialog class="cert" id="workPanel" aria-labelledby="workTitle">
     <!-- the tiles are all 1440x810; the attributes are here for the RATIO,
          so the panel reserves the box before the picture lands instead of
          growing under the heading. CSS still decides the actual size. -->
@@ -345,6 +348,9 @@
        browser refuses to draw a PDF in a frame. With JS the click is caught and
        the file is shown here instead — a new tab carries no history, so back
        was never a button the visitor had. -->
+  <!-- No aria-labelledby: this one has no heading to point at, its whole
+       body is one injected frame or picture. js/main.js gives it the row
+       text as an aria-label at the moment it opens. -->
   <dialog class="cert" id="cert">
     <div class="cert__v" id="certView"></div>
     <p class="cert__f"><a class="rows__a" id="certOpen" href="#" target="_blank" rel="noopener" data-t="wk.file">open the file itself</a></p>

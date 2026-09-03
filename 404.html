@@ -5,8 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title data-t="e404.title">Not here — Constantine Rainer Simanjuntak</title>
 <meta name="robots" content="noindex">
+<!-- Every path on this page is root-absolute, not relative, and that is the
+     whole of the fix. 404.html is served AT the address that was missed, so
+     from /blog/an-old-link a `./css/style.css` resolves to /blog/css/style.css
+     and the page arrives unstyled, in English, with the module that translates
+     it failing in the console. The site says it lives at the root — canonical,
+     sitemap and og:image all name the same origin — so the root is what these
+     point at. If it is ever published under a sub-path as well, this is the
+     one line to put back. -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='16' y='24' font-size='28' font-family='Helvetica,Arial' text-anchor='middle' fill='%23111014'%3E*%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="./css/style.css">
+<link rel="stylesheet" href="/css/style.css">
 <style>
   /* This page has no router and no stages, so it borrows the page styles and
      stands one section up by hand. .page is normally fixed to all four edges,
@@ -22,7 +30,7 @@
       <p class="page__p" style="margin-bottom:1.2rem">*</p>
       <h1 class="page__t" data-t="e404.t">not here</h1>
       <p class="page__p" data-t="e404.body">That address does not exist. The sections all live on one page.</p>
-      <a class="page__cta" href="./" data-t="e404.cta">go to the start</a>
+      <a class="page__cta" href="/" data-t="e404.cta">go to the start</a>
     </div>
   </section>
 
@@ -35,7 +43,7 @@
   <script>
     var routes = ['about','skills','works','experience','services','achievements','contact'];
     var last = location.pathname.replace(/\/+$/, '').split('/').pop().toLowerCase();
-    if (routes.indexOf(last) > -1) location.replace('./#/' + last);
+    if (routes.indexOf(last) > -1) location.replace('/#/' + last);
   </script>
 
   <!-- The whole of the language switch this page needs. No toggle: there is
@@ -48,7 +56,7 @@
        A module, so it runs after the redirect above has already had its say —
        there is no point translating a page that is on its way somewhere. -->
   <script type="module">
-    import { applyLang, pickLang } from './js/i18n.js';
+    import { applyLang, pickLang } from '/js/i18n.js';
     var saved = null;
     try { saved = localStorage.getItem('pf.lang'); } catch (e) {}
     applyLang(pickLang(saved));
