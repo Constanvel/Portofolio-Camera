@@ -89,7 +89,16 @@
          An <img> either paints or it does not. fetchpriority high because this
          is the first thing on the screen and nothing else on the page is
          competing for the first connection. -->
+    <!-- Two sizes, because the crest is drawn at min(42vh,58vw): a desktop
+         lands near 450 css px and wants the 900, a phone lands near 220 and
+         was being sent the same file to throw two thirds of away. `sizes`
+         repeats the css rather than guessing at breakpoints, so the browser
+         picks by the pixels it is actually about to paint. A browser that
+         cannot read min() in `sizes` falls back to the widest candidate,
+         which is the file it was already being given. -->
     <img class="mark__v" id="markImg" src="./assets/mark/crest.webp" alt=""
+         srcset="./assets/mark/crest-480.webp 480w, ./assets/mark/crest.webp 900w"
+         sizes="min(42vh, 58vw)"
          decoding="async" fetchpriority="high">
     <!-- and the wait has something to say for itself. The ring turns while the
          two glb models are actually downloading — see markDone in main.js — so
@@ -198,8 +207,8 @@
       <ul class="rows">
         <li class="rows__r"><span class="rows__k" data-t="d.now">now</span><span class="rows__v" data-t="xp.now.v">PPLG, SMK Telkom Purwokerto — software engineering track.</span></li>
         <li class="rows__r"><span class="rows__k">2026</span><span class="rows__v" data-t="xp.club.v">School AI club — language models, from a prototype through to a demo.</span></li>
-        <li class="rows__r"><span class="rows__k">feb 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/seminar-nasional-uiux.jpg" target="_blank" rel="noopener">Seminar Nasional UI/UX Design, “Smart Design for the New Era” — HIMASI, Universitas Widyatama.</a></span></li>
-        <li class="rows__r"><span class="rows__k" data-t="d.aug26">aug 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/ai-ignition-training.jpg" target="_blank" rel="noopener" data-t="xp.kumpul.v">AI Ignition Training, KUMPUL.ID — thirty hours across nine modules, under the AI Opportunity Fund with Google.org and AVPN.</a></span></li>
+        <li class="rows__r"><span class="rows__k">feb 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/seminar-nasional-uiux.webp" target="_blank" rel="noopener">Seminar Nasional UI/UX Design, “Smart Design for the New Era” — HIMASI, Universitas Widyatama.</a></span></li>
+        <li class="rows__r"><span class="rows__k" data-t="d.aug26">aug 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/ai-ignition-training.webp" target="_blank" rel="noopener" data-t="xp.kumpul.v">AI Ignition Training, KUMPUL.ID — thirty hours across nine modules, under the AI Opportunity Fund with Google.org and AVPN.</a></span></li>
         <li class="rows__r"><span class="rows__k" data-t="d.ongoing">ongoing</span><span class="rows__v" data-t="xp.own.v">Personal projects — React, Tailwind and Node, shipped end to end.</span></li>
       </ul>
       <button class="page__back" type="button" data-back data-t="ui.back">back</button>
@@ -227,10 +236,10 @@
       <ul class="rows">
         <li class="rows__r"><span class="rows__k">2025</span><span class="rows__v"><a class="rows__a" href="./assets/certs/sevent-9-uiux-finalis.pdf" target="_blank" rel="noopener" data-t="ach.sevent.v">Finalist — UI/UX Design competition, Sevent 9.0, Telkom University Purwokerto.</a></span></li>
         <li class="rows__r"><span class="rows__k">jan–mar 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/toeic-excellence-program.pdf" target="_blank" rel="noopener" data-t="ach.toeic.v">TOEIC Excellence Program, English Discoveries — Edusoft, a subsidiary of ETS.</a></span></li>
-        <li class="rows__r"><span class="rows__k">feb 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/wise-innovera-uiux.jpg" target="_blank" rel="noopener" data-t="ach.wise.v">National UI/UX Design Competition, WISE InnoVera — Universitas Widyatama.</a></span></li>
+        <li class="rows__r"><span class="rows__k">feb 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/wise-innovera-uiux.webp" target="_blank" rel="noopener" data-t="ach.wise.v">National UI/UX Design Competition, WISE InnoVera — Universitas Widyatama.</a></span></li>
         <li class="rows__r"><span class="rows__k">mar 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/ai-ready-asean.pdf" target="_blank" rel="noopener" data-t="ach.asean.v">AI Ready ASEAN — every AI module completed. ASEAN Foundation, with Google.org.</a></span></li>
         <li class="rows__r"><span class="rows__k">jun 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/efun-ted-like-presentation.pdf" target="_blank" rel="noopener" data-t="ach.efun.v">English Fun (E-Fun) — TED-like presentation, Cabang Dinas Pendidikan Wilayah X, Central Java.</a></span></li>
-        <li class="rows__r"><span class="rows__k" data-t="d.aug26">aug 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/google-ai-educators.jpg" target="_blank" rel="noopener" data-t="ach.google.v">Google, AI for primary and secondary educators — completed, scored 100.</a></span></li>
+        <li class="rows__r"><span class="rows__k" data-t="d.aug26">aug 2026</span><span class="rows__v"><a class="rows__a" href="./assets/certs/google-ai-educators.webp" target="_blank" rel="noopener" data-t="ach.google.v">Google, AI for primary and secondary educators — completed, scored 100.</a></span></li>
       </ul>
       <button class="page__back" type="button" data-back data-t="ui.back">back</button>
     </div>

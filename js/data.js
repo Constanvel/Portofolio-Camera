@@ -44,7 +44,7 @@
 // because the month abbreviations differ: aug is agu, may is mei.
 export const WORKS = [
   {
-    src: './assets/tiles/lensa.jpg', label: 'lensa',
+    src: './assets/tiles/lensa.webp', label: 'lensa',
     href: 'https://github.com/Constanvel/Lensa',
     note: 'A place to read and write about characters and works — essays, read through six lenses.',
     note_id: 'Tempat membaca dan menulis tentang karakter dan karya — esai, dibaca lewat enam lensa.',
@@ -66,7 +66,7 @@ export const WORKS = [
     ]
   },
   {
-    src: './assets/tiles/artvault.jpg', label: 'artvault',
+    src: './assets/tiles/artvault.webp', label: 'artvault',
     note: 'An art community: uploads, discovery, rankings, commissions and contests.',
     note_id: 'Komunitas seni: unggahan, penemuan, peringkat, komisi dan lomba.',
     year: 'aug 2026', role: 'solo',
@@ -87,7 +87,7 @@ export const WORKS = [
     ]
   },
   {
-    src: './assets/tiles/uang-jajan-tracker.jpg', label: 'uang jajan tracker',
+    src: './assets/tiles/uang-jajan-tracker.webp', label: 'uang jajan tracker',
     href: 'https://github.com/Constanvel/UangJajanTracker',
     note: 'A spending tracker for a phone — money in, money out, by category.',
     note_id: 'Pelacak pengeluaran untuk ponsel — uang masuk, uang keluar, per kategori.',
@@ -107,7 +107,7 @@ export const WORKS = [
     ]
   },
   {
-    src: './assets/tiles/smk-telkom-purwokerto.jpg', label: 'smk telkom purwokerto',
+    src: './assets/tiles/smk-telkom-purwokerto.webp', label: 'smk telkom purwokerto',
     href: 'https://github.com/Constanvel/smk-telkom-purwokerto',
     note: 'The school site: admissions, majors, the job centre, and two assistants.',
     note_id: 'Situs sekolah: PPDB, jurusan, bursa kerja, dan dua asisten.',
@@ -131,7 +131,7 @@ export const WORKS = [
     ]
   },
   {
-    src: './assets/tiles/ai-text-summarizer.jpg', label: 'ai text summarizer',
+    src: './assets/tiles/ai-text-summarizer.webp', label: 'ai text summarizer',
     href: 'https://github.com/Constanvel/AI-Text-Summarizer',
     note: 'Long text in, a short summary out, at three lengths. Runs on Groq.',
     note_id: 'Teks panjang masuk, ringkasan pendek keluar, dalam tiga panjang. Jalan di atas Groq.',
