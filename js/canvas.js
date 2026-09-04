@@ -424,13 +424,19 @@ export class WorkCanvas {
     const loop = (now) => {
       if (!this.running) return;
       this._raf = requestAnimationFrame(loop);
-      /* The panel's own rate. Reported, not acted on: it is what the meter
-         shows, and it is the number that proved a phone assumed to be 120 Hz
-         was running at 56 — which is the only reason the pacing that used to
-         live here is gone. */
-      if (this._pt){
-        const hz = 1000 / (now - this._pt);
-        this._hz = this._hz ? this._hz * 0.9 + hz * 0.1 : hz;
+      /* How often the browser OFFERS a frame. Reported, not acted on: it is
+         the number that proved a phone assumed to be 120 Hz was running at 56,
+         which is the only reason the pacing that used to live here is gone.
+         Intervals are kept raw and reduced to a median in the meter, the same
+         as every other number there. This used to hold a moving average of
+         1000/interval instead, and the average of a reciprocal is not the
+         reciprocal of the average: one short gap becomes a huge Hz reading and
+         drags the mean up for a second behind it. It showed 50 next to a draw
+         rate of 30 — two numbers measured two different ways, which is not a
+         comparison, and the gap between them was read as dropped frames. */
+      if (METER && this._pt){
+        (this._rg || (this._rg = [])).push(now - this._pt);
+        if (this._rg.length > 60) this._rg.shift();
       }
       this._pt = now;
       this.frame(now);
@@ -507,6 +513,13 @@ export class WorkCanvas {
     }
     const mid = a => a.length ? [...a].sort((x, y) => x - y)[a.length >> 1] : 0;
     const gap = mid(m.gap), drawn = gap ? 1000 / gap : 0;
+    /* The one number that separates the two questions. A frame rate below the
+       panel means nothing on its own: the browser may be offering fewer, or it
+       may be offering plenty and this file may be throwing them away. Both
+       sides are now a median of the same quantity, so the difference between
+       them is real rather than an artefact of two different averages. */
+    const offer = mid(this._rg || []);
+    const skip  = offer && gap ? Math.max(0, Math.round((1 - offer / gap) * 100)) : 0;
     m.el.textContent =
       `fps  ${drawn.toFixed(0)}  (${gap.toFixed(1)}ms antar gambar)
 ` +
@@ -514,7 +527,8 @@ export class WorkCanvas {
 ` +
       `dpr  ${this.dpr}  ${this.cv.width}x${this.cv.height}
 ` +
-      `panel ${Math.round(this._hz || 0)}Hz  tile ${(this._tileRects || []).length}`;
+      `panel ${offer ? (1000 / offer).toFixed(0) : '?'}Hz  dilewati ${skip}%  ` +
+      `tile ${(this._tileRects || []).length}`;
   }
 
   /* ── pass 1 ───────────────────────────────────────────────────────── */
