@@ -13,6 +13,14 @@
 
 const TAU = Math.PI * 2;
 const INK = 'rgb(118,118,124)';
+/* How many segments a blob's outline is built from. They are seven to
+   seventeen pixels across: at forty-four the segments are shorter than a
+   pixel, which is a lot of arithmetic and a lot of lineTo for an outline that
+   was already round two dozen segments ago. A phone builds these paths on a
+   slower cpu than it draws them with, so this is the half of the ornament that
+   was actually worth cutting. Kept at forty-four on a mouse, where nothing is
+   short of headroom and a large window can put a blob further out. */
+const ARC_SEGS = matchMedia('(pointer: coarse)').matches ? 18 : 44;
 
 export class Trackers {
   constructor(){
@@ -58,8 +66,8 @@ export class Trackers {
       const y = cy0 + Math.sin(a0) * rad;
       pts.push([x, y]);
       ctx.beginPath();
-      for (let a = 0; a <= 44; a++){
-        const th = a / 44 * TAU;
+      for (let a = 0; a <= ARC_SEGS; a++){
+        const th = a / ARC_SEGS * TAU;
         // gently unequal radius: an organic blob, not a starburst
         const r = b.r * (1 + 0.13 * Math.sin(b.arms * th + t * b.wob)
                            + 0.06 * Math.sin(2 * b.arms * th - t * 0.41));

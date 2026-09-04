@@ -69,6 +69,16 @@ const IDLE_MS    = COARSE ? 50 : 0;
    60 Hz draws every one, and all three land on sixty. */
 const MOVE_MS    = COARSE ? 1000 / 60 : 0;
 
+/* ── ?fps ────────────────────────────────────────────────────────────────
+   A phone I cannot hold is a phone I cannot profile. Everything above this
+   line was chosen from a desktop measurement multiplied by a guess about a
+   gpu, and a guess is what keeps being wrong. Add ?fps to the url and the
+   plane says what it is actually doing, on the device actually doing it:
+   frames a second, how long one costs, what the panel is asking for, and the
+   size being filled.
+   The flag is read once at load, so with it absent this costs a boolean. */
+const METER = new URLSearchParams(location.search).has('fps');
+
 /* ── the repeating block ────────────────────────────────────────────────
    Four columns, five rows, five slots deliberately left empty so the plane
    breathes. Per-column vertical offsets break the rows without breaking the
@@ -132,6 +142,7 @@ const EDGE_START = 0.50;  // exactly BLUR_START: it lands where the blur did
 const EDGE_FALL  = 1.90;  // stays at nothing for longer, then arrives quickly
 const EDGE_MAX   = 0.42;  // hardest magnification at the corner (≈ 1.7×)
 const EDGE_DOT   = 0.30;  // the dot is a permanent resident here, not a cursor
+const EDGE_STEPS = 6;     // alpha buckets the dots are batched into
 
 const GRID_BOX   = 54;    // ≈ 3 × a cursor
 const GRID_R     = 285;   // reach of the effect, CSS px
@@ -391,6 +402,13 @@ export class WorkCanvas {
     const loop = (now) => {
       if (!this.running) return;
       this._raf = requestAnimationFrame(loop);
+      /* The panel's own rate, sampled before any of the gating below can hide
+         it — this is the number that says whether a phone is being asked for
+         sixty frames a second or a hundred and twenty. */
+      if (METER){
+        if (this._pt) this._hz = Math.round(1000 / (now - this._pt) * 0.1 + (this._hz || 0) * 0.9) || this._hz;
+        this._pt = now;
+      }
       this.frame(now);
     };
     this._raf = requestAnimationFrame(loop);
@@ -426,6 +444,7 @@ export class WorkCanvas {
       this._acc = Math.min(this._acc - MOVE_MS, MOVE_MS);
     }
     const dt = Math.min(64, raw); this._last = now;
+    const t0 = METER ? performance.now() : 0;
     const k = 1 - Math.pow(0.0009, dt / 1000);       // frame-rate independent
     const nx = this.x + (this.tx - this.x) * k;
     const ny = this.y + (this.ty - this.y) * k;
@@ -448,6 +467,38 @@ export class WorkCanvas {
     // drawPlane — see there
     if (!this.coarse) this.drawTrackers(dt);
     this.softenEdges();
+    if (METER) this._meter(now, performance.now() - t0);
+  }
+
+  /* Rolling medians, redrawn four times a second into one <pre>. A median and
+     not a mean: one long frame is what you feel, but an average of sixty hides
+     it, and the number that matters here is what a typical frame costs. */
+  _meter(now, ms){
+    const m = this._m || (this._m = { draw: [], gap: [], last: 0, el: null });
+    m.draw.push(ms);
+    if (m.prev) m.gap.push(now - m.prev);
+    m.prev = now;
+    if (m.draw.length > 60) m.draw.shift();
+    if (m.gap.length > 60) m.gap.shift();
+    if (now - m.last < 250) return;
+    m.last = now;
+    if (!m.el){
+      m.el = document.createElement('pre');
+      m.el.style.cssText = 'position:fixed;left:8px;top:8px;z-index:9999;margin:0;'
+        + 'padding:6px 8px;background:#000c;color:#0f0;font:11px/1.35 ui-monospace,monospace;'
+        + 'border-radius:6px;pointer-events:none;white-space:pre';
+      document.body.appendChild(m.el);
+    }
+    const mid = a => a.length ? [...a].sort((x, y) => x - y)[a.length >> 1] : 0;
+    const gap = mid(m.gap), drawn = gap ? 1000 / gap : 0;
+    m.el.textContent =
+      `fps  ${drawn.toFixed(0)}  (${gap.toFixed(1)}ms antar gambar)
+` +
+      `draw ${mid(m.draw).toFixed(2)}ms  terburuk ${Math.max(...m.draw).toFixed(1)}
+` +
+      `dpr  ${this.dpr}  ${this.cv.width}x${this.cv.height}
+` +
+      `panel ${this._hz || '?'}Hz  tile ${(this._tileRects || []).length}`;
   }
 
   /* ── pass 1 ───────────────────────────────────────────────────────── */
@@ -671,11 +722,27 @@ export class WorkCanvas {
         dots.push([x, y, s]);
       }
     }
+    /* One path and one fill per alpha step, not per dot. Every dot carried its
+       own globalAlpha, which is what forced sixty-eight separate fills — and a
+       fill is a draw call whether it covers a screen or a three pixel circle,
+       so on a phone that was most of what this lattice cost. Six steps across
+       an effect that tops out at thirty per cent opacity, on dots two to six
+       pixels wide: the banding is below anything an eye resolves, and the call
+       count divides by ten. */
     ctx.fillStyle = this.pal.ink;
-    for (const [x, y, s] of dots){
-      ctx.globalAlpha = EDGE_DOT * s;
+    const bucket = new Map();
+    for (const d of dots){
+      const k = Math.max(1, Math.round(d[2] * EDGE_STEPS));
+      (bucket.get(k) || bucket.set(k, []).get(k)).push(d);
+    }
+    for (const [k, group] of bucket){
+      ctx.globalAlpha = EDGE_DOT * (k / EDGE_STEPS);
       ctx.beginPath();
-      ctx.arc(x, y, B * 0.115 * s, 0, Math.PI * 2);
+      for (const [x, y, s] of group){
+        const r = B * 0.115 * s;
+        ctx.moveTo(x + r, y);              // or the arcs join into one outline
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+      }
       ctx.fill();
     }
     ctx.globalAlpha = 1;
