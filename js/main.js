@@ -220,21 +220,41 @@ let lastStage = 'work';
    solve. 500 against the animation's 420 leaves room and costs nothing. */
 let flashOff = 0;
 
-/* The shutter. It lives inside expose() rather than getting a trigger of its
-   own because the flash and the shutter are the same event on a real camera,
-   and giving them separate call sites would be inviting them to drift apart.
-   That also means it inherits expose()'s reduced-motion exit for free: someone
-   who asked for less gets neither the strobe nor the noise.
-   Synthesised rather than borrowed — a compact camera's shutter sound IS a
-   played sample, so building it is the honest version, and nothing here needs
-   a credit row for it.
-   preload, on seven kilobytes: the whole job of this sound is to land on the
-   same frame as the flash, and a sound that arrives late is worse than one
-   that never arrives. It is a fortieth of what one tile costs.
-   WAV and not mp3 for the same reason — an mp3 carries encoder padding at the
-   head, which is silence played before the click every single time. */
-const shutter = new Audio('./assets/audio/shutter.wav');
+/* The shutter. It began inside expose() so the flash and the sound could not
+   drift apart, and it is a function now for the same reason rather than the
+   opposite one: there are two moments a photograph is taken here, and two call
+   sites that each knew how to make the noise would be the drift that comment
+   was guarding against. One place knows how.
+   The trim matters more than it reads. The file this was cut from ran 1.07
+   seconds and carried 297ms of silence before its first transient, which is a
+   shutter arriving a third of a second after its flash. WAV and not mp3 for
+   exactly that reason as well: an mp3 carries encoder padding at the head, and
+   that is the same silence put back on every single play.
+   preload, on eighteen kilobytes: the whole job of this sound is to land on
+   the same frame as the flash, and a sound that arrives late is worse than one
+   that never arrives. Full rate rather than the half rate the synthesised one
+   used — an eighth of this one's energy sits above 11 kHz, and that is the
+   snap; at 22.05k it is a thud. */
+const shutter = new Audio('./assets/audio/snap.wav');
 shutter.preload = 'auto';
+
+/* Off the same slider as the music, and silent at zero: a visitor who turned
+   the sound off turned ALL of it off, and a click they cannot stop would be
+   the rudest thing on the page. Scaled under the bed because a transient reads
+   louder than its peak suggests next to a drone.
+   `reduced` lives here and not only in expose(), so the quiet this promises
+   holds at the other call site too: someone who asked for less motion gets
+   neither the strobe nor the noise, wherever the press came from.
+   currentTime first, so pressing quickly restarts the click instead of
+   stacking copies of it. play() can still be refused — applyRoute runs once on
+   load, before any gesture exists — and a refused shutter is nothing to
+   report. */
+function snap(){
+  if (reduced || level <= 0) return;
+  shutter.volume = Math.min(1, level * 0.45);
+  shutter.currentTime = 0;
+  shutter.play().catch(() => {});
+}
 
 function expose(){
   if (reduced) return;
@@ -243,19 +263,7 @@ function expose(){
   flashEl.classList.add('is-fire');
   clearTimeout(flashOff);
   flashOff = setTimeout(() => flashEl.classList.remove('is-fire'), 500);
-  /* Off the same slider as the music, and silent at zero: a visitor who turned
-     the sound off turned ALL of it off, and a click they cannot stop would be
-     the rudest thing on the page. Scaled under the bed because a transient
-     reads louder than its peak suggests next to a drone.
-     currentTime first, so navigating quickly restarts the click instead of
-     stacking copies of it. play() can still be refused — applyRoute runs once
-     on load, before any gesture exists — and a refused shutter is nothing to
-     report. */
-  if (level > 0){
-    shutter.volume = Math.min(1, level * 0.45);
-    shutter.currentTime = 0;
-    shutter.play().catch(() => {});
-  }
+  snap();
 }
 
 function labelNav(r){
@@ -375,7 +383,10 @@ function ensureWork(){
   if (work) return work;
   work = new WorkCanvas($('cv'), {
     onRoute: (r) => { location.hash = '#/' + r; },
-    onWork: (i) => openWork(i),
+    // a tile is a photograph, so opening one is a press worth hearing. The
+    // card beside it already sounded: it changes route, and every route change
+    // runs expose(). This was the only silent press left on the plane.
+    onWork: (i) => { snap(); openWork(i); },
     onFirstDrag: () => { hint.classList.add('is-gone'); }
   });
   if (!workHeld) work.start();
@@ -939,7 +950,7 @@ if (workDlg?.showModal){
     const b = e.target.closest('button[data-work]');
     if (!b) return;
     const i = WORKS.findIndex(w => w.label === b.dataset.work);
-    if (i > -1) openWork(i);
+    if (i > -1){ snap(); openWork(i); }
   });
   closeOnBackdrop(workDlg);
 }

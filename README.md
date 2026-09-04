@@ -627,6 +627,7 @@ Simanjuntak. Yang berikut **bukan**, dan didaftar di sini serta di bagian
 | `assets/models/ipod.glb` | [Timothy Ahene](https://sketchfab.com/timothyahene) — [iPod Classic](https://sketchfab.com/3d-models/ipod-classic-13dbe30b0e45408c8bfaddfe6a4e8786) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | `assets/fonts/VCR.woff2` | Riciery Leal — VCR OSD Mono | bebas, termasuk untuk komersial dan redistribusi |
 | `assets/audio/backbay.mp3` | [Kevin MacLeod](https://incompetech.com/) — [Backbay Lounge](https://incompetech.com/music/royalty-free/), putaran 48 detik | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+| `assets/audio/snap.wav` | dibuat dengan [ElevenLabs](https://elevenlabs.io), dipotong dari 1,07 detik ke kliknya yang 200 milidetik | menurut ketentuan ElevenLabs untuk keluaran yang dihasilkan |
 
 Keduanya sudah dimodifikasi: tekstur dan geometrinya dikemas ulang, dan
 materialnya ditukar saat runtime di `js/scene.js`. CC BY mengizinkan itu

@@ -98,6 +98,8 @@ const ID = {
   'cr.ipod.v': '<a class="rows__a" href="https://sketchfab.com/3d-models/ipod-classic-13dbe30b0e45408c8bfaddfe6a4e8786" target="_blank" rel="noopener">iPod Classic</a> oleh Timothy Ahene — <a class="rows__a" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, teksturnya diperkecil separuh dan dikompres ulang.',
   'cr.type.k': 'huruf',
   'cr.type.v': 'VCR OSD Mono oleh Riciery Leal. Selebihnya memakai huruf antarmuka sistem.',
+  'cr.sfx.k':   'bunyi',
+  'cr.sfx.v':   'Bunyi rana dibuat dengan <a class="rows__a" href="https://elevenlabs.io" target="_blank" rel="noopener">ElevenLabs</a>, dipotong ke kliknya yang 200 milidetik.',
   'cr.music.k': 'musik',
   'cr.music.v': '“<a class="rows__a" href="https://incompetech.com/music/royalty-free/" target="_blank" rel="noopener">Backbay Lounge</a>” oleh Kevin MacLeod — <a class="rows__a" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> — loop 48 detik yang dipotong tepat di batas bar, dikodekan ulang lebih pelan dan lebih kecil.',
 
