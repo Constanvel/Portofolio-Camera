@@ -79,6 +79,18 @@ const MOVE_MS    = COARSE ? 1000 / 60 : 0;
    The flag is read once at load, so with it absent this costs a boolean. */
 const METER = new URLSearchParams(location.search).has('fps');
 
+/* ── ?nogrid ─────────────────────────────────────────────────────────────
+   One experiment, so the next decision is not another guess. The peripheral
+   lattice issues sixty-eight drawImage calls that READ from the buffer canvas
+   this same frame wrote to, and on a tile-based mobile gpu a read from a
+   surface you just rendered can force a flush. That costs almost nothing in
+   javascript — which is exactly what the meter reports, two milliseconds — and
+   can cost the whole frame budget on the gpu, where no timer here can see it.
+   Add &nogrid alongside ?fps and the lattice is skipped. If the frame rate
+   climbs, that is the answer; if it does not, the lattice is innocent and the
+   cost is somewhere else. Off by default, and read once at load. */
+const NOGRID = new URLSearchParams(location.search).has('nogrid');
+
 /* ── the repeating block ────────────────────────────────────────────────
    Four columns, five rows, five slots deliberately left empty so the plane
    breathes. Per-column vertical offsets break the rows without breaking the
@@ -642,7 +654,7 @@ export class WorkCanvas {
     ctx.clearRect(0, 0, this.cv.width, this.cv.height);
     ctx.drawImage(this.buf, 0, 0);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    if (this.edgeGrid) return this.edgeGrid_(ctx);
+    if (this.edgeGrid) return NOGRID ? undefined : this.edgeGrid_(ctx);
     if (this.mx < -9998) return;
 
     // The type is punched out of the overlay entirely. Akif's note: the grid
