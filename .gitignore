@@ -6,8 +6,17 @@ desktop.ini
 .vscode/
 .idea/
 
+# What `vercel link` drops here when the folder is deployed by hand instead of
+# by the git integration. It is the project and org id, which is not a secret
+# but is not source either — it names one person's Vercel project, and a fork
+# that inherited it would push to somebody else's site.
+.vercel/
+
 # The full-resolution screenshots the tiles were built from. Kept on disk so a
 # tile can be rebuilt at a different size or crop, but not published: the
 # 16:9 versions in assets/tiles/ are what the canvas draws, and shipping both
 # would send the same five pictures twice.
 assets/photo/
+
+.vercel
+.env*
