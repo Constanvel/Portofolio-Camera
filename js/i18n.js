@@ -37,11 +37,16 @@ export const s = (k, en = k) => (lang === 'id' && ID[k]) || en;
    at all on a browser that answers nothing, is English, because that is what
    the documents already say.
    Here rather than in js/main.js because 404.html has to reach the same answer
-   and has none of main.js — no router, no scene, no storage helpers. */
+   and has none of main.js — no router, no scene, no storage helpers.
+   `(?:-|$)` rather than `\b`, spelled out on purpose: it has to accept id
+   and id-ID and reject anything longer, which is the whole job, and it says
+   so without a two character escape for tooling to eat. This regex shipped
+   for a while with a literal backspace where the \b belonged, which meant
+   it matched nothing and no browser was ever detected as Indonesian. */
 export function pickLang(saved){
   if (LANGS.includes(saved)) return saved;
   return (navigator.languages || [navigator.language || ''])
-    .some(l => /^id/i.test(l)) ? 'id' : 'en';
+    .some(l => /^id(?:-|$)/i.test(l)) ? 'id' : 'en';
 }
 
 /* Only the Indonesian, keyed by the data-t on the node it replaces.

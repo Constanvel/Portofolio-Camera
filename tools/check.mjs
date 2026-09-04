@@ -71,6 +71,22 @@ const walk = d => readdirSync(join(ROOT, d), { withFileTypes: true }).flatMap(e 
 note('aset terkirim yang tidak dirujuk apa pun',
      walk('assets').filter(f => !seen.has(f) && !f.startsWith('assets/photo/')).sort());
 
+/* ── 3. no control characters loose in the source ────────────────────────
+   A `\b` inside a regex, written through a tool that ate one backslash, became
+   a literal backspace — and `/^id\x08/` matches nothing, so no browser was
+   ever detected as Indonesian. It read correctly in every editor and every
+   diff, because a backspace is invisible in all of them. Nothing legitimate in
+   this repo contains one, so the whole class is worth one pass. */
+const ctrl = [];
+for (const f of [...sources, 'tools/check.mjs']) {
+  [...read(f)].forEach((ch, i) => {
+    const c = ch.charCodeAt(0);
+    if (c < 32 && ch !== '\n' && ch !== '\r' && ch !== '\t')
+      ctrl.push(`${f} — kode ${c} pada offset ${i}`);
+  });
+}
+note('karakter kendali di dalam sumber', ctrl);
+
 /* ── the verdict ─────────────────────────────────────────────────────────── */
 if (fail.length) {
   console.error('GAGAL\n\n  ' + fail.join('\n\n  ') + '\n');
