@@ -53,22 +53,17 @@ const TAP        = COARSE ? 12 : 8;   // a finger wanders; a mouse does not
    that moves as fast as a hand does. 50ms also sits under the 64ms clamp on
    dt below, so a skipped frame never loses time out of the easing. */
 const IDLE_MS    = COARSE ? 50 : 0;
-/* ── the ceiling on a high-refresh phone ─────────────────────────────────
-   requestAnimationFrame runs at the PANEL's rate, not at sixty, and mid-range
-   Androids are ninety and a hundred and twenty now. Nothing here is worth more
-   than sixty: it is a plane of stills that drifts, and sixty is what every
-   constant in this file was tuned against.
-
-   Counted in TICKS, not milliseconds. A panel can only present on its own
-   vsync, so the achievable rates are the panel divided by a whole number —
-   56, 28, 18.7 and nothing in between. A target expressed in milliseconds
-   lands between those, its remainder creeps, and the cadence beats: two ticks,
-   two ticks, then one, then three. That is worse than no pacing at all, and
-   measuring it on a 56 Hz phone is how I found out — a target of thirty took
-   it from 24-30 down to 20-24, because thirty is not a rate that panel has.
-   Drawing every Nth callback cannot do that: whatever N is, the spacing is
-   identical every time. */
-const PACE   = COARSE;
+/* And nothing caps the moving frame rate. There used to be a ceiling here, on
+   the theory that a mid-range Android running its panel at 90 or 120 was being
+   asked for twice the work it could give. Then a meter went on the phone that
+   started this and reported 56 Hz, so the ceiling was never doing anything for
+   the device it was written for — and it carried a real risk: it measured the
+   panel once, across the first twenty frames, which is exactly when a page is
+   still loading and its frames are least regular. One sample reading high and
+   it would have halved that visitor's frame rate for the whole session with
+   nothing to correct it. A phone that can draw every frame now draws every
+   frame; a phone that cannot drops them on its own, which is the browser's job
+   and it is better at it than a guess made at load time. */
 
 /* ── ?fps ────────────────────────────────────────────────────────────────
    A phone I cannot hold is a phone I cannot profile. Everything above this
@@ -249,8 +244,6 @@ export class WorkCanvas {
     this.blurCv = document.createElement('canvas');
     this.bl = this.blurCv.getContext('2d');
     this.maskCv = document.createElement('canvas');
-    // 1 until the panel has been measured — the right guess for a 60 Hz phone
-    this._every = 1; this._tick = 0;
     this.running = false;
     this._bind();
     this.resize();
@@ -431,17 +424,14 @@ export class WorkCanvas {
     const loop = (now) => {
       if (!this.running) return;
       this._raf = requestAnimationFrame(loop);
-      /* The panel's own rate, sampled before any of the gating below can hide
-         it. Not only for the meter any more: it is what decides how many
-         callbacks go by between draws, so it is measured on every visit.
-         Twenty samples is a fifth of a second and settles well before anyone
-         has dragged anything; until then `_every` is 1 and the plane simply
-         draws every frame, which is the right guess for the 60 Hz majority. */
+      /* The panel's own rate. Reported, not acted on: it is what the meter
+         shows, and it is the number that proved a phone assumed to be 120 Hz
+         was running at 56 — which is the only reason the pacing that used to
+         live here is gone. */
       if (this._pt){
         const hz = 1000 / (now - this._pt);
         this._hz = this._hz ? this._hz * 0.9 + hz * 0.1 : hz;
-        if (PACE && ++this._hzN === 20) this._every = Math.max(1, Math.round(this._hz / 60));
-      } else { this._hzN = 0; }
+      }
       this._pt = now;
       this.frame(now);
     };
@@ -469,7 +459,6 @@ export class WorkCanvas {
        dt, so they run at the same speed however few frames they are given. */
     if (IDLE_MS && raw < IDLE_MS && !this.drag && this.px < -9998
         && Math.abs(this.tx - this.x) < 0.05 && Math.abs(this.ty - this.y) < 0.05) return;
-    if (PACE && ++this._tick % this._every) return;
     const dt = Math.min(64, raw); this._last = now;
     const t0 = METER ? performance.now() : 0;
     const k = 1 - Math.pow(0.0009, dt / 1000);       // frame-rate independent
@@ -525,8 +514,7 @@ export class WorkCanvas {
 ` +
       `dpr  ${this.dpr}  ${this.cv.width}x${this.cv.height}
 ` +
-      `panel ${Math.round(this._hz || 0)}Hz  tile ${(this._tileRects || []).length}  ` +
-      `gambar tiap ${this._every} tick`;
+      `panel ${Math.round(this._hz || 0)}Hz  tile ${(this._tileRects || []).length}`;
   }
 
   /* ── pass 1 ───────────────────────────────────────────────────────── */
