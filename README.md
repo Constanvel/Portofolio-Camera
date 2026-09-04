@@ -97,6 +97,29 @@ akar git repo ini memang akar situsnya.
 `#/experience` karena itu bukan alamat salah, cuma alamat yang ditulis dengan
 cara lama. Skripnya jalan di sisi klien, jadi tidak bergantung pada host.
 
+### `vercel.json`
+
+Isinya satu aturan: aset di `assets/` disajikan dengan
+`max-age=3600, stale-while-revalidate=86400`. Bawaan Vercel untuk berkas statis
+adalah `max-age=0, must-revalidate`, yang berarti satu perjalanan bolak-balik
+per aset per kunjungan — di seluler, latensi itulah yang sebenarnya ditunggu
+pengunjung berulang meski hampir tidak ada byte yang kembali.
+`stale-while-revalidate` menyerahkan salinan cache seketika lalu memeriksanya di
+belakang. Dibatasi sengaja, satu jam segar dan paling buruk sehari basi, bukan
+setahun seperti yang dipakai kalau nama berkasnya membawa hash isi — nama di
+sini tidak membawanya. Hanya `assets/`: `js/` dan `css/` harus tetap serentak
+dengan html yang memuatnya, dan html sendiri tidak boleh basi atau sebuah deploy
+jadi tak terlihat.
+
+**Jangan menaruh komentar di dalam berkas itu.** Vercel memvalidasi
+`vercel.json` terhadap skemanya dan **menolak properti yang tidak dikenal** —
+kunci `"//"` yang lazim dipakai sebagai komentar di `package.json` membuat
+seluruh deployment gagal di validasi, sebelum satu berkas pun diunggah, dengan
+pesan `should NOT have additional property`. Itu pernah terjadi di sini dan
+memakan waktu untuk ditemukan, karena kartu Production tetap menampilkan
+deployment lama yang sehat dan tidak ada yang tampak salah dari luar. Prosanya
+tinggal di sini; berkas itu hanya berisi kunci yang diakui skemanya.
+
 `.nojekyll` sudah tidak berguna di Vercel — itu khusus GitHub Pages, supaya ia
 tidak membuang berkas berawalan garis bawah. Dibiarkan karena tidak mengganggu
 dan berguna kalau suatu saat kembali ke Pages.
