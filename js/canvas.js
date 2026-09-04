@@ -220,9 +220,18 @@ export class WorkCanvas {
   resize(){
     const w = window.innerWidth, h = window.innerHeight;
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
-    // two full-frame passes every frame: past roughly 3.2 Mpx a phone drops
-    // frames faster than the extra resolution buys anything back
-    if (COARSE) while (this.dpr > 1 && w * h * this.dpr * this.dpr > 3.2e6) this.dpr -= 0.25;
+    /* Two full-frame passes every frame, and on touch the gpu doing them is a
+       phone's. The ceiling used to be 3.2 Mpx, which no phone ever reached —
+       a 393x803 viewport at the capped dpr of 2 is 1.26 — so the step-down
+       below had never once run and the constant was decoration.
+       One megapixel is a ceiling phones actually stand under: it takes that
+       393x803 to dpr 1.75, and a taller or denser one to 1.5. What it costs is
+       type on the plane being resolved a little softer; what it buys is a
+       fifth to nearly half of every fill, on the devices that were dropping
+       frames. A tablet lands at dpr 1 under this, which is the one place the
+       trade is uncomfortable — but a tablet is `pointer: coarse` too and this
+       is one number, not a table of them. */
+    if (COARSE) while (this.dpr > 1 && w * h * this.dpr * this.dpr > 1.0e6) this.dpr -= 0.25;
     /* Nothing to do when nothing changed, and it often has not: window resize
        and visualViewport resize both fire for the same url bar sliding away,
        and orientationchange fires alongside them. Setting canvas.width at all
