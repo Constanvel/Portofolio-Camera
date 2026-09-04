@@ -87,6 +87,34 @@ for (const f of [...sources, 'tools/check.mjs']) {
 }
 note('karakter kendali di dalam sumber', ctrl);
 
+/* ── 4. the five absolute addresses all name the same origin ─────────────
+   canonical, og:url and og:image in the markup, <loc> in the sitemap and the
+   Sitemap: line in robots.txt. They are the only absolute urls in the repo,
+   and they have to agree: a preview scraper fetches og:image with no page to
+   resolve against, and canonical pointing elsewhere tells a search engine the
+   real page is somewhere else. They drifted once — the site was serving from
+   one deployment while all five still named another — and nothing said so. */
+/* Only the five that point at THIS site. Every other absolute url in the
+   markup is an outbound link — a credit, a repo, a contact — and those are
+   supposed to be other origins. */
+const html = read('index.html');
+const self = [
+  ['canonical',      /rel="canonical"\s+href="([^"]+)"/],
+  ['og:url',         /property="og:url"\s+content="([^"]+)"/],
+  ['og:image',       /property="og:image"\s+content="([^"]+)"/],
+  ['sitemap <loc>',  /<loc>([^<]+)<\/loc>/],
+  ['robots Sitemap', /Sitemap:\s*(\S+)/]
+].map(([name, re], i) => {
+  const src = i < 3 ? html : i === 3 ? read('sitemap.xml') : read('robots.txt');
+  const m = src.match(re);
+  return [name, m && new URL(m[1]).origin];
+});
+
+note('alamat diri yang tidak ditemukan', self.filter(([, o]) => !o).map(([n]) => n));
+const distinct = [...new Set(self.map(([, o]) => o).filter(Boolean))];
+note('origin diri yang tidak sepakat',
+     distinct.length > 1 ? self.map(([n, o]) => `${n.padEnd(16)} ${o}`) : []);
+
 /* ── the verdict ─────────────────────────────────────────────────────────── */
 if (fail.length) {
   console.error('GAGAL\n\n  ' + fail.join('\n\n  ') + '\n');

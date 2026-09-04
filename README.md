@@ -109,7 +109,14 @@ dan berguna kalau suatu saat kembali ke Pages.
 
 Satu perintah mengganti kelimanya:
 
-    grep -rl 'portofolio-camera.vercel.app' index.html sitemap.xml robots.txt       | xargs sed -i 's|https://portofolio-camera.vercel.app/|https://DOMAIN-BARU/|g'
+    grep -rl 'portofolio-rainer.vercel.app' index.html sitemap.xml robots.txt       | xargs sed -i 's|https://portofolio-rainer.vercel.app/|https://DOMAIN-BARU/|g'
+
+`node tools/check.mjs` menolak kalau kelimanya tidak lagi menyebut origin yang
+sama, jadi memindahkan sebagian saja gagal dengan berisik alih-alih diam-diam
+mengirim pengunjung ke deployment lama. Itu pernah terjadi: situsnya tayang di
+`portofolio-rainer` sementara kelima alamat ini masih menyebut
+`portofolio-camera`, yang berarti setiap kartu bagikan dan setiap hasil
+pencarian menunjuk ke deployment yang bukan lagi yang dipakai.
 
 `og:image` yang paling tidak memaafkan: setiap pengambil pratinjau menariknya
 **tanpa halaman** untuk melandaskan path relatif, jadi alamat yang salah berarti
