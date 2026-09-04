@@ -172,10 +172,17 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
   8%   { opacity:1; }
   100% { opacity:0; }
 }
+/* display:none, not merely opacity:0. At z-index 80 this covers the whole
+   viewport above everything else, and an opacity:0 element is still a layer
+   the compositor carries and blends on every single frame for the entire
+   visit — for a xenon flash that fires for 420ms a few times an hour. It was
+   measured on a phone: nothing blocking the main thread at all, and still only
+   half the panel's frames. This was one of two reasons. */
 .flash{
   position:fixed; inset:0; z-index:80; pointer-events:none;
-  background:#fff; opacity:0;
+  background:#fff; opacity:0; display:none;
 }
+.flash.is-fire{ display:block; }
 /* white in both themes on purpose: this is a xenon tube, not a surface, and it
    does not take the page's palette */
 .flash.is-fire{ animation:expose 420ms var(--ease-out); }

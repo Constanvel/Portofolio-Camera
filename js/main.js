@@ -36,6 +36,54 @@ const flashEl   = $('flash');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+/* ── ?fps, the half that is not the canvas ───────────────────────────────
+   The meter in js/canvas.js only lives while the plane is running, and the
+   stutter turned out to be on the section pages too — where the plane is
+   stopped outright and nothing is being drawn at all. Three rounds of shaving
+   canvas work went at the wrong thing because of that blind spot.
+   So this is the other half, and it runs everywhere: how far apart the
+   browser's own frames land, and what blocked the main thread when they slip.
+   `longtask` is the entry a browser raises for work that held the thread for
+   more than fifty milliseconds, which is what a dropped frame is made of — and
+   it names the source instead of leaving it to be guessed at, which is the
+   whole point after this many guesses. Both are inert without ?fps. */
+if (new URLSearchParams(location.search).has('fps')) (() => {
+  const box = document.createElement('pre');
+  box.style.cssText = 'position:fixed;right:8px;top:8px;z-index:9999;margin:0;'
+    + 'padding:6px 8px;background:#000c;color:#ff0;font:11px/1.35 ui-monospace,monospace;'
+    + 'border-radius:6px;pointer-events:none;white-space:pre;text-align:right';
+  addEventListener('DOMContentLoaded', () => document.body.appendChild(box), { once: true });
+
+  const gaps = [];
+  let long = 0, worst = 0, who = '', prev = 0, painted = 0;
+  try {
+    new PerformanceObserver(list => {
+      for (const e of list.getEntries()){
+        long++;
+        if (e.duration > worst){ worst = e.duration; who = (e.attribution?.[0]?.name) || e.name || '?'; }
+      }
+    }).observe({ entryTypes: ['longtask'] });
+  } catch (e) { who = '(longtask tidak didukung)'; }
+
+  const tick = (now) => {
+    requestAnimationFrame(tick);
+    if (prev){ gaps.push(now - prev); if (gaps.length > 90) gaps.shift(); }
+    prev = now;
+    if (now - painted < 250 || !box.isConnected) return;
+    painted = now;
+    const sorted = [...gaps].sort((a, b) => a - b);
+    const mid = sorted[sorted.length >> 1] || 0;
+    const max = sorted[sorted.length - 1] || 0;
+    box.textContent =
+      `HALAMAN\n` +
+      `frame ${mid ? (1000 / mid).toFixed(0) : 0}/dtk  (${mid.toFixed(1)}ms)\n` +
+      `terburuk ${max.toFixed(0)}ms\n` +
+      `blok >50ms: ${long}  maks ${worst.toFixed(0)}ms\n` +
+      `${who}`;
+  };
+  requestAnimationFrame(tick);
+})();
+
 /* ── the lite path ───────────────────────────────────────────────────────
    A touch device gets the mark and then the canvas of work, and nothing in
    between: no three.js, no PMREM, no 3.3 MB of models. Akif's call. The two
@@ -161,11 +209,24 @@ let lastStage = 'work';
    Retriggering a CSS animation needs the class off, a reflow, and the class on
    again — without the reflow the browser coalesces all three into no change at
    all, and the second section you open never flashes. */
+/* The class comes off on a timer, not on animationend. It never used to come
+   off at all — only the NEXT expose() removed it — which was harmless while it
+   carried nothing but an animation. Now it also carries display:block, and a
+   class that sticks would leave the flash a live full-screen layer for the
+   rest of the visit: the exact thing this was changed to stop.
+   A timer rather than the event because the event is the fragile half. An
+   animation that is interrupted, or never starts because the element was in a
+   state that could not run it, fires nothing — and the failure mode of a
+   missing animationend here is strictly worse than the problem it was meant to
+   solve. 500 against the animation's 420 leaves room and costs nothing. */
+let flashOff = 0;
 function expose(){
   if (reduced) return;
   flashEl.classList.remove('is-fire');
   void flashEl.offsetWidth;
   flashEl.classList.add('is-fire');
+  clearTimeout(flashOff);
+  flashOff = setTimeout(() => flashEl.classList.remove('is-fire'), 500);
 }
 
 function labelNav(r){
@@ -188,7 +249,7 @@ async function applyRoute(){
   // and going the other way the plane has to be alive BEFORE the page above it
   // starts to fade, or it is revealed as a frozen still. `workHeld` is the lite
   // path holding the films back under the mark — see ensureWork — and it wins.
-  else if (work && !workHeld) work.start();
+  else if (work && !workHeld){ workWrap.hidden = false; work.start(); }
   for (const a of navLinks){
     const on = a.getAttribute('href') === '#/' + r;
     a.classList.toggle('is-on', on);
@@ -223,6 +284,15 @@ async function applyRoute(){
        cost the entrance its frames — which is why a section stuttered on the
        way IN and was smooth once it had arrived. */
     if (work) work.stop();
+    /* And the layer itself, once the page above has finished arriving. stop()
+       only halts the loop; the container and its 617x1230 canvas stayed in the
+       layer tree behind an opaque sheet of paper, composited every frame for a
+       picture nobody can see. Not immediately: the page fades in over t-mid,
+       and for those frames the plane is genuinely still visible underneath.
+       The route is re-read when the timer fires because another hash change
+       may have landed in the meantime, and hiding the plane on the way back to
+       it would be worse than never hiding it at all. */
+    setTimeout(() => { if (routeFromHash()) workWrap.hidden = true; }, reduced ? 0 : 700);
     /* Ahead of the section being shown, not after: the flash has to cover the
        swap, which is the one frame where the outgoing section is gone and the
        incoming one has not painted. */
