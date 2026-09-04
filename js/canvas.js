@@ -91,6 +91,20 @@ const METER = new URLSearchParams(location.search).has('fps');
    cost is somewhere else. Off by default, and read once at load. */
 const NOGRID = new URLSearchParams(location.search).has('nogrid');
 
+/* ── ?bare ───────────────────────────────────────────────────────────────
+   The floor: the least this file can possibly do and still be the plane.
+   No ornament, and no second canvas — everything goes straight to the screen
+   rather than being drawn into a buffer and copied over, which is two
+   full-screen passes where one would do. The buffer only exists so the
+   peripheral lattice has something to sample from; with the lattice gone it
+   is pure overhead, and this is what measures how much.
+   It answers the one question left. If the frame rate reaches the panel here,
+   the budget exists and the cost is in what was removed, one piece at a time.
+   If it does not, then this device cannot repaint a canvas of this size at
+   this rate at all, and the answer is a smaller canvas or a lower target —
+   not another thing to shave. */
+const BARE   = new URLSearchParams(location.search).has('bare');
+
 /* ── the repeating block ────────────────────────────────────────────────
    Four columns, five rows, five slots deliberately left empty so the plane
    breathes. Per-column vertical offsets break the rows without breaking the
@@ -477,7 +491,7 @@ export class WorkCanvas {
     this.drawGrid();
     // on touch the trackers were already laid down UNDER the films, inside
     // drawPlane — see there
-    if (!this.coarse) this.drawTrackers(dt);
+    if (!this.coarse && !BARE) this.drawTrackers(dt);
     this.softenEdges();
     if (METER) this._meter(now, performance.now() - t0);
   }
@@ -515,7 +529,7 @@ export class WorkCanvas {
 
   /* ── pass 1 ───────────────────────────────────────────────────────── */
   drawPlane(dt){
-    const c = this.bctx, dpr = this.dpr;
+    const c = BARE ? this.ctx : this.bctx, dpr = this.dpr;
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
     /* The clear is not redundant next to the fill that follows it, however it
        reads. Measured both ways: a clear that covers the WHOLE surface lets
@@ -531,7 +545,7 @@ export class WorkCanvas {
        Akif's call. On a mouse they stay on top, where they have always been.
        The rects are the previous frame's; the bracket is lerped anyway, and a
        frame of lag is invisible on something that drifts this slowly. */
-    if (this.coarse) this.drawTrackers(dt, c);
+    if (this.coarse && !BARE) this.drawTrackers(dt, c);
 
     const need = new Array(this.media.length).fill(false);
     const near = new Array(this.media.length).fill(Infinity);
@@ -649,6 +663,8 @@ export class WorkCanvas {
   /* ── pass 2 · the cursor grid ─────────────────────────────────────── */
   drawGrid(){
     const ctx = this.ctx, dpr = this.dpr;
+    // nothing to copy when drawPlane already drew here
+    if (BARE) return;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     // same as in drawPlane: the clear is the discard hint, not waste
     ctx.clearRect(0, 0, this.cv.width, this.cv.height);
