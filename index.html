@@ -366,8 +366,17 @@
          mp3 stays because Safari only learned to read Ogg in 17.5, and an
          older iPhone should get the music rather than silence. The browser
          takes the first line it understands and never fetches the other. -->
-    <source src="./assets/audio/theme.opus" type="audio/ogg; codecs=opus">
-    <source src="./assets/audio/theme.mp3" type="audio/mpeg">
+    <!-- Named after the track, not after its job, and that is the whole fix for
+         a bug that shipped twice. These are cached for an hour with a day of
+         stale-while-revalidate, so replacing the bytes under a name that never
+         changed meant a returning visitor kept the old song for an hour, then
+         got it once more from the stale copy while the new one downloaded
+         behind them. The server was right both times; the browser had no way
+         to know. A url that names its contents cannot go stale — the next
+         track gets the next name and every visitor hears it on the first
+         load. -->
+    <source src="./assets/audio/backbay.opus" type="audio/ogg; codecs=opus">
+    <source src="./assets/audio/backbay.mp3" type="audio/mpeg">
   </audio>
 
   <!-- Every section starts `hidden` and is opened by the router, so a page

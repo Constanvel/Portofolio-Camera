@@ -381,7 +381,7 @@ Terbukti dari log server, yang mencatat urutan permintaan dari luar peramban:
     GET /js/vendor/three.module.js
     GET /assets/models/ipod.glb
     GET /assets/models/camera.glb
-    GET /assets/audio/theme.mp3     <- terakhir
+    GET /assets/audio/backbay.mp3   <- terakhir
 
 Ada jalur ketiga yang tidak melewati keduanya: membuka `#/about` langsung
 membuat `main()` keluar lebih awal, jadi tidak ada pra-buffer sama sekali. Itu
@@ -625,7 +625,7 @@ Simanjuntak. Yang berikut **bukan**, dan didaftar di sini serta di bagian
 | `assets/models/camera.glb` | [Dokono Kinokoda](https://sketchfab.com/JunkWren) — [Digital Camera](https://sketchfab.com/3d-models/digital-camera-5b2573eab7bf48f2bb8cd5a6026795b1) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | `assets/models/ipod.glb` | [Timothy Ahene](https://sketchfab.com/timothyahene) — [iPod Classic](https://sketchfab.com/3d-models/ipod-classic-13dbe30b0e45408c8bfaddfe6a4e8786) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | `assets/fonts/VCR.woff2` | Riciery Leal — VCR OSD Mono | bebas, termasuk untuk komersial dan redistribusi |
-| `assets/audio/theme.mp3` | [Nihilore](https://www.nihilore.com/) — [Something Meaningful](https://www.nihilore.com/postrock), putaran 48 detik | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+| `assets/audio/backbay.mp3` | [Kevin MacLeod](https://incompetech.com/) — [Backbay Lounge](https://incompetech.com/music/royalty-free/), putaran 48 detik | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 
 Keduanya sudah dimodifikasi: tekstur dan geometrinya dikemas ulang, dan
 materialnya ditukar saat runtime di `js/scene.js`. CC BY mengizinkan itu
