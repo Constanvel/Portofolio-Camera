@@ -99,7 +99,7 @@ const ID = {
   'cr.type.k': 'huruf',
   'cr.type.v': 'VCR OSD Mono oleh Riciery Leal. Selebihnya memakai huruf antarmuka sistem.',
   'cr.music.k': 'musik',
-  'cr.music.v': '“<a class="rows__a" href="https://www.nihilore.com/postrock" target="_blank" rel="noopener">Something Meaningful</a>” oleh Nihilore — <a class="rows__a" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> — loop 48 detik dari bagian pembuka, dikodekan ulang lebih pelan dan lebih kecil.',
+  'cr.music.v': '“<a class="rows__a" href="https://incompetech.com/music/royalty-free/" target="_blank" rel="noopener">Backbay Lounge</a>” oleh Kevin MacLeod — <a class="rows__a" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> — loop 48 detik yang dipotong tepat di batas bar, dikodekan ulang lebih pelan dan lebih kecil.',
 
   /* skills. The values that are nothing but product names are not in here:
      "React 19, Next.js 16 (App Router), Vite" reads the same in both, and a

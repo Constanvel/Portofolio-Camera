@@ -116,11 +116,10 @@ function rollMuted(){
 /* Where the track sits once it is up. It was a constant while the only choice
    was on or off; the slider makes it a setting, so the ramp and the backstop
    below both aim at whatever the visitor last left it at. */
-/* 0.66, not the 0.42 this was tuned to. The track behind it changed, and the
-   new one is quieter: -15.0 LUFS against the old -11.0, because it keeps its
-   full 7.6 LU of range instead of being mastered flat and hot. Four decibels
-   of that is real, so the default climbs by the same four (x1.585) and the
-   room sounds exactly as loud as it did before. */
+/* 0.66, and it has survived two changes of track because the level is matched
+   to the slider rather than the other way round: every track that has gone in
+   here was normalised to the same integrated loudness on the way, so the room
+   sounds as loud as it always did and this number never has to move. */
 let level = 0.66;
 async function goAudible(){
   if (audioBusy) return audioOn;
