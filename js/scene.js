@@ -42,7 +42,13 @@ const IPOD = {
      would have buried the screen inside the body. They belong with the
      measurements they are relative to. */
   proud: 0.0002,      // the lit screen plane
-  reach: 0.0003       // the invisible hit target, a touch further out again
+  reach: 0.0003,      // the invisible hit target, a touch further out again
+  /* The way out of act one closes the frame on the screen until the screen is
+     the only thing in it. An exact cover leaves the bezel sitting on the edges
+     of the frame at the moment the picture inside it has gone black, so it
+     closes a little past one — the same trick, and the same reason, as
+     CAM.overshoot below. */
+  overshoot: 1.14
 };
 const CAM = {
   display: { z: -0.365, x0: -0.908, x1: 1.332, y0: -0.866, y1: 0.937 },
@@ -380,8 +386,8 @@ export class IpodAct {
         /* NOT m.transparent. This model's single material declares
            alphaMode:BLEND for its screen glass, and copying that through
            marked all six opaque meshes transparent — they leave the depth
-           buffer alone and get re-sorted every frame for nothing. fadeOut()
-           turns transparency back on when it actually needs it. */
+           buffer alone and get re-sorted every frame for nothing. Nothing
+           turns it back on: the way out of this act is a move, not a fade. */
         color: m.color, side: m.side, transparent: false,
         roughness: 0.26, metalness: 0.22,
         clearcoat: 1.0, clearcoatRoughness: 0.065,
@@ -395,6 +401,21 @@ export class IpodAct {
 
     this.worldH = size.y * this.scale;
     this.worldW = size.z * this.scale;
+    /* The screen, measured the same way, because the exit closes the frame on
+       it and nothing else: the plane is sw by sh in model units and the fit
+       lays both of those flat against the viewport, so the scale is the whole
+       conversion. */
+    this.screenW = sw * this.scale;
+    this.screenH = sh * this.scale;
+    /* Two poses for the body, and the exit slides between them. `home` is the
+       one it holds for the entire entrance — pivoted on its own centre, which
+       is what makes it turn like an object in a hand. `intoScreen` is pivoted
+       on the screen instead, so the screen is what the frame closes on rather
+       than the middle of the iPod. */
+    this.body = model;
+    this.home = model.position.clone();
+    this.atScreen = this.screen.position.clone().multiplyScalar(-1);
+    this.exit = null;
 
     this.ray = new THREE.Raycaster();
     this.pointer = new THREE.Vector2();
@@ -415,6 +436,9 @@ export class IpodAct {
   resize(){
     const fill = window.innerWidth < 640 ? 0.82 : 0.72;
     this.dist = this.gl.distanceFor(this.worldW, this.worldH, fill);
+    // and where the exit ends: the screen alone, over the whole frame
+    this.dScreen = this.gl.distanceFor(this.screenW, this.screenH, 1, 'cover')
+                 / IPOD.overshoot;
   }
 
   begin(){
@@ -443,6 +467,7 @@ export class IpodAct {
      growing. Lands on exactly zero — no residual tilt, ever. */
   tick(_, now){
     if (!this.running) return;
+    if (this.exit) return this.tickExit(now);
     const e = this.freeze != null ? this.freeze : now - this.t0;
     const D = this.reduced ? 0.28 : 1;
     // three overlapping tracks: it pops out of nothing, glides forward, and
@@ -540,24 +565,90 @@ export class IpodAct {
     return true;
   }
 
-  fadeOut(ms = 520){
+  /* ── the way out ───────────────────────────────────────────────────────
+     Into the screen rather than away from it. The frame closes on the panel
+     until the panel is the whole viewport, and the panel goes black on the way
+     in, so the act ends on a held black instead of on an object dissolving —
+     and act two comes up out of that same black. The join is a cut, and both
+     halves of it are the same colour.
+     It runs inside tick(), and the fade it replaces did not. That is the more
+     useful half of this: the fade drove rig.scale and rig.position from a
+     requestAnimationFrame of its own, and tick() pins both of them at rest the
+     instant the entrance lands — so every write it made was overwritten before
+     the next render. The only part of it that ever reached the screen was the
+     opacity, which happens to be the one property tick() does not touch. One
+     clock, one writer. */
+  intoScreen(ms = 1400){
     return new Promise(res => {
-      const t0 = performance.now(), s0 = this.rig.scale.x;
-      const step = (now) => {
-        const p = clamp01((now - t0) / ms), e = inOut(p);
-        this.rig.scale.setScalar(lerp(s0, s0 * 0.86, e));
-        this.rig.position.z = lerp(0, -5.5, e);
-        this.rig.traverse(o => {
-          if (o.material && o.material.transparent !== undefined){
-            o.material.transparent = true;
-            o.material.opacity = 1 - e;
-          }
-        });
-        if (p < 1) requestAnimationFrame(step);
-        else { this.rig.visible = false; res(); }
-      };
-      requestAnimationFrame(step);
+      // the room's own exposure, kept so the room can go down with the panel
+      const e0 = this.gl.renderer.toneMappingExposure;
+      this.exit = { t0: performance.now(), ms, e0, res };
+      this._word = 1;                       // the instruction, on its way out
     });
+  }
+
+  /** Let go of a running exit without finishing it. tick() is what settles
+      that promise, and skip stops the loop that calls tick() — so without this
+      the caller waits forever on something nothing is left to settle, and the
+      teardown waiting behind the await never runs. */
+  abort(){
+    if (!this.exit) return;
+    const done = this.exit.res;
+    this.exit = null;
+    this.running = false;
+    done();
+  }
+
+  tickExit(now){
+    // `freeze` reaches this the same way it reaches the entrance: the exit is
+    // the part of the act most worth stepping through a frame at a time.
+    const t = this.freeze != null ? this.freeze : now - this.exit.t0;
+    const p = clamp01(t / this.exit.ms);
+    const e = inOut(p);
+    /* Square up first. The body is draggable right until the press lands, so
+       it can be sitting at any angle when this starts, and a screen you are
+       pushing into cannot be left tilted — the frame would close on a
+       trapezoid and the black would arrive with a corner missing. */
+    this.rig.rotation.set(this.spin.x * (1 - e), this.spin.y * (1 - e), 0);
+    this.rig.position.set(0, 0, 0);
+    this.rig.scale.setScalar(1);
+    this.body.position.lerpVectors(this.home, this.atScreen, e);
+    this.gl.camera.position.set(0, 0, lerp(this.dist, this.dScreen, e));
+    this.gl.camera.lookAt(0, 0, 0);
+    /* The word goes first, and it is the only thing in here that costs a
+       repaint. It asked for a press, the press has happened, and leaving it lit
+       on a screen the frame is closing in on says the site is still waiting for
+       it. Bounded on purpose: paintScreen() redraws a 512-pixel panel and
+       re-uploads it, which is the right cost for a fifth of a second and the
+       wrong one for every frame of a dolly — a dozen frames here, none after.
+       `lit` stays at 1 throughout; the light is the material's job below. */
+    if (this._word > 0){
+      this._word = p < 0.16 ? 1 - p / 0.16 : 0;
+      this.paintScreen(1, this._word);
+    }
+    /* Then the backlight, and this one costs nothing at all: a basic material
+       multiplies its map by its colour, so the whole fade is one float where a
+       repaint would be an upload. Gone by 0.72 of the move, comfortably before
+       the panel is the only thing left in frame — the last stretch is already
+       black, which is what makes the end of the move impossible to see. */
+    this.screen.material.color.setScalar(1 - inOut(clamp01((p - 0.10) / 0.62)));
+    /* And the room goes down after it. Without this the shell is still lit
+       silver while the black rectangle is already most of the frame — a bright
+       border around a hole, which reads as a hole rather than as darkness.
+       Later than the backlight and quicker, so what the eye follows is still
+       the body rushing past the edges of frame; only the last of it dissolves.
+       Exposure rather than opacity: these materials are opaque deliberately
+       (see the traverse in the constructor), and the panel is toneMapped:false,
+       so this reaches the body and nothing else. look() puts it back — the next
+       act asks for a different room, which is what that call resets. */
+    this.gl.renderer.toneMappingExposure =
+      this.exit.e0 * (1 - inOut(clamp01((p - 0.58) / 0.34)));
+    if (p < 1) return;
+    this.running = false;
+    this.rig.visible = false;
+    const done = this.exit.res;
+    this.exit = null;
+    done();
   }
 
   dispose(){
@@ -700,7 +791,11 @@ export class CameraAct {
     const e = this.freeze != null ? this.freeze : now - this.t0;
     const R = this.reduced;
 
-    const pIn   = clamp01(e / (R ? 120 : 460));
+    /* 700 and not the 460 this was: the act used to open over paper, where a
+       body arriving quickly reads as arriving. It now opens over the black the
+       iPod's screen left behind, and out of black the same 460 reads as a
+       light being switched on rather than as something coming into view. */
+    const pIn   = clamp01(e / (R ? 120 : 700));
     const pTurn = inOut(clamp01((e - (R ? 120 : 820)) / (R ? 200 : 1560)));
     const pWake = clamp01((e - (R ? 200 : 1900)) / (R ? 200 : 700));
     const pZoom = inOut(clamp01((e - (R ? 320 : 2620)) / (R ? 300 : 1980)));

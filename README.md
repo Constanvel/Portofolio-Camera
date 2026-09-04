@@ -251,6 +251,58 @@ tidak terus jalan di belakang iPod, dan potongan 12% untuk menyembunyikan tanda
 tangan generatornya. Sebuah `<img>` menggambar atau tidak. Berat aset intronya
 turun dari 1,86 MB ke 131 KB.
 
+## Potongan dari iPod ke kamera
+
+Sesudah `press play`, bingkainya menutup **ke arah layar** iPod-nya sampai layar
+itu jadi seluruh viewport, layarnya padam di tengah jalan, dan digicam-nya naik
+keluar dari hitam yang sama. Sambungannya sebuah potongan, dan kedua sisinya
+sewarna.
+
+Sebelumnya iPod-nya mengecil lalu memudar sementara kameranya memudar masuk di
+atas kertas putih: dua larutan bertumpuk, dan kertasnya sudah menyala sebelum
+ada apa pun di atasnya.
+
+Yang paling berguna dari perubahan ini justru temuan sampingannya. `fadeOut()`
+yang lama menggerakkan `rig.scale` dan `rig.position` dari `requestAnimationFrame`
+miliknya sendiri, sedangkan `tick()` memaku keduanya di posisi diam begitu
+entrance-nya mendarat — jadi tiap tulisan yang ia buat ditimpa sebelum render
+berikutnya. Satu-satunya bagian yang pernah sampai ke layar adalah opacity-nya,
+yang kebetulan satu-satunya properti yang tidak disentuh `tick()`. Mengecil dan
+mundurnya tidak pernah ada. Sekarang keluarnya jalan di dalam `tick()` juga:
+satu jam, satu penulis.
+
+Tiga hal kecil yang menentukan hasilnya:
+
+**Layarnya padam lewat warna material, bukan lewat kanvasnya.**
+`paintScreen()` menggambar ulang panel 512 piksel dan mengunggahnya lagi — biaya
+yang benar untuk dua ramp entrance-nya dan salah untuk tiap frame sebuah dolly.
+`MeshBasicMaterial` mengalikan map dengan warnanya, jadi padamnya cuma satu
+float. Yang tetap butuh unggahan cuma katanya, yang keluar duluan dan dibatasi
+ke seperenam awal geraknya: ia minta ditekan, tekanannya sudah terjadi.
+
+**Ruangannya ikut turun sesudahnya.** Tanpa itu cangkang peraknya masih
+menyala terang waktu persegi hitamnya sudah jadi sebagian besar bingkai —
+sebuah pigura terang mengelilingi lubang, yang terbaca sebagai lubang dan bukan
+sebagai gelap. Lewat `toneMappingExposure`, bukan opacity: material-material itu
+sengaja opak (lihat traverse di konstruktornya), dan panelnya `toneMapped:false`,
+jadi ini kena badannya dan tidak kena yang lain.
+
+**Hitamnya ditahan 260ms, dan kertasnya naik di bawah kameranya.**
+`body.classList.remove('is-dark')` dulu berjalan sebelum act-nya dimulai, yang
+menaruh halaman putih kosong di layar selama model itu muncul. Sekarang ia
+berjalan sesudah `cam.begin()`: transisi latar `<body>` 800ms dan fade masuk
+kameranya 700ms, jadi kertasnya sesuatu yang dibawa kameranya.
+
+`IPOD.overshoot` menutup sedikit melewati cover yang persis, dengan alasan yang
+sama seperti `CAM.overshoot`: cover yang tepat meninggalkan bezel di tepi
+bingkai persis waktu gambar di dalamnya sudah hitam.
+
+Satu jebakan di jalur skip. Keluarnya diselesaikan oleh sebuah frame, dan
+`finish()` justru yang menghentikan frame-nya — jadi skip di tengah 1,4 detik itu
+akan meninggalkan `toCamera()` menunggu promise yang tidak ada lagi yang bisa
+menyelesaikannya, dan pembersihan di belakang `await`-nya tidak pernah jalan.
+`finish()` sekarang memanggil `abort()` pada act yang sedang keluar lebih dulu.
+
 ## Rana
 
 Tiap bagian membuka seperti lensa, dan menutup dengan cara yang sama waktu

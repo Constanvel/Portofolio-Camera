@@ -431,6 +431,11 @@ function dim(v){
 
 /* ── the run ────────────────────────────────────────────────────────── */
 let gl = null, ipod = null, cam = null, skipped = false;
+/* The act between the two. `ipod` is dropped the instant the press lands, so a
+   second press cannot arrive — but the act itself is still on screen for the
+   length of its exit, and finish() has to be able to reach it there. The exit
+   is settled by a frame, and finish() is the thing that stops the frames. */
+let leaving = null;
 
 const vignetteDriver = {
   tick(){
@@ -590,8 +595,10 @@ async function toCamera(){
   if (skipped) return;
   const act = ipod;
   ipod = null;
+  leaving = act;
   glCanvas.classList.remove('is-live', 'is-hot');
-  await act.fadeOut(reduced ? 60 : 560);
+  await act.intoScreen(reduced ? 90 : 1400);
+  leaving = null;
   /* Skip can land inside that await, and finish() drops `gl` when it does.
      `act` was detached from `ipod` at the top of this function, so finish()
      never saw it and these two lines are the only thing that will free it —
@@ -605,7 +612,13 @@ async function toCamera(){
   catch (e){ console.warn('camera failed to load', e); return finish(); }
   if (skipped) return;
 
-  body.classList.remove('is-dark');   // back to paper for the digicam
+  /* A beat of nothing at all. The screen went black and then the iPod that
+     held it went away, and holding that black for a moment is what makes the
+     join read as a cut: the digicam arrives OUT of the black rather than over
+     the top of something still leaving. Short — long enough to register as a
+     held frame, not long enough to read as a page that has stopped working. */
+  await sleep(reduced ? 40 : 260);
+  if (skipped) return;
 
   cam = new S.CameraAct(gl, model, ensureWork().cv, {
     // the plane goes up underneath only once the monitor's edges ARE the
@@ -616,6 +629,14 @@ async function toCamera(){
   gl.acts.push(cam);
   gl.resize();
   cam.begin();
+  /* And the paper comes up UNDER the camera, never before it. This line used
+     to sit above the act, where it lit the page white while the camera was
+     still at nothing — the black thrown away a frame after arriving at it, and
+     a room lit for an act that had not begun. body carries an 800ms transition
+     on its background and the camera fades in over 700, so the ground is still
+     moving while the body materialises on it: the paper is something the
+     camera brings with it. */
+  body.classList.remove('is-dark');
 }
 
 /* The mark fades, the plane comes up under it, and the vignette — which on
@@ -654,6 +675,9 @@ function lite(){
 }
 
 function finish(){
+  // whoever is mid-exit is waiting on a frame that is about to stop coming;
+  // let it go first, and the teardown behind its await runs a tick later
+  if (leaving){ leaving.abort(); leaving = null; }
   if (cam){ gl.acts = gl.acts.filter(a => a !== cam); cam.dispose(); cam = null; }
   if (ipod){ gl.acts = gl.acts.filter(a => a !== ipod); ipod.dispose(); ipod = null; }
   /* The models, which are not the acts. warm() draws BOTH of them one frame
