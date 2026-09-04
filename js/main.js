@@ -219,6 +219,23 @@ let lastStage = 'work';
    missing animationend here is strictly worse than the problem it was meant to
    solve. 500 against the animation's 420 leaves room and costs nothing. */
 let flashOff = 0;
+
+/* The shutter. It lives inside expose() rather than getting a trigger of its
+   own because the flash and the shutter are the same event on a real camera,
+   and giving them separate call sites would be inviting them to drift apart.
+   That also means it inherits expose()'s reduced-motion exit for free: someone
+   who asked for less gets neither the strobe nor the noise.
+   Synthesised rather than borrowed — a compact camera's shutter sound IS a
+   played sample, so building it is the honest version, and nothing here needs
+   a credit row for it.
+   preload, on seven kilobytes: the whole job of this sound is to land on the
+   same frame as the flash, and a sound that arrives late is worse than one
+   that never arrives. It is a fortieth of what one tile costs.
+   WAV and not mp3 for the same reason — an mp3 carries encoder padding at the
+   head, which is silence played before the click every single time. */
+const shutter = new Audio('./assets/audio/shutter.wav');
+shutter.preload = 'auto';
+
 function expose(){
   if (reduced) return;
   flashEl.classList.remove('is-fire');
@@ -226,6 +243,19 @@ function expose(){
   flashEl.classList.add('is-fire');
   clearTimeout(flashOff);
   flashOff = setTimeout(() => flashEl.classList.remove('is-fire'), 500);
+  /* Off the same slider as the music, and silent at zero: a visitor who turned
+     the sound off turned ALL of it off, and a click they cannot stop would be
+     the rudest thing on the page. Scaled under the bed because a transient
+     reads louder than its peak suggests next to a drone.
+     currentTime first, so navigating quickly restarts the click instead of
+     stacking copies of it. play() can still be refused — applyRoute runs once
+     on load, before any gesture exists — and a refused shutter is nothing to
+     report. */
+  if (level > 0){
+    shutter.volume = Math.min(1, level * 0.45);
+    shutter.currentTime = 0;
+    shutter.play().catch(() => {});
+  }
 }
 
 function labelNav(r){
@@ -236,8 +266,21 @@ function routeFromHash(){
   const h = (location.hash || '').replace(/^#\/?/, '');
   return pages[h] ? h : '';
 }
+/* The route this is already showing, so a second call for the same one is
+   nothing. Measured, not guessed: a single hash change fires popstate AND
+   hashchange in Chrome, and both are wired to this function, so every visit to
+   a section ran the whole of it twice. Mostly that was invisible — stopping a
+   stopped canvas costs nothing — but expose() removes the flash class, forces
+   a reflow and adds it back, so the second run cut the strobe off partway and
+   restarted it. Adding a sound to that same function is what made it audible
+   and is how it was finally noticed.
+   Set before the first await, so two calls arriving in the same tick cannot
+   both get past it. */
+let appliedRoute = null;
 async function applyRoute(){
   const r = routeFromHash();
+  if (r === appliedRoute) return;
+  appliedRoute = r;
   /* The intro and a section are not two layers, they are two answers to
      "where am I". A page is opaque but it FADES — for 620ms it is translucent,
      and the iPod at z-30 shows straight through it. Worse, nothing was ever
