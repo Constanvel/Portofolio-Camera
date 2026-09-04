@@ -68,6 +68,9 @@ const IDLE_MS    = COARSE ? 50 : 0;
    assuming it: 120 Hz draws every second tick, 90 Hz draws two of every three,
    60 Hz draws every one, and all three land on sixty. */
 const MOVE_MS    = COARSE ? 1000 / 60 : 0;
+/* The slowest this is allowed to settle to, and the floor for the pacing in
+   frame() below. Thirty is where a drifting plane stops losing anything. */
+const SLOW_MS    = 1000 / 30;
 
 /* ── ?fps ────────────────────────────────────────────────────────────────
    A phone I cannot hold is a phone I cannot profile. Everything above this
@@ -462,14 +465,16 @@ export class WorkCanvas {
     if (IDLE_MS && raw < IDLE_MS && !this.drag && this.px < -9998
         && Math.abs(this.tx - this.x) < 0.05 && Math.abs(this.ty - this.y) < 0.05) return;
     if (MOVE_MS){
+      const pace = this._pace || (this._pace = MOVE_MS);
       this._acc = (this._acc || 0) + (now - (this._tick ?? now));
       this._tick = now;
-      if (this._acc < MOVE_MS) return;
+      if (this._acc < pace) return;
       // never bank more than one frame: a tab returning from the background
       // must not owe a burst of them
-      this._acc = Math.min(this._acc - MOVE_MS, MOVE_MS);
+      this._acc = Math.min(this._acc - pace, pace);
     }
     const dt = Math.min(64, raw); this._last = now;
+    if (MOVE_MS && this._pace < SLOW_MS) this._settle(raw);
     const t0 = METER ? performance.now() : 0;
     const k = 1 - Math.pow(0.0009, dt / 1000);       // frame-rate independent
     const nx = this.x + (this.tx - this.x) * k;
@@ -494,6 +499,32 @@ export class WorkCanvas {
     if (!this.coarse && !BARE) this.drawTrackers(dt);
     this.softenEdges();
     if (METER) this._meter(now, performance.now() - t0);
+  }
+
+  /* ── what this device can actually hold ─────────────────────────────
+     Sixty is a target, not a promise. Measured on a Galaxy A23 at 617x1230:
+     with the ornament gone, the second canvas gone and nine drawing
+     operations left in the frame, it still only reached twenty-four to
+     thirty. That phone cannot repaint a canvas that size at its own refresh
+     rate, and no further shaving of draw calls was ever going to change it.
+     What reads as stutter is not the number being low, it is the number being
+     unsteady: a frame lands, the next misses vsync and waits a whole period,
+     and the plane lurches. Thirty held steadily looks better than twenty-four
+     to thirty ragged, and a plane that drifts this slowly loses nothing at
+     thirty — while a phone that CAN hold sixty keeps it, which is why this is
+     measured rather than assumed.
+     One step, and never back up: a device that could not hold sixty a moment
+     ago is not going to start, and a target that oscillates would produce
+     exactly the unevenness this exists to remove. */
+  _settle(gap){
+    const g = this._gaps || (this._gaps = []);
+    g.push(gap);
+    if (g.length < 40) return;
+    g.shift();
+    const mid = [...g].sort((a, b) => a - b)[20];
+    // 1.4x rather than 1.0: a couple of late frames is normal, and only a
+    // median this far past the target means the target was never reachable
+    if (mid > this._pace * 1.4){ this._pace = SLOW_MS; this._gaps = null; }
   }
 
   /* Rolling medians, redrawn four times a second into one <pre>. A median and
@@ -524,7 +555,7 @@ export class WorkCanvas {
 ` +
       `dpr  ${this.dpr}  ${this.cv.width}x${this.cv.height}
 ` +
-      `panel ${this._hz || '?'}Hz  tile ${(this._tileRects || []).length}`;
+      `panel ${this._hz || '?'}Hz  tile ${(this._tileRects || []).length}  target ${Math.round(1000 / (this._pace || MOVE_MS || 16.7))}`;
   }
 
   /* ── pass 1 ───────────────────────────────────────────────────────── */
