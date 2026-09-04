@@ -54,23 +54,21 @@ const TAP        = COARSE ? 12 : 8;   // a finger wanders; a mouse does not
    dt below, so a skipped frame never loses time out of the easing. */
 const IDLE_MS    = COARSE ? 50 : 0;
 /* ── the ceiling on a high-refresh phone ─────────────────────────────────
-   requestAnimationFrame runs at the PANEL's rate, not at sixty. Mid-range
-   Androids are 90 and 120 Hz now — a Galaxy A23 is one or the other depending
-   on which of the two it is — so on those this file was asked for a frame
-   every 8.3 or 11.1ms instead of every 16.7. Twice the work per second, on
-   exactly the class of gpu least able to give it. Nothing here is worth more
+   requestAnimationFrame runs at the PANEL's rate, not at sixty, and mid-range
+   Androids are ninety and a hundred and twenty now. Nothing here is worth more
    than sixty: it is a plane of stills that drifts, and sixty is what every
    constant in this file was tuned against.
-   Spent from an accumulator rather than compared against a fixed gap, because
-   a fixed gap only divides cleanly on a panel whose tick happens to fit it —
-   16.7 halves 120 Hz to a clean sixty and would halve 90 Hz to forty-five,
-   which is worse than either. The accumulator measures the panel instead of
-   assuming it: 120 Hz draws every second tick, 90 Hz draws two of every three,
-   60 Hz draws every one, and all three land on sixty. */
-const MOVE_MS    = COARSE ? 1000 / 60 : 0;
-/* The slowest this is allowed to settle to, and the floor for the pacing in
-   frame() below. Thirty is where a drifting plane stops losing anything. */
-const SLOW_MS    = 1000 / 30;
+
+   Counted in TICKS, not milliseconds. A panel can only present on its own
+   vsync, so the achievable rates are the panel divided by a whole number —
+   56, 28, 18.7 and nothing in between. A target expressed in milliseconds
+   lands between those, its remainder creeps, and the cadence beats: two ticks,
+   two ticks, then one, then three. That is worse than no pacing at all, and
+   measuring it on a 56 Hz phone is how I found out — a target of thirty took
+   it from 24-30 down to 20-24, because thirty is not a rate that panel has.
+   Drawing every Nth callback cannot do that: whatever N is, the spacing is
+   identical every time. */
+const PACE   = COARSE;
 
 /* ── ?fps ────────────────────────────────────────────────────────────────
    A phone I cannot hold is a phone I cannot profile. Everything above this
@@ -251,6 +249,8 @@ export class WorkCanvas {
     this.blurCv = document.createElement('canvas');
     this.bl = this.blurCv.getContext('2d');
     this.maskCv = document.createElement('canvas');
+    // 1 until the panel has been measured — the right guess for a 60 Hz phone
+    this._every = 1; this._tick = 0;
     this.running = false;
     this._bind();
     this.resize();
@@ -432,12 +432,17 @@ export class WorkCanvas {
       if (!this.running) return;
       this._raf = requestAnimationFrame(loop);
       /* The panel's own rate, sampled before any of the gating below can hide
-         it — this is the number that says whether a phone is being asked for
-         sixty frames a second or a hundred and twenty. */
-      if (METER){
-        if (this._pt) this._hz = Math.round(1000 / (now - this._pt) * 0.1 + (this._hz || 0) * 0.9) || this._hz;
-        this._pt = now;
-      }
+         it. Not only for the meter any more: it is what decides how many
+         callbacks go by between draws, so it is measured on every visit.
+         Twenty samples is a fifth of a second and settles well before anyone
+         has dragged anything; until then `_every` is 1 and the plane simply
+         draws every frame, which is the right guess for the 60 Hz majority. */
+      if (this._pt){
+        const hz = 1000 / (now - this._pt);
+        this._hz = this._hz ? this._hz * 0.9 + hz * 0.1 : hz;
+        if (PACE && ++this._hzN === 20) this._every = Math.max(1, Math.round(this._hz / 60));
+      } else { this._hzN = 0; }
+      this._pt = now;
       this.frame(now);
     };
     this._raf = requestAnimationFrame(loop);
@@ -464,17 +469,8 @@ export class WorkCanvas {
        dt, so they run at the same speed however few frames they are given. */
     if (IDLE_MS && raw < IDLE_MS && !this.drag && this.px < -9998
         && Math.abs(this.tx - this.x) < 0.05 && Math.abs(this.ty - this.y) < 0.05) return;
-    if (MOVE_MS){
-      const pace = this._pace || (this._pace = MOVE_MS);
-      this._acc = (this._acc || 0) + (now - (this._tick ?? now));
-      this._tick = now;
-      if (this._acc < pace) return;
-      // never bank more than one frame: a tab returning from the background
-      // must not owe a burst of them
-      this._acc = Math.min(this._acc - pace, pace);
-    }
+    if (PACE && ++this._tick % this._every) return;
     const dt = Math.min(64, raw); this._last = now;
-    if (MOVE_MS && this._pace < SLOW_MS) this._settle(raw);
     const t0 = METER ? performance.now() : 0;
     const k = 1 - Math.pow(0.0009, dt / 1000);       // frame-rate independent
     const nx = this.x + (this.tx - this.x) * k;
@@ -499,32 +495,6 @@ export class WorkCanvas {
     if (!this.coarse && !BARE) this.drawTrackers(dt);
     this.softenEdges();
     if (METER) this._meter(now, performance.now() - t0);
-  }
-
-  /* ── what this device can actually hold ─────────────────────────────
-     Sixty is a target, not a promise. Measured on a Galaxy A23 at 617x1230:
-     with the ornament gone, the second canvas gone and nine drawing
-     operations left in the frame, it still only reached twenty-four to
-     thirty. That phone cannot repaint a canvas that size at its own refresh
-     rate, and no further shaving of draw calls was ever going to change it.
-     What reads as stutter is not the number being low, it is the number being
-     unsteady: a frame lands, the next misses vsync and waits a whole period,
-     and the plane lurches. Thirty held steadily looks better than twenty-four
-     to thirty ragged, and a plane that drifts this slowly loses nothing at
-     thirty — while a phone that CAN hold sixty keeps it, which is why this is
-     measured rather than assumed.
-     One step, and never back up: a device that could not hold sixty a moment
-     ago is not going to start, and a target that oscillates would produce
-     exactly the unevenness this exists to remove. */
-  _settle(gap){
-    const g = this._gaps || (this._gaps = []);
-    g.push(gap);
-    if (g.length < 40) return;
-    g.shift();
-    const mid = [...g].sort((a, b) => a - b)[20];
-    // 1.4x rather than 1.0: a couple of late frames is normal, and only a
-    // median this far past the target means the target was never reachable
-    if (mid > this._pace * 1.4){ this._pace = SLOW_MS; this._gaps = null; }
   }
 
   /* Rolling medians, redrawn four times a second into one <pre>. A median and
@@ -555,7 +525,8 @@ export class WorkCanvas {
 ` +
       `dpr  ${this.dpr}  ${this.cv.width}x${this.cv.height}
 ` +
-      `panel ${this._hz || '?'}Hz  tile ${(this._tileRects || []).length}  target ${Math.round(1000 / (this._pace || MOVE_MS || 16.7))}`;
+      `panel ${Math.round(this._hz || 0)}Hz  tile ${(this._tileRects || []).length}  ` +
+      `gambar tiap ${this._every} tick`;
   }
 
   /* ── pass 1 ───────────────────────────────────────────────────────── */
