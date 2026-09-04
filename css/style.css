@@ -718,19 +718,6 @@ body[data-stage="page"] .set{ background:var(--paper); }
   padding:.55rem 0; border-top:1px solid var(--hair);
   font-size:.9375rem; line-height:1.5; color:var(--ink-2);
 }
-/* the row that opens it is a button, because there is no url underneath —
-   .rows__a already gives it the colour and the hairline, so this only has to
-   take the chrome a button arrives with back off */
-/* A project row is pressed, not followed — there is no url under a project,
-   only the panel. So the row is a <button> with no look of its own, wrapping a
-   span that carries the same .rows__a hairline as a certificate link. The span
-   has to be there: a <button> cannot be display:inline, the browser blockifies
-   it, and the hairline then sits under a full-width box instead of following
-   the text across the lines it wraps to. */
-button.rows__btn{
-  display:block; width:100%; font:inherit; padding:0; text-align:left;
-  background:none; border:0; color:inherit; cursor:pointer;
-}
 
 /* ── touch ──────────────────────────────────────────────────────────────
    A sticky :hover is the classic phone bug — the state latches on tap and

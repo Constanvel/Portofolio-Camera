@@ -14,12 +14,13 @@ python -m http.server 8000
 - `js/main.js` — orkestrasi intro (mark → iPod → kamera → kanvas karya)
 - `js/scene.js`, `js/env.js` — WebGL, three.js
 - `js/canvas.js` — kanvas karya yang bisa di-drag
+- `js/track.js` — overlay di atas kanvas: blob dan bracket autofokus
 - `assets/tiles/` — berkas karya, satu ukuran untuk semua layar; kelimanya gambar diam
 - `assets/certs/` — berkas sertifikat yang ditautkan dari baris `achievements` dan `experience`
 
 ## Bagian halaman
 
-`home` (kanvas karya) → `about` → `skills` → `portfolio` → `experience` →
+`home` (kanvas karya) → `about` → `skills` → `works` → `experience` →
 `services` → `achievements` → `contact`. Navbar di atas menautkan semuanya;
 `testimonials` masih dikomentari di `index.html`, tinggal dibuka kalau sudah
 ada kutipan asli.
@@ -393,7 +394,7 @@ dalam satu klik.
 ## Panel proyek
 
 Menekan sebuah karya membuka penjelasannya, dari dua arah: tile di kanvas
-`home`, atau baris di halaman `portfolio`. Keduanya membaca `WORKS` di
+`home`, atau baris di halaman `works`. Keduanya membaca `WORKS` di
 `js/data.js`, jadi tile dan penjelasannya tidak bisa berbeda isi.
 
 `blurb` dan `points` wajib; `href` opsional dan hanya digambar kalau ada —
