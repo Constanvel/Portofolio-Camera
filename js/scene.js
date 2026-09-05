@@ -123,6 +123,7 @@ function purge(root){
 /* ── shared renderer ─────────────────────────────────────────────────── */
 export class GL {
   constructor(canvas){
+    this.disposed = false;
     this.canvas = canvas;
     this.renderer = new THREE.WebGLRenderer({
       canvas, antialias:true, alpha:true, powerPreference:'high-performance'
@@ -215,6 +216,8 @@ export class GL {
       intro is the only thing that ever used the renderer, and main.js drops
       its reference in the same breath. */
   dispose(){
+    if (this.disposed) return;
+    this.disposed = true;
     this.stop();
     window.removeEventListener('resize', this._onResize);
     purge(this.scene);
@@ -277,7 +280,7 @@ export async function warm(gl, ...models){
      the back of the download, and skip disposes the renderer and drops the
      reference underneath it. There is nothing to warm for a run that is
      already over. */
-  if (!gl) return;
+  if (!gl || gl.disposed) return;
   const parked = models.filter(m => m && !m.parent);
   if (!parked.length) return;
   /* Parked VISIBLE, at a millionth of their size. Invisible is not enough:
@@ -292,6 +295,7 @@ export async function warm(gl, ...models){
   gl.scene.add(holder);
   try {
     await gl.renderer.compileAsync(gl.scene, gl.camera);
+    if (gl.disposed) return;
     for (const m of parked) m.traverse(o => {
       if (!o.isMesh || !o.material) return;
       for (const mat of (Array.isArray(o.material) ? o.material : [o.material]))
@@ -306,6 +310,51 @@ export async function warm(gl, ...models){
     for (const m of parked) holder.remove(m);
     gl.scene.remove(holder);
   }
+}
+
+/* ── the iPod's shell ──────────────────────────────────────────────────
+   The shell ships as `metalness: 1` over a near-black base colour. A black
+   metal reflects almost nothing — which is precisely why it read as a matte
+   cut-out. A real iPod front is lacquered black plastic: a dielectric with a
+   polished coat over it. So the shell becomes a physical material with
+   clearcoat, and the metal is dialled back far enough that the room's soft
+   boxes land as specular streaks instead of being swallowed.
+
+   Out here rather than inside the act because of WHEN it has to happen. warm()
+   compiles the material a mesh is wearing at the moment it draws it, and this
+   swap is not a tweak to a standard material — clearcoat is a define, so it is
+   a different program. Warming the model undressed compiled shaders the act
+   then never used and paid for the real ones on its own first frame: measured
+   at the cut into the iPod, 75ms, on a driver that already had them cached.
+   Idempotent, because the act calls it too — a model that never went through
+   the warm path still has to be dressed, and MeshPhysicalMaterial answers yes
+   to isMeshStandardMaterial. */
+export function dress(model){
+  model.traverse(o => {
+    if (!o.isMesh || !o.material || !o.material.isMeshStandardMaterial) return;
+    if (o.material.isMeshPhysicalMaterial) return;
+    const m = o.material;
+    const pm = new THREE.MeshPhysicalMaterial({
+      map: m.map, normalMap: m.normalMap, normalScale: m.normalScale,
+      aoMap: m.aoMap, aoMapIntensity: 1.0,
+      roughnessMap: m.roughnessMap, metalnessMap: m.metalnessMap,
+      // the model's own albedo, untouched. The dark tint this once carried
+      // was compensating for a bright cyclorama; under the flagged room it
+      // crushes the click wheel into an unreadable black slab.
+      /* NOT m.transparent. This model's single material declares
+       alphaMode:BLEND for its screen glass, and copying that through
+       marked all six opaque meshes transparent — they leave the depth
+       buffer alone and get re-sorted every frame for nothing. Nothing
+       turns it back on: the way out of this act is a move, not a fade. */
+      color: m.color, side: m.side, transparent: false,
+      roughness: 0.26, metalness: 0.22,
+      clearcoat: 1.0, clearcoatRoughness: 0.065,
+      envMapIntensity: 1.15
+  });
+    pm.name = m.name;
+    o.material = pm;
+    m.dispose();
+  });
 }
 
 /* ── act one · the iPod ─────────────────────────────────────────────── */
@@ -328,9 +377,18 @@ export class IpodAct {
 
     const sw = IPOD.screen.z1 - IPOD.screen.z0;
     const sh = IPOD.screen.y1 - IPOD.screen.y0;
+    /* Opaque, and that is a performance decision rather than a cosmetic one.
+       The canvas behind this texture is filled edge to edge every time it is
+       painted, so there was never any alpha to blend — but `transparent` is
+       what puts a mesh in the blended queue, and a blended mesh writes no
+       depth. The exit closes the frame on this plane until it IS the frame,
+       and every pixel of the body behind it was being shaded through it.
+       As an opaque it draws first, front to back, and the depth test throws
+       the body away before its clearcoat shader ever runs. Measured across
+       the dolly: 4.7ms a frame at the deep end, and 0.55 after. */
     this.screen = new THREE.Mesh(
       new THREE.PlaneGeometry(sw, sh),
-      new THREE.MeshBasicMaterial({ map:this.screenTex, transparent:true, toneMapped:false })
+      new THREE.MeshBasicMaterial({ map:this.screenTex, transparent:false, toneMapped:false })
     );
     this.screen.rotation.y = Math.PI / 2;                 // face +X
     this.screen.position.set(IPOD.face + IPOD.proud,
@@ -367,36 +425,8 @@ export class IpodAct {
     this.rig.visible = false;
     gl.scene.add(this.rig);
 
-    /* The shell ships as `metalness: 1` over a near-black base colour. A black
-       metal reflects almost nothing — which is precisely why it read as a
-       matte cut-out. A real iPod front is lacquered black plastic: a dielectric
-       with a polished coat over it. So the shell becomes a physical material
-       with clearcoat, and the metal is dialled back far enough that the room's
-       soft boxes land as specular streaks instead of being swallowed. */
-    model.traverse(o => {
-      if (!o.isMesh || !o.material || !o.material.isMeshStandardMaterial) return;
-      const m = o.material;
-      const pm = new THREE.MeshPhysicalMaterial({
-        map: m.map, normalMap: m.normalMap, normalScale: m.normalScale,
-        aoMap: m.aoMap, aoMapIntensity: 1.0,
-        roughnessMap: m.roughnessMap, metalnessMap: m.metalnessMap,
-        // the model's own albedo, untouched. The dark tint this once carried
-        // was compensating for a bright cyclorama; under the flagged room it
-        // crushes the click wheel into an unreadable black slab.
-        /* NOT m.transparent. This model's single material declares
-           alphaMode:BLEND for its screen glass, and copying that through
-           marked all six opaque meshes transparent — they leave the depth
-           buffer alone and get re-sorted every frame for nothing. Nothing
-           turns it back on: the way out of this act is a move, not a fade. */
-        color: m.color, side: m.side, transparent: false,
-        roughness: 0.26, metalness: 0.22,
-        clearcoat: 1.0, clearcoatRoughness: 0.065,
-        envMapIntensity: 1.15
-      });
-      pm.name = m.name;
-      o.material = pm;
-      m.dispose();
-    });
+    // the shell, if main.js has not already done it under the mark. See dress()
+    dress(model);
 
 
     this.worldH = size.y * this.scale;
@@ -664,7 +694,8 @@ export class CameraAct {
     this.src = sourceCanvas || null;
     this.onReveal = hooks.onReveal || (() => {});   // plane goes up behind
     this.onDone   = hooks.onDone   || (() => {});   // camera is gone
-    this._revealed = false; this._done = false;
+    this.onLit    = hooks.onLit    || (() => {});   // it has finished arriving
+    this._revealed = false; this._done = false; this._lit = false;
     this.reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const box = new THREE.Box3().setFromObject(model);
@@ -710,7 +741,6 @@ export class CameraAct {
       this.mtex.minFilter = THREE.LinearFilter;
     }
 
-    this._mats = [];
     model.traverse(o => {
       if (!o.isMesh) return;
       const name = o.material && o.material.name || '';
@@ -729,15 +759,30 @@ export class CameraAct {
           map: this.mtex, color: 0x000000, toneMapped: false, transparent: true });
         o.material = this.panel;
       } else if (name === '07_glass_NONE' || name === '07_glass'){
-        // the sheen sheet sits between the viewer and the panel; keep it,
-        // but never let it veil the picture
+        /* The sheen sheet sits between the viewer and the panel. It kept its
+           tenth of a veil all the way to the end, which is two things wrong at
+           once: by then the panel is the whole viewport, so the veil is over
+           the page itself, and a full-screen transparent pass over a
+           full-screen transparent panel was three quarters of what this act
+           cost per frame. So it goes out with the zoom instead, on its own
+           rule in tick(), and starts at nothing rather than at a tenth. */
         o.material = o.material.clone();
         o.material.transparent = true;
-        o.material.opacity = 0.10;
+        o.material.opacity = 0;
         o.material.depthWrite = false;
+        this.glass = o;
       }
-      this._mats.push(o.material);
     });
+
+    /* Everything that is not the screen. The monitor ends up covering the
+       viewport, and at that point all of this is behind it and none of it can
+       be seen — but a mesh nobody can see still costs every pixel it covers.
+       Gathered once here rather than traversed every frame. */
+    this._body = [];
+    model.traverse(o => {
+      if (o.isMesh && o.material !== this.panel && o !== this.glass) this._body.push(o);
+    });
+    this._buried = false;
 
     this.shadow = shadowSprite();
     this.shadow.scale.set(this.bodyW * 1.9, this.bodyH * 2.1, 1);
@@ -745,7 +790,6 @@ export class CameraAct {
     this.shadow.visible = false;
     gl.scene.add(this.shadow);
 
-    this.opacity = 0;
     this.zoomed = 0;
     this.freeze = null;          // verification harness only
     this.resize();
@@ -783,7 +827,19 @@ export class CameraAct {
     this.gl.look('studio');
     this.t0 = performance.now();
     this.running = true;
-    this._mats.forEach(m => { m.transparent = true; m._o0 = (m.opacity === undefined ? 1 : m.opacity); m.opacity = 0; });
+    /* The room's own exposure, and the act arrives by climbing to it. This
+       used to mark all 23 of the body's materials transparent and fade their
+       opacity up together, which is 23 blended layers that cannot reject one
+       another: measured at 13.6ms a frame against 5.0 with the same object
+       opaque. The act now opens over the black the iPod's screen left behind,
+       and out of black a light coming up and an alpha coming up look the same
+       — so this is the same arrival for a third of the cost, and it takes the
+       opacity bookkeeping with it.
+       Only the body follows this. The panel and the shadow are both
+       toneMapped:false and do their own thing below. */
+    this.e1 = this.gl.renderer.toneMappingExposure;
+    this.panel.transparent = false;
+    this.panel.opacity = 1;
   }
 
   tick(_, now){
@@ -823,10 +879,48 @@ export class CameraAct {
     // whole viewport and there is no paper left to cast onto
     this.shadow.material.opacity = 0.8 * Math.min(pIn, 1 - pOut) * (1 - pZoom);
 
-    const o = Math.min(pIn, 1 - pOut);
-    if (o !== this.opacity){
-      this.opacity = o;
-      this._mats.forEach(m => { m.opacity = (m._o0 === undefined ? 1 : m._o0) * o; });
+    // the body arrives by being lit, not by being blended in — see begin()
+    this.gl.renderer.toneMappingExposure = this.e1 * inOut(pIn);
+    /* And the page is told when that has finished, because the two have to
+       happen in that order rather than at once. Off the act's own progress and
+       not a timer, the same as the reveal below. */
+    if (pIn >= 1 && !this._lit){ this._lit = true; this.onLit(); }
+
+    /* The panel is the exception, and only at the very end. It has to dissolve
+       into the page underneath it, so for the length of that dissolve it goes
+       back to being blended — and for every frame before it, being an opaque
+       is what stops the body behind it from being shaded at all. Measured at
+       the end of the zoom: 75ms a frame blended, 17 solid.
+       No `needsUpdate` on either flip. `transparent` picks the queue and the
+       blend state, both read per draw; it is also a program parameter, so
+       asking for a recompile would put a shader compile in the middle of a
+       move. The program compiled at construction is right for both states —
+       this panel's alpha is 1 whichever queue it is in. */
+    if (pOut > 0){
+      this.panel.transparent = true;
+      this.panel.opacity = 1 - pOut;
+    }
+
+    /* The sheen, going out as the frame closes on the picture it sits over.
+       `visible` and not merely an opacity of zero: a transparent material at
+       zero alpha is still a full-screen draw, which is the whole of what this
+       is here to avoid. */
+    if (this.glass){
+      const v = 0.10 * (1 - pZoom);
+      this.glass.material.opacity = v;
+      this.glass.visible = v > 0.004;
+    }
+
+    /* And the body, once the monitor's edges have left the frame. The test is
+       the distance rather than a hand-picked progress: dNear is already the
+       cover distance divided by the overshoot, so multiplying it back is
+       exactly the point at which the panel fills the viewport. Everything
+       behind it is hidden by it from here on, including through the fade-out
+       — where the panel is blended again and would otherwise stop hiding it. */
+    const buried = d <= this.dNear * CAM.overshoot;
+    if (buried !== this._buried){
+      this._buried = buried;
+      for (const m of this._body) m.visible = !buried;
     }
     // the hand-off rides the act's own progress, never a wall clock: on a
     // slow machine a setTimeout fires while the camera is still turning.

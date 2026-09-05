@@ -8,7 +8,7 @@
 // `label` holds the slot until the picture arrives — canvas.js draws it in
 // place of a tile whose file is missing, and nothing once the file is there.
 // The extension in `src` is not decoration: it is how canvas.js decides between
-// an <img> and a <video>, so a .png dropped in under a .jpg name loads neither.
+// an <img> and a <video>, so keep an image extension for stills and .mp4 for video.
 //
 // `href` is the project's own home — read off each repo's git remote, not
 // typed from memory, and every one checked for a 200 before it went in: a link
@@ -154,12 +154,12 @@ export const WORKS = [
   }
 ];
 
-// Text cards live in the same grid as the films and are clickable. One per
+// Text cards live in the same grid as the project images and are clickable. One per
 // section in the navbar, so every section can also be stumbled on by dragging
 // rather than only reached from the bar. `route` must match the id of a
 // <section class="page" id="pageXxx"> in index.html, lowercased — a route with
 // no section routes nowhere. Adding one here also needs a slot in SLOTS,
-// js/canvas.js: a card with no slot is never drawn.
+// this file: a card with no slot is never drawn.
 // `text_id` is the Indonesian, read through the same t() as everything above.
 // canvas.js calls it on every frame it paints, so switching language redraws
 // the plane on its own rather than needing to be told about it.
@@ -171,4 +171,25 @@ export const CARDS = [
   { text: 'services',     text_id: 'layanan',    route: 'services'     },
   { text: 'achievements', text_id: 'pencapaian', route: 'achievements' },
   { text: 'contact',      text_id: 'kontak',     route: 'contact'      }
+];
+
+// Canvas positions: every work and card needs at least one slot.
+export const COLS = 4, ROWS = 5;
+export const SLOTS = [
+  { c:0, r:0, kind:'work', i:0 },
+  { c:2, r:0, kind:'card', i:0 },   // about
+
+  { c:1, r:1, kind:'card', i:1 },   // skills
+  { c:3, r:1, kind:'work', i:1 },
+
+  { c:0, r:2, kind:'work', i:2 },
+  { c:2, r:2, kind:'card', i:2 },   // works
+  { c:3, r:2, kind:'card', i:3 },   // experience
+
+  { c:1, r:3, kind:'work', i:3 },
+  { c:3, r:3, kind:'card', i:4 },   // services
+
+  { c:0, r:4, kind:'card', i:5 },   // achievements
+  { c:2, r:4, kind:'work', i:4 },
+  { c:3, r:4, kind:'card', i:6 }    // contact
 ];

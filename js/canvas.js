@@ -1,6 +1,6 @@
 // ══ portfolio · the canvas of work ══════════════════════════════════════════
-// An endless plane of films you drag through. Everything — films, the two
-// text cards, the cursor grid — is composited into one 2D canvas, because
+// An endless plane of project images you drag through. Images, the seven
+// text cards and the cursor grid are composited into one 2D canvas, because
 // the grid effect has to sample the frame underneath it. Two passes:
 //
 //   pass 1  draw the tiled plane into an offscreen buffer
@@ -11,7 +11,7 @@
 // "Canvas Grid Mouse Effect" (CodePen emBOove); GSAP's quickTo is replaced
 // with a plain critically-damped lerp so the site carries no CDN.
 
-import { WORKS, CARDS } from './data.js';
+import { WORKS, CARDS, SLOTS, COLS, ROWS } from './data.js';
 // the cards are the only text this file owns, and the plane is redrawn from
 // scratch every frame — so reading the label through t() is the whole of what
 // switching language costs here. Nothing has to tell the canvas about it.
@@ -101,46 +101,15 @@ const NOGRID = new URLSearchParams(location.search).has('nogrid');
    not another thing to shave. */
 const BARE   = new URLSearchParams(location.search).has('bare');
 
-/* ── the repeating block ────────────────────────────────────────────────
-   Four columns, five rows, five slots deliberately left empty so the plane
-   breathes. Per-column vertical offsets break the rows without breaking the
-   tiling — a constant offset per column repeats cleanly.
-
-   The block grew from three rows to five when every section in the navbar
-   was given a card here as well. The block is the WHOLE plane — it repeats
-   unchanged in both directions, so a section that has no slot in it exists
-   nowhere on the canvas, however far anyone drags. Twelve cells could not
-   hold eight films and seven cards; twenty can, and still leave gaps. */
-const COLS = 4, ROWS = 5;
+/* The block repeats in both directions. SLOTS and its dimensions live beside
+   WORKS and CARDS in data.js; column offsets keep rows staggered. */
 const COL_GAP = 0.34, ROW_GAP = 0.42;
 const TILE_AR = 9 / 16;
 const COL_OFF = [0, 0.30, 0.12, 0.44];
 
-/* `i` indexes WORKS for a film and CARDS for a card — see js/data.js. Laid
-   out here in reading order, one blank line per row of the block.
-   The table was built around eight works and now carries five, so it is spread
-   again rather than trimmed: LIVE below would have dropped three slots that sat
-   next to each other, and a plane that repeats turns one hole into a column of
-   them. Put the works back and the slots go back with them — the pairing is
-   what this table is, and it is the only place that decides the rhythm. */
-const SLOTS = [
-  { c:0, r:0, kind:'work', i:0 },
-  { c:2, r:0, kind:'card', i:0 },   // about
+/* Each slot indexes WORKS or CARDS. The static checker reports missing,
+   out-of-range or overlapping slots before deployment. */
 
-  { c:1, r:1, kind:'card', i:1 },   // skills
-  { c:3, r:1, kind:'work', i:1 },
-
-  { c:0, r:2, kind:'work', i:2 },
-  { c:2, r:2, kind:'card', i:2 },   // works
-  { c:3, r:2, kind:'card', i:3 },   // experience
-
-  { c:1, r:3, kind:'work', i:3 },
-  { c:3, r:3, kind:'card', i:4 },   // services
-
-  { c:0, r:4, kind:'card', i:5 },   // achievements
-  { c:2, r:4, kind:'work', i:4 },
-  { c:3, r:4, kind:'card', i:6 }    // contact
-];
 
 /* data.js is hand-edited every time a work is added or dropped. A slot left
    pointing past the end of WORKS or CARDS would throw inside the draw loop —
@@ -224,14 +193,7 @@ export class WorkCanvas {
         return im;
       }
       const v = document.createElement('video');
-      /* This used to swap in a 640-wide copy from assets/tiles-sm/ on a phone.
-         That folder does not exist and never has, so the line was a trap rather
-         than an optimisation: every work is a .jpg today, which means the branch
-         has never run, and the first .mp4 anyone adds would have gone looking
-         for a file that is not there and blanked the tile — on phones only, and
-         with nothing in the console to say why.
-         If films come back, the saving is real and worth rebuilding: make the
-         640-wide set first, then put the swap back. */
+      /* Video sources, if added, use the same URL on all devices. */
       v.src = w.src;
       v.muted = true; v.loop = true; v.playsInline = true;
       v.preload = 'auto'; v.setAttribute('playsinline','');
@@ -313,6 +275,7 @@ export class WorkCanvas {
   _bind(){
     const cv = this.cv;
     cv.addEventListener('pointerdown', e => {
+      cv.focus({ preventScroll: true });
       cv.setPointerCapture(e.pointerId);
       this.drag = { x:e.clientX, y:e.clientY, ox:this.tx, oy:this.ty, moved:0, t:performance.now() };
       cv.classList.add('is-drag');
@@ -336,8 +299,10 @@ export class WorkCanvas {
       // flick
       const dt = Math.max(16, performance.now() - d.t);
       if (d.moved > TAP){
-        this.tx += this.vx * 90 / dt * 4;
-        this.ty += this.vy * 90 / dt * 4;
+        if (!this.reduced){
+          this.tx += this.vx * 90 / dt * 4;
+          this.ty += this.vy * 90 / dt * 4;
+        }
       } else {
         /* The same tap that opens a card opens a work — `d.moved > TAP` above
            has already separated a tap from a drag, so this costs nothing but
@@ -366,7 +331,7 @@ export class WorkCanvas {
 
     // keyboard: the plane must be reachable without a pointer
     window.addEventListener('keydown', e => {
-      if (!this.running) return;
+      if (!this.running || e.defaultPrevented || e.target !== cv) return;
       const step = this.tileW * 0.6;
       if (e.key === 'ArrowLeft')  { this.tx += step; e.preventDefault(); }
       if (e.key === 'ArrowRight') { this.tx -= step; e.preventDefault(); }
@@ -467,7 +432,7 @@ export class WorkCanvas {
         && Math.abs(this.tx - this.x) < 0.05 && Math.abs(this.ty - this.y) < 0.05) return;
     const dt = Math.min(64, raw); this._last = now;
     const t0 = METER ? performance.now() : 0;
-    const k = 1 - Math.pow(0.0009, dt / 1000);       // frame-rate independent
+    const k = this.reduced ? 1 : 1 - Math.pow(0.0009, dt / 1000);
     const nx = this.x + (this.tx - this.x) * k;
     const ny = this.y + (this.ty - this.y) * k;
     this.vx = nx - this.x; this.vy = ny - this.y;
@@ -485,7 +450,7 @@ export class WorkCanvas {
 
     this.drawPlane(dt);
     this.drawGrid();
-    // on touch the trackers were already laid down UNDER the films, inside
+    // on touch the trackers are laid down UNDER the images, inside
     // drawPlane — see there
     if (!this.coarse && !BARE) this.drawTrackers(dt);
     this.softenEdges();
@@ -543,7 +508,7 @@ export class WorkCanvas {
     c.fillStyle = this.pal.paper;
     c.fillRect(0, 0, this.w, this.h);
 
-    /* On touch the overlay goes down FIRST, on the paper, and the films are
+    /* On touch the overlay goes down FIRST, on the paper, and the images are
        painted over it — so the blobs and the bracket read as something the
        viewfinder is drawing behind the work rather than scribbling across it.
        Akif's call. On a mouse they stay on top, where they have always been.
@@ -631,11 +596,7 @@ export class WorkCanvas {
     } else {
       c.fillStyle = this.pal.sunk;
       c.fillRect(x, y, w, h);
-      /* A work whose picture has not arrived — still loading, or not screenshot
-         yet — was a grey rectangle that said nothing, and eight of them read as
-         a broken page rather than a loading one. Its name is a better thing to
-         hold the slot with. Quieter than a card's ink and without the asterisk,
-         because this is a placeholder and not something to click. */
+      /* Keep the project name visible while its image is loading or unavailable. */
       const name = WORKS[i].label;
       if (name){
         c.fillStyle = this.pal.ink3;
@@ -674,6 +635,7 @@ export class WorkCanvas {
     ctx.clearRect(0, 0, this.cv.width, this.cv.height);
     ctx.drawImage(this.buf, 0, 0);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (this.reduced) return;
     if (this.edgeGrid) return NOGRID ? undefined : this.edgeGrid_(ctx);
     if (this.mx < -9998) return;
 
@@ -824,7 +786,7 @@ export class WorkCanvas {
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.save();
     this.clipType(ctx);
-    this.trackers.draw(ctx, dt, this._tileRects || []);
+    this.trackers.draw(ctx, this.reduced ? 0 : dt, this._tileRects || []);
     ctx.restore();
   }
 }

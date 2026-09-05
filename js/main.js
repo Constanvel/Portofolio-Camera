@@ -169,7 +169,7 @@ let buffering = false;
 function bufferTrackAfter(...waits){
   if (buffering) return;
   buffering = true;
-  const go = () => rollMuted();
+  const go = () => { if (!skipped) rollMuted(); };
   Promise.allSettled(waits).then(go, go);
 }
 
@@ -270,38 +270,28 @@ function labelNav(r){
   const k = r || 'menu';
   navBtn.textContent = s('nav.' + k, k);
 }
-function routeFromHash(){
-  const h = (location.hash || '').replace(/^#\/?/, '');
-  return pages[h] ? h : '';
+function routeFromHash(hash = location.hash){
+  // Ordinary anchors work without JS; legacy #/about links still work too.
+  const h = (hash || '').replace(/^#\/?/, '').replace(/^page/, '').toLowerCase();
+  return Object.hasOwn(pages, h) ? h : '';
 }
-/* The route this is already showing, so a second call for the same one is
-   nothing. Measured, not guessed: a single hash change fires popstate AND
-   hashchange in Chrome, and both are wired to this function, so every visit to
-   a section ran the whole of it twice. Mostly that was invisible — stopping a
-   stopped canvas costs nothing — but expose() removes the flash class, forces
-   a reflow and adds it back, so the second run cut the strobe off partway and
-   restarted it. Adding a sound to that same function is what made it audible
-   and is how it was finally noticed.
-   Set before the first await, so two calls arriving in the same tick cannot
-   both get past it. */
+/* Ignore duplicate hashchange/popstate events. Each new route invalidates older
+   transitions before they can hide, show, focus, or stop the current page. */
 let appliedRoute = null;
+let routeVersion = 0;
 async function applyRoute(){
   const r = routeFromHash();
   if (r === appliedRoute) return;
   appliedRoute = r;
-  /* The intro and a section are not two layers, they are two answers to
-     "where am I". A page is opaque but it FADES — for 620ms it is translucent,
-     and the iPod at z-30 shows straight through it. Worse, nothing was ever
-     stopping the sequence: open #/about directly and the mark plays, the iPod
-     loads and the render loop runs for the whole visit, underneath. So a route
-     does not cover the intro. It ends it. */
+  const version = ++routeVersion;
+  /* Opening a section ends the intro and frees its WebGL resources. */
   if (r) endIntro();
   // and going the other way the plane has to be alive BEFORE the page above it
   // starts to fade, or it is revealed as a frozen still. `workHeld` is the lite
-  // path holding the films back under the mark — see ensureWork — and it wins.
+  // path holding the canvas back under the mark — see ensureWork — and it wins.
   else if (work && !workHeld){ workWrap.hidden = false; work.start(); }
   for (const a of navLinks){
-    const on = a.getAttribute('href') === '#/' + r;
+    const on = routeFromHash(a.hash) === r;
     a.classList.toggle('is-on', on);
     if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   }
@@ -311,6 +301,8 @@ async function applyRoute(){
      where no section is current. */
   labelNav(r);
   openNav(false);
+  // A route may return to a section whose previous closing timer is pending.
+  if (r) pages[r].classList.remove('is-shut');
   for (const [name, el] of Object.entries(pages)){
     if (name === r) continue;
     if (!el.hidden){
@@ -321,18 +313,14 @@ async function applyRoute(){
       el.classList.remove('is-lit');
       el.classList.add('is-shut');
       await sleep(reduced ? 0 : 260);
+      if (version !== routeVersion) return;
       el.hidden = true;
       el.classList.remove('is-shut');
     }
   }
   if (r){
     const el = pages[r];
-    /* Nothing behind an opaque full-screen page needs to be drawn, and the
-       canvas was left running through every visit to every section: eight
-       videos decoding and the whole plane repainted sixty times a second,
-       under a sheet of paper. It is also the only thing here big enough to
-       cost the entrance its frames — which is why a section stuttered on the
-       way IN and was smooth once it had arrived. */
+    /* Pause the canvas while a full-screen section covers it. */
     if (work) work.stop();
     /* And the layer itself, once the page above has finished arriving. stop()
        only halts the loop; the container and its 617x1230 canvas stayed in the
@@ -342,7 +330,9 @@ async function applyRoute(){
        The route is re-read when the timer fires because another hash change
        may have landed in the meantime, and hiding the plane on the way back to
        it would be worse than never hiding it at all. */
-    setTimeout(() => { if (routeFromHash()) workWrap.hidden = true; }, reduced ? 0 : 700);
+    setTimeout(() => {
+      if (version === routeVersion && routeFromHash()) workWrap.hidden = true;
+    }, reduced ? 0 : 700);
     /* Ahead of the section being shown, not after: the flash has to cover the
        swap, which is the one frame where the outgoing section is gone and the
        incoming one has not painted. */
@@ -351,14 +341,12 @@ async function applyRoute(){
     void el.offsetWidth;
     el.classList.add('is-lit');
     body.dataset.stage = 'page';
-    /* `.page__t`, not `h1`: the section headings are <h2> now, because the one
-       <h1> belongs to the document and carries the name. This selector matched
-       the heading by tag, so leaving it would have returned null on every
-       section without a back button or a cta — and `null.focus?.()` throws,
-       optional chaining guards the method, not the object it hangs off. */
-    el.querySelector('.page__back, .page__cta, .page__t')?.focus?.();
+    /* A section heading receives programmatic focus without entering the Tab order. */
+    const heading = el.querySelector('.page__t');
+    if (heading){ heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
   } else if (body.dataset.stage === 'page'){
     body.dataset.stage = lastStage;
+    work?.cv.focus({ preventScroll: true });
   }
 }
 window.addEventListener('hashchange', applyRoute);
@@ -373,12 +361,8 @@ window.addEventListener('popstate', applyRoute);
    itself rather than a preview of it, and the hand-off is not a cut. */
 let work = null, workShown = false, workHeld = false;
 
-/* `workHeld` is the lite path's compromise. Downloading the films costs
-   bandwidth; PLAYING them costs a hardware decoder, and on a phone the mark is
-   already using one. So the canvas is built while the mark is still on screen —
-   the eight sources start arriving — but it is not started, and nothing calls
-   play() until the mark is gone. Held, it is a shopping list; started, it is a
-   competitor. */
+/* Preload the work media under the lite intro, but hold its render loop until
+   the gallery is revealed. Current works are five still images. */
 function ensureWork(){
   if (work) return work;
   work = new WorkCanvas($('cv'), {
@@ -446,20 +430,8 @@ const vignetteDriver = {
 
 async function main(){
   armGlobalGesture();
-  /* Not here any more. rollMuted() calls play(), and play() downloads the track
-     whatever the preload attribute says — 563 KB racing three.js, two models
-     and the font on the one connection that matters, for something that CANNOT
-     be heard until a gesture lands. On the lite path it was 52% of everything
-     the phone fetched.
-     `load` alone is NOT the signal, and measuring said so: it fired at 33ms
-     while camera.glb was still going at 274ms, because the models are fetched
-     by script and the load event only waits for what the parser found. So the
-     full path waits on the models themselves, and only the lite path — which
-     has no models — falls back to `load`.
-     A visitor who gestures before any of that still gets sound: goAudible()
-     calls play() itself, and starting the fetch is what they just asked for.
-     The call is further down, once each path knows what it is waiting for —
-     up here `ipodModel` is still null. */
+  /* Audio buffering waits behind the desktop models. Touch devices fetch the
+     track only after a gesture; goAudible() starts playback itself. */
 
   // fonts must be resident before anything paints canvas type
   try {
@@ -476,39 +448,25 @@ async function main(){
     ]);
   } catch (e) { /* fall back to the stack in the font-family list */ }
 
-  /* A hash on the first paint means the visitor asked for a section, not for
-     the sequence — applyRoute() has already ended the intro below. Bail before
-     the import, or an act nobody will see still costs three.js and two glb
-     loads. Fonts are awaited above either way: the canvas of work sets type. */
+  /* Direct section links end the intro before any scene import or model fetch. */
   if (skipped) return;
 
   if (!LITE){
     S = await import('./scene.js');
+    if (skipped) return;
     gl = new S.GL(glCanvas);
     gl.acts.push(vignetteDriver);
     gl.start();
     // both models start downloading now and are awaited where they are used,
     // so the camera is resident long before anyone presses play
-    ipodModel = S.load('./assets/models/ipod.glb');
-    camModel  = S.load('./assets/models/camera.glb');
+    ipodModel = loadIntroModel('ipod', './assets/models/ipod.glb');
+    camModel  = loadIntroModel('cam', './assets/models/camera.glb');
     bufferTrackAfter(ipodModel, camModel);   // the music goes last
     ipodModel.catch(() => {}); camModel.catch(() => {});
-    /* A synchronous handle on whatever has actually landed. finish() is not
-       async and cannot await these, and releasing a model in a `.then()` puts
-       it after the renderer has already handed its context back — at which
-       point three.js drops the dispose on the floor, because the properties
-       map it would have decremented is gone. */
-    ipodModel.then(m => { landed.ipod = m; }, () => {});
-    camModel .then(m => { landed.cam  = m; }, () => {});
   }
 
-  /* ── the mark ─────────────────────────────────────────────────────────
-     A still and a turning ring, painted from the first frame. The three ways
-     this used to fail on a phone — autoplay refused outright, the decoder busy
-     elsewhere, the clip never getting a frame out in time — all belonged to
-     the video, and went with it. */
-  // On the lite path the films start ARRIVING under the mark but must not
-  // start PLAYING under it — see workHeld.
+  /* The opening mark is a still image with a CSS loading ring. */
+  // Prepare the lite canvas while holding its render loop — see workHeld.
   if (LITE){ workHeld = true; setTimeout(ensureWork, 2600); }
 
   /* ── how long the mark stays ───────────────────────────────────────────
@@ -529,9 +487,26 @@ async function main(){
      digicam is a 200-760ms stall landing on the cut into it. The mark is
      already a wait; this is the right wait to hide it in. */
   const loaded = LITE ? Promise.resolve()
-                      : Promise.allSettled([ipodModel, camModel])
-                          .then(r => S.warm(gl, ...r.filter(x => x.status === 'fulfilled')
-                                                    .map(x => x.value)));
+                      : Promise.allSettled([ipodModel, camModel]).then(r => {
+                          if (skipped) return;
+                          /* Dressed BEFORE the warm-up, never after — and this
+                             is the whole reason S.dress() is a function rather
+                             than the traverse it used to be inside IpodAct.
+                             warm() compiles the material a mesh is WEARING when
+                             it draws it, and the act re-materialises the shell
+                             from standard to physical: clearcoat is a define,
+                             so it is a different program. Warming the model
+                             undressed bought a shader the act never used and
+                             left the real one to link on the act's own first
+                             frame. Measured at that cut: 75ms, on a driver that
+                             already had the shaders cached from an earlier run.
+                             Here it lands inside the mark instead, where the
+                             ring is a CSS transform and does not care that the
+                             main thread is busy. */
+                          if (r[0].status === 'fulfilled') S.dress(r[0].value);
+                          return S.warm(gl, ...r.filter(x => x.status === 'fulfilled')
+                                                .map(x => x.value));
+                        });
   const markDone = Promise.all([
     sleep(FLOOR),
     Promise.race([loaded, sleep(CEIL)])
@@ -560,7 +535,7 @@ async function main(){
   body.dataset.stage = 'ipod';
   glCanvas.classList.add('is-lit', 'is-live');
   ipod.begin();
-  // let the entrance play out before eight films start decoding behind it
+  // let the entrance settle before drawing the work canvas behind it
   setTimeout(ensureWork, 3000);
 
   // drag to turn it, exactly as the PSP turned on the last site; a tap on
@@ -585,7 +560,7 @@ async function main(){
     if (!ipod.press(e.clientX, e.clientY)) return;
     glCanvas.classList.remove('is-hot');
     await goAudible();
-    toCamera();
+    toCamera().catch(failIntro);
   };
   glCanvas.addEventListener('pointerup', lift);
   glCanvas.addEventListener('pointercancel', () => { if (ipod) ipod.release(); glCanvas.classList.remove('is-turning'); });
@@ -612,15 +587,18 @@ async function toCamera(){
   catch (e){ console.warn('camera failed to load', e); return finish(); }
   if (skipped) return;
 
-  /* A beat of nothing at all. The screen went black and then the iPod that
-     held it went away, and holding that black for a moment is what makes the
-     join read as a cut: the digicam arrives OUT of the black rather than over
-     the top of something still leaving. Short — long enough to register as a
-     held frame, not long enough to read as a page that has stopped working. */
-  await sleep(reduced ? 40 : 260);
-  if (skipped) return;
-
   cam = new S.CameraAct(gl, model, ensureWork().cv, {
+    /* And the paper comes up AFTER the camera, never before it — and not
+       alongside it either, which is where this started. The line used to sit
+       above the act, lighting the page white while the camera was still at
+       nothing: the black thrown away a frame after arriving at it, and a room
+       lit for an act that had not begun.
+       Moving it below was not enough. The body now arrives by being LIT rather
+       than by being blended in (see CameraAct.begin), and a half-lit camera
+       over white paper is a black cut-out, not something on its way in. So it
+       arrives out of the black the iPod left behind, and the room comes up
+       once it is all the way there. Three beats, in the order they read. */
+    onLit: () => body.classList.remove('is-dark'),
     // the plane goes up underneath only once the monitor's edges ARE the
     // viewport's edges; the camera's own fade is then the cross-dissolve
     onReveal: () => { showWork(); skipBtn.classList.remove('is-lit'); },
@@ -628,34 +606,39 @@ async function toCamera(){
   });
   gl.acts.push(cam);
   gl.resize();
+  /* A beat of nothing at all. The screen went black and then the iPod that
+     held it went away, and holding that black for a moment is what makes the
+     join read as a cut: the digicam arrives OUT of the black rather than over
+     the top of something still leaving. Short — long enough to register as a
+     held frame, not long enough to read as a page that has stopped working.
+
+     And the beat has a second job, which is why the act is now built at the
+     top of it rather than at the end. This act does not use the materials
+     warm() compiled: it clones every one of them and puts a basic material on
+     the monitor. Measured at this cut, that is seven programs linked on the
+     act's first frame — 71ms of compile and an 84ms first draw here, and
+     1208ms for that frame on a driver that had never seen the shaders. It
+     lands on a cut, which is the worst place a stall can land.
+     The room first, because which room is lit is part of what gets compiled.
+     compileAsync goes through KHR_parallel_shader_compile, so the link waits
+     off the main thread; what is left runs inside a held black frame, where
+     there is nothing moving for it to interrupt. The two waits are one wait.
+     This reaches through `gl` for the renderer, which nothing else in this
+     file does — it belongs on the act, next to begin(). It is here because
+     js/scene.js was being edited elsewhere when this was written. */
+  gl.look('studio');
+  await Promise.all([
+    sleep(reduced ? 40 : 260),
+    gl.renderer.compileAsync(gl.scene, gl.camera).catch(() => {})
+  ]);
+  if (skipped) return;
+
   cam.begin();
-  /* And the paper comes up UNDER the camera, never before it. This line used
-     to sit above the act, where it lit the page white while the camera was
-     still at nothing — the black thrown away a frame after arriving at it, and
-     a room lit for an act that had not begun. body carries an 800ms transition
-     on its background and the camera fades in over 700, so the ground is still
-     moving while the body materialises on it: the paper is something the
-     camera brings with it. */
-  body.classList.remove('is-dark');
 }
 
-/* The mark fades, the plane comes up under it, and the vignette — which on
-   the full path is driven off the acts' own progress — eases off on its own
-   clock, because on this path there is no act to read a progress from. Both
-   ends of the ramp are clamped: rAF hands you the timestamp of the START of
-   the frame, which can predate the performance.now() that scheduled it, and
-   an unclamped p goes negative. */
+/* On the lite path, reveal the canvas and ease away the vignette. */
 function lite(){
-  /* No speculative buffer on this path. rollMuted() calls play(), and play()
-     downloads the whole track whatever preload says — and on a phone that was
-     the single biggest thing fetched, larger than every picture on the page
-     put together, for something that cannot be heard until a gesture lands.
-     Most visits never make that gesture, and those now cost nothing at all.
-     The ones that do lose nothing that matters: armGlobalGesture() is already
-     armed by main() above, the first drag on the plane calls goAudible(), and
-     so does the volume slider — every one of those calls play() itself, which
-     is what starts the fetch. All a tap costs now is the fraction of a second
-     the file takes to arrive, and the volume ramp covers that anyway. */
+  /* Touch devices fetch audio on the first gesture, through goAudible(). */
   glCanvas.hidden = true;
   skipBtn.classList.remove('is-lit');
   showWork();
@@ -675,6 +658,7 @@ function lite(){
 }
 
 function finish(){
+  skipped = true;
   // whoever is mid-exit is waiting on a frame that is about to stop coming;
   // let it go first, and the teardown behind its await runs a tick later
   if (leaving){ leaving.abort(); leaving = null; }
@@ -739,6 +723,21 @@ function endIntro(){
   markWrap.classList.add('is-out');
   markWrap.hidden = true;
   finish();
+}
+
+// Keep arrived models reachable for teardown, and release late arrivals without
+// warming or attaching them to a renderer that has already been disposed.
+function loadIntroModel(kind, url){
+  return S.load(url).then(model => {
+    if (skipped){ S.release(model); return null; }
+    landed[kind] = model;
+    return model;
+  });
+}
+
+function failIntro(error){
+  console.warn('Intro unavailable; showing the portfolio.', error);
+  endIntro();
 }
 
 // the click is also the gesture that is allowed to unmute the track
@@ -916,11 +915,8 @@ function openWork(i){
 
   workDlg.showModal();
 }
-/* The gallery is built rather than written: the markup for `works` is an empty
-   <ul>, and the cards come from WORKS — the same table the canvas tiles and the
-   panel above read. Adding a project stays one edit in one file, and the three
-   places it appears cannot disagree. The buttons carry data-work, so the
-   delegated handler below opens them with no extra wiring. */
+/* The interactive gallery reads WORKS. tools/fallback.mjs uses the same data
+   for the no-JS gallery; tools/check.mjs checks it and the canvas slots. */
 function buildWorks(){
   const worksGrid = $('worksGrid');
   if (!worksGrid) return;
@@ -1000,7 +996,8 @@ if (certDlg?.showModal){
   document.addEventListener('click', (e) => {
     // by the file it points at, not by the class: contact uses .rows__a too,
     // and a mailto must not open in a viewer
-    const a = e.target.closest('a[href*="/certs/"]');
+    if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    const a = e.target.closest('.page a[href*="/certs/"]');
     if (!a) return;
     e.preventDefault();
     const src = a.getAttribute('href');
@@ -1064,4 +1061,4 @@ renderLang(pickLang(recall('lang')), false);
 langBtn.addEventListener('click', () => renderLang(lang === 'id' ? 'en' : 'id', true));
 
 applyRoute();
-main();
+main().catch(failIntro);
