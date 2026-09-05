@@ -400,9 +400,9 @@ document.querySelectorAll('[data-back]').forEach(b => {
 window.addEventListener('popstate', applyRoute);
 
 /* ── the canvas of work ─────────────────────────────────────────────────
-   Built and running well before it is seen: the digicam's monitor is
-   textured with this very canvas, so what plays on the screen is the page
-   itself rather than a preview of it, and the hand-off is not a cut. */
+   Built before it is seen: the digicam's monitor is textured with one frame
+   from this canvas, so the hand-off uses the same pixels without making the
+   browser render the hidden page alongside WebGL throughout the zoom. */
 let work = null, workShown = false, workHeld = false;
 
 /* Preload the work media under the lite intro, but hold its render loop until
@@ -616,6 +616,12 @@ async function toCamera(){
   ipod = null;
   leaving = act;
   glCanvas.classList.remove('is-live', 'is-hot');
+  /* The work plane is already painted for the digicam monitor. Freeze that
+     frame as soon as the transition starts so the hidden 2D canvas does not
+     compete with either the iPod dolly or the camera zoom. showWork() resumes
+     it at the reveal. */
+  const workFrame = ensureWork();
+  workFrame.hold();
   await act.intoScreen(reduced ? 90 : 1400);
   leaving = null;
   /* Skip can land inside that await, and finish() drops `gl` when it does.
@@ -631,7 +637,7 @@ async function toCamera(){
   catch (e){ console.warn('camera failed to load', e); return finish(); }
   if (skipped) return;
 
-  cam = new S.CameraAct(gl, model, ensureWork().cv, {
+  cam = new S.CameraAct(gl, model, workFrame.cv, {
     /* And the paper comes up AFTER the camera, never before it — and not
        alongside it either, which is where this started. The line used to sit
        above the act, lighting the page white while the camera was still at

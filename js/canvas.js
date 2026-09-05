@@ -418,6 +418,16 @@ export class WorkCanvas {
     this.playing.fill(false);
     if (this._vis) document.removeEventListener('visibilitychange', this._vis);
   }
+  /* Leave one complete frame for the camera monitor, then stay idle until the
+     real canvas is revealed. This avoids redrawing a hidden full-screen canvas
+     alongside WebGL while still guaranteeing that a newly-created canvas is
+     not captured before its first frame. */
+  hold(){
+    this.stop();
+    const now = performance.now();
+    this._last = now - IDLE_MS - 17;
+    this.frame(now);
+  }
 
   frame(now){
     const raw = now - this._last;
