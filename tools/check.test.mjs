@@ -67,3 +67,22 @@ test('outdated no-JS project text fails', () => fixture(({ edit, check }) => {
   edit('js/data.js', source => source + '\nWORKS[0].note = "Updated project description";\n');
   const result = check(); assert.equal(result.status, 1); assert.match(result.output, /fallback/i);
 }));
+
+test('skills show a monochrome logo beside every named technology', () => {
+  const html = readFileSync(join(root, 'index.html'), 'utf8');
+  const css = readFileSync(join(root, 'css/style.css'), 'utf8');
+  const technologies = [
+    'react', 'nextjs', 'vite', 'react-router', 'tailwind',
+    'typescript', 'javascript', 'html', 'css', 'sql',
+    'supabase', 'postgresql', 'llm-api', 'figma', 'git', 'eslint', 'nodejs'
+  ];
+
+  for (const technology of technologies) {
+    assert.match(html, new RegExp(
+      `<span class="skill" data-skill="${technology}">\\s*`
+      + '<svg class="skill__icon"[^>]*aria-hidden="true"', 's'
+    ), `${technology} needs a decorative logo beside its name`);
+  }
+  assert.match(css, /\.skill__icon\s*\{[^}]*fill:\s*currentColor/s,
+    'skill logos must inherit the monochrome theme colour');
+});

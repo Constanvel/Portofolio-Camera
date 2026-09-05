@@ -429,6 +429,23 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
   font-size:.6875rem; font-weight:500; letter-spacing:.14em; text-transform:uppercase;
 }
 .rows__v{ font-size:1rem; line-height:1.55; color:var(--ink-2); }
+/* Technology names stay plain like the rest of the page. Their marks are
+   small, monochrome and inherit the current theme instead of bringing a row
+   of brand colours into an otherwise quiet interface. */
+.skill-list{ display:block; }
+.skill-list__items{
+  display:flex; flex-wrap:wrap; align-items:center; gap:.55rem 1rem;
+}
+.skill{
+  display:inline-flex; align-items:center; gap:.4rem; white-space:nowrap;
+}
+.skill__icon{
+  width:1.05rem; height:1.05rem; flex:none; fill:currentColor;
+}
+.skill__note{
+  display:block; margin-top:.55rem; color:var(--ink-3);
+  font-size:.875rem; line-height:1.55;
+}
 /* Rows whose claim has a certificate behind it carry a link to the file. The
    hairline is the whole tell — some rows have a document and some do not, and
    the only honest way to show which is to mark the ones that do. */

@@ -109,10 +109,10 @@ const ID = {
   'sk.lang.k':    'bahasa',
   'sk.design.k':  'desain',
   'sk.tools.k':   'perkakas',
-  'sk.back.v':    'Supabase — Postgres dengan migrasi skema, autentikasi, penyimpanan, dan Edge Functions dalam TypeScript',
-  'sk.ai.v':      'API model bahasa dengan cadangan penyedia dan pembatas biaya, dikirim sebagai edge function',
-  'sk.design.v':  'UI/UX, Figma, sistem desain dan state komponen, motion dan penyuntingan video',
-  'sk.tools.v':   'Git, Vite, ESLint, Node — termasuk plugin dev-server Vite yang ditulis untuk salah satu proyek ini',
+  'sk.back.v':    'Migrasi skema, autentikasi, penyimpanan, dan Edge Functions dalam TypeScript',
+  'sk.ai.v':      'Cadangan penyedia dan pembatas biaya, dikirim sebagai edge function',
+  'sk.design.v':  'UI/UX, sistem desain dan state komponen, motion dan penyuntingan video',
+  'sk.tools.v':   'Termasuk plugin dev-server Vite yang ditulis untuk salah satu proyek ini',
 
   /* the date keys. Only the ones that actually differ: feb, mar and jun are
      spelled the same way in both, and jan–mar reads the same too. */
