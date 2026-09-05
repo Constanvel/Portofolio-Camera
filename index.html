@@ -71,14 +71,14 @@
   <button class="navbtn" id="navBtn" type="button"
           aria-expanded="false" aria-controls="nav">menu</button>
   <nav class="nav" id="nav" aria-label="sections" data-ta="nav.label">
-    <a class="nav__a" href="#/" data-t="nav.home">home</a>
-    <a class="nav__a" href="#/about" data-t="nav.about">about</a>
-    <a class="nav__a" href="#/skills" data-t="nav.skills">skills</a>
-    <a class="nav__a" href="#/works" data-t="nav.works">works</a>
-    <a class="nav__a" href="#/experience" data-t="nav.experience">experience</a>
-    <a class="nav__a" href="#/services" data-t="nav.services">services</a>
-    <a class="nav__a" href="#/achievements" data-t="nav.achievements">achievements</a>
-    <a class="nav__a" href="#/contact" data-t="nav.contact">contact</a>
+    <a class="nav__a" href="#" data-t="nav.home">home</a>
+    <a class="nav__a" href="#pageAbout" data-t="nav.about">about</a>
+    <a class="nav__a" href="#pageSkills" data-t="nav.skills">skills</a>
+    <a class="nav__a" href="#pageWorks" data-t="nav.works">works</a>
+    <a class="nav__a" href="#pageExperience" data-t="nav.experience">experience</a>
+    <a class="nav__a" href="#pageServices" data-t="nav.services">services</a>
+    <a class="nav__a" href="#pageAchievements" data-t="nav.achievements">achievements</a>
+    <a class="nav__a" href="#pageContact" data-t="nav.contact">contact</a>
   </nav>
 
   <!-- ── stage 1 · the mark ───────────────────────────────────────────── -->
@@ -124,15 +124,15 @@
          reader — so the whole first page read as blank. The fallback inside
          the element is what that reader gets, and it is also what a browser
          with no canvas draws: the same sections, as links. -->
-    <canvas class="work__cv" id="cv" data-ta="ui.canvas" aria-label="The work, tiled across a plane you can drag. Every section is also a link below.">
+    <canvas class="work__cv" id="cv" tabindex="0" data-ta="ui.canvas" aria-label="The work, tiled across a plane you can drag. Every section is also a link below.">
       <ul>
-        <li><a href="#/about" data-t="nav.about">about</a></li>
-        <li><a href="#/skills" data-t="nav.skills">skills</a></li>
-        <li><a href="#/works" data-t="nav.works">works</a></li>
-        <li><a href="#/experience" data-t="nav.experience">experience</a></li>
-        <li><a href="#/services" data-t="nav.services">services</a></li>
-        <li><a href="#/achievements" data-t="nav.achievements">achievements</a></li>
-        <li><a href="#/contact" data-t="nav.contact">contact</a></li>
+        <li><a href="#pageAbout" data-t="nav.about">about</a></li>
+        <li><a href="#pageSkills" data-t="nav.skills">skills</a></li>
+        <li><a href="#pageWorks" data-t="nav.works">works</a></li>
+        <li><a href="#pageExperience" data-t="nav.experience">experience</a></li>
+        <li><a href="#pageServices" data-t="nav.services">services</a></li>
+        <li><a href="#pageAchievements" data-t="nav.achievements">achievements</a></li>
+        <li><a href="#pageContact" data-t="nav.contact">contact</a></li>
       </ul>
     </canvas>
     <p class="work__hint" id="hint" data-t="ui.drag">drag to explore</p>
@@ -198,6 +198,15 @@
     <div class="page__in page__in--wide">
       <h2 class="page__t" data-t="nav.works">works</h2>
       <ul class="grid" id="worksGrid"></ul>
+      <noscript id="worksFallback">
+        <ul class="rows">
+          <li class="rows__r"><span class="rows__k">lensa</span><span class="rows__v">A place to read and write about characters and works — essays, read through six lenses. <a class="rows__a" href="https://github.com/Constanvel/Lensa" target="_blank" rel="noopener">open the project</a></span></li>
+          <li class="rows__r"><span class="rows__k">artvault</span><span class="rows__v">An art community: uploads, discovery, rankings, commissions and contests. <a class="rows__a" href="./assets/tiles/artvault.webp" target="_blank" rel="noopener">view the screenshot</a></span></li>
+          <li class="rows__r"><span class="rows__k">uang jajan tracker</span><span class="rows__v">A spending tracker for a phone — money in, money out, by category. <a class="rows__a" href="https://github.com/Constanvel/UangJajanTracker" target="_blank" rel="noopener">open the project</a></span></li>
+          <li class="rows__r"><span class="rows__k">smk telkom purwokerto</span><span class="rows__v">The school site: admissions, majors, the job centre, and two assistants. <a class="rows__a" href="https://github.com/Constanvel/smk-telkom-purwokerto" target="_blank" rel="noopener">open the project</a></span></li>
+          <li class="rows__r"><span class="rows__k">ai text summarizer</span><span class="rows__v">Long text in, a short summary out, at three lengths. Runs on Groq. <a class="rows__a" href="https://github.com/Constanvel/AI-Text-Summarizer" target="_blank" rel="noopener">open the project</a></span></li>
+        </ul>
+      </noscript>
       <button class="page__back" type="button" data-back data-t="ui.back">back</button>
     </div>
   </section>
@@ -226,7 +235,7 @@
         <li class="rows__r"><span class="rows__k" data-t="sv.ai.k">ai integration</span><span class="rows__v" data-t="sv.ai.v">Assistants and summarisers on top of language-model APIs.</span></li>
         <li class="rows__r"><span class="rows__k">video</span><span class="rows__v" data-t="sv.video.v">Short-form edits and motion for the web.</span></li>
       </ul>
-      <a class="page__cta" href="#/contact" data-t="sv.cta">start something</a>
+      <a class="page__cta" href="#pageContact" data-t="sv.cta">start something</a>
       <button class="page__back" type="button" data-back data-t="ui.back">back</button>
     </div>
   </section>
@@ -249,7 +258,7 @@
   <!-- TESTIMONIALS · the brief marks it "jika ada", and a quote invented for a
        person who never said it is the one thing a portfolio must not carry.
        When a real one arrives: uncomment this, and add
-       <a class="nav__a" href="#/testimonials">testimonials</a> to the nav.
+       <a class="nav__a" href="#pageTestimonials">testimonials</a> to the nav.
   <section class="page" id="pageTestimonials" hidden>
     <div class="page__in">
       <h2 class="page__t">testimonials</h2>
@@ -286,7 +295,7 @@
   </section>
 
   <!-- ── skip / accessibility fallback ────────────────────────────────── -->
-  <button class="skip" id="skip" type="button" data-t="ui.skip">skip intro</button>
+  <button class="skip is-lit" id="skip" type="button" data-t="ui.skip">skip intro</button>
 
   <!-- Theme and sound both follow you out of the room, so their control has to
        be reachable from every stage — the opposite corner to skip, the same
@@ -386,14 +395,18 @@
        of what JS was for here. -->
   <noscript>
     <style>
+      html{ height:auto; overflow:auto; }
+      body{ height:auto; overflow:visible; overscroll-behavior:auto; }
+      body.is-dark{ background:var(--paper); --ink-2:#5d5b63; }
       .mark, .gl, .vig, .work, .skip, .set, .set__panel{ display:none !important; }
-      .page{ position:static; opacity:1; height:auto; min-height:0; padding:3rem 1.25rem; }
+      .page{ position:static; opacity:1; height:auto; min-height:0; padding:3rem 1.25rem; overflow:visible; }
       .page[hidden]{ display:flex !important; }
-      .nav{ opacity:1; position:static; padding-top:1.5rem; }
+      .nav{ display:flex; opacity:1; position:static; translate:none; width:auto;
+            flex-direction:row; flex-wrap:wrap; padding:1.5rem 1.25rem; }
       /* the trigger cannot open anything without JS; the bar below is already
          laid out as a plain row by the rules above, so it stays the way in */
       .navbtn{ display:none !important; }
-      .nav__a{ pointer-events:auto; }
+      .nav__a{ width:auto; pointer-events:auto; margin-inline:.5rem; }
       .page__back{ display:none; }
     </style>
   </noscript>

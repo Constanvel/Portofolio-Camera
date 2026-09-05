@@ -1,27 +1,12 @@
-// ══ the one check ═══════════════════════════════════════════════════════════
-//   node tools/check.mjs
-//
-// Two things have actually broken in this repo and a third quietly piles up.
-// This is all three.
-//
-//   1. A row gets added and its translation does not. The site then ships half
-//      in Indonesian, quietly, because a missing key falls back to the English
-//      by design — which is right for a visitor and useless for noticing. This
-//      is what caught `d.aug26` sitting in the dictionary with nothing using it.
-//   2. A file gets renamed and one reference does not follow. Five tiles went
-//      from .jpg to .webp in one commit; a sixth reference somewhere would have
-//      been a grey rectangle on the plane and nothing in the console.
-//   3. A rule outlives the markup it styled. `.rows__btn` did, by several
-//      commits, and carried two stacked comments describing a <button> that
-//      had already gone. Nothing renders differently for a selector matching
-//      nothing, which is exactly why it sat there unnoticed.
-//
-// No framework and no dependencies, because the site has none either and a
-// check that needs an install is a check nobody runs.
+// node tools/check.mjs — no external dependencies.
+// Checks translations, asset paths, CSS classes, source syntax, site origins,
+// deployment JSON, canvas slots, routes and generated no-JS content.
 
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
+import { renderFallback } from './fallback.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = p => readFileSync(join(ROOT, p), 'utf8');
@@ -144,6 +129,72 @@ note('alamat diri yang tidak ditemukan', self.filter(([, o]) => !o).map(([n]) =>
 const distinct = [...new Set(self.map(([, o]) => o).filter(Boolean))];
 note('origin diri yang tidak sepakat',
      distinct.length > 1 ? self.map(([n, o]) => `${n.padEnd(16)} ${o}`) : []);
+
+/* ── 6. source syntax and deployment configuration ─────────────────────── */
+for (const file of [...sources.filter(f => f.endsWith('.js')),
+  ...readdirSync(join(ROOT, 'tools')).filter(f => f.endsWith('.mjs')).map(f => `tools/${f}`)]) {
+  const result = spawnSync(process.execPath, ['--input-type=module', '--check'], {
+    input: read(file), encoding: 'utf8'
+  });
+  if (result.status !== 0) note('sintaks JavaScript tidak valid', [file + ': ' + (result.stderr || result.error?.message)]);
+}
+const configs = ['vercel.json'];
+const redirectArg = process.argv.indexOf('--redirect-config');
+const redirect = redirectArg >= 0 ? process.argv[redirectArg + 1]
+  : '../redirect-portofolio-camera/vercel.json';
+if (redirectArg >= 0 && !redirect) note('konfigurasi redirect', ['--redirect-config memerlukan jalur berkas']);
+else if (redirectArg >= 0 || existsSync(join(ROOT, redirect))) configs.push(redirect);
+else console.log('catatan: folder redirect terpisah tidak tersedia; gunakan --redirect-config untuk memeriksanya.');
+for (const file of configs) {
+  try {
+    const config = JSON.parse(read(file));
+    if (!config || typeof config !== 'object' || Array.isArray(config)) throw new Error('harus berupa objek JSON');
+  } catch (error) { note('konfigurasi deployment tidak valid', [`${file}: ${error.message}`]); }
+}
+
+/* ── 7. the published projects, canvas slots and plain HTML agree ──────── */
+try {
+  const { WORKS, CARDS, SLOTS, COLS, ROWS } = await import('../js/data.js');
+  const collections = { work: WORKS, card: CARDS };
+  const occupied = new Set();
+  for (const slot of SLOTS) {
+    if (!Object.hasOwn(collections, slot.kind) || !Number.isInteger(slot.i)
+        || slot.i < 0 || !collections[slot.kind][slot.i]) {
+      note('slot tanpa data', [JSON.stringify(slot)]);
+    }
+    if (!Number.isInteger(slot.c) || !Number.isInteger(slot.r)
+        || slot.c < 0 || slot.c >= COLS || slot.r < 0 || slot.r >= ROWS) {
+      note('slot di luar bidang', [JSON.stringify(slot)]);
+    }
+    const cell = `${slot.c}:${slot.r}`;
+    if (occupied.has(cell)) note('slot bertumpuk', [cell]);
+    occupied.add(cell);
+  }
+  for (const [kind, entries] of Object.entries(collections)) {
+    const covered = new Set(SLOTS.filter(slot => slot.kind === kind).map(slot => slot.i));
+    note('data tanpa slot kanvas', entries.flatMap((entry, i) =>
+      covered.has(i) ? [] : [`${kind}[${i}]: ${entry.label || entry.text}`]));
+  }
+  const routes = new Set(all(/<section\b[^>]*\bid="(page[^"]+)"/g, html).map(id => id.slice(4).toLowerCase()));
+  note('kartu menunjuk rute tanpa bagian', CARDS.filter(card => !routes.has(card.route)).map(card => card.route));
+  const labels = new Set();
+  for (const work of WORKS) {
+    if (labels.has(work.label)) note('nama proyek duplikat', [work.label]);
+    labels.add(work.label);
+    for (const field of ['note', 'year', 'role', 'blurb', 'points']) {
+      if (work[field] == null) continue;
+      const id = work[field + '_id'];
+      const valid = Array.isArray(work[field])
+        ? Array.isArray(id) && id.length === work[field].length && id.every(s => typeof s === 'string' && s.trim())
+        : typeof id === 'string' && id.trim();
+      if (!valid) note('terjemahan proyek tidak lengkap', [`${work.label}: ${field}_id`]);
+    }
+  }
+  const fallback = html.match(/<noscript id="worksFallback">([\s\S]*?)<\/noscript>/)?.[1];
+  if (fallback?.trim().replace(/\r\n/g, '\n') !== renderFallback(WORKS)) {
+    note('fallback karya tidak sinkron', ['jalankan node tools/fallback.mjs']);
+  }
+} catch (error) { note('data proyek atau slot tidak valid', [error.message]); }
 
 /* ── the verdict ─────────────────────────────────────────────────────────── */
 if (fail.length) {

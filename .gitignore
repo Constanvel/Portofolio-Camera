@@ -20,3 +20,6 @@ assets/photo/
 
 .vercel
 .env*
+
+# Optional browser-test dependencies; the site still has no production install.
+node_modules/
