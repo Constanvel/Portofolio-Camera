@@ -110,7 +110,11 @@ try {
     await page.keyboard.press('ArrowRight');
     assert.ok(await page.evaluate(x => __PORTFOLIO.work.tx < x, before));
   });
-  await test('reduced motion stops decorative trackers', async page => {
+  await test('home canvas has no orbiting constellation ornament', async page => {
+    await home(page);
+    assert.equal(await page.evaluate(() => 'blobs' in __PORTFOLIO.work.trackers), false);
+  });
+  await test('reduced motion stops autofocus breathing', async page => {
     await home(page);
     const before = await page.evaluate(() => __PORTFOLIO.work.trackers.t);
     await page.waitForTimeout(200);

@@ -44,11 +44,10 @@ const TAP        = COARSE ? 12 : 8;   // a finger wanders; a mouse does not
    repapered, then the screen is cleared and the buffer blitted onto it. At
    750x1624 that is the whole cost of this file, and it was being paid sixty
    times a second whether or not anything had moved.
-   At rest the only thing still moving is the tracker ornament, and its blobs
-   take between twenty-five and forty-seven seconds to go round once — about
-   thirty pixels a second. Redrawing that twenty times a second is
-   indistinguishable and costs a third as much, which on a phone is the
-   difference between a warm gpu and an idle one.
+   At rest the only thing still moving is the autofocus crosshair's slow
+   breathing motion. Redrawing that twenty times a second is indistinguishable
+   and costs a third as much, which on a phone is the difference between a warm
+   gpu and an idle one.
    Zero on a mouse: the desktop has the headroom, and it has a cursor to chase
    that moves as fast as a hand does. 50ms also sits under the 64ms clamp on
    dt below, so a skipped frame never loses time out of the easing. */
@@ -509,8 +508,8 @@ export class WorkCanvas {
     c.fillRect(0, 0, this.w, this.h);
 
     /* On touch the overlay goes down FIRST, on the paper, and the images are
-       painted over it — so the blobs and the bracket read as something the
-       viewfinder is drawing behind the work rather than scribbling across it.
+       painted over it — so the focus bracket reads as something the viewfinder
+       is drawing behind the work rather than scribbling across it.
        Akif's call. On a mouse they stay on top, where they have always been.
        The rects are the previous frame's; the bracket is lerped anyway, and a
        frame of lag is invisible on something that drifts this slowly. */

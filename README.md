@@ -20,7 +20,7 @@ Buka `http://127.0.0.1:8000/`. Modul JavaScript membutuhkan HTTP, bukan membuka 
 | `js/data.js` | Lima proyek, tujuh kartu bagian, dan posisi slot kanvas |
 | `js/main.js` | Navigasi, siklus intro, pengaturan, galeri, dan dialog |
 | `js/scene.js`, `js/env.js` | Model 3D, pencahayaan, animasi, dan pelepasan WebGL |
-| `js/canvas.js`, `js/track.js` | Kanvas karya dan ornamen pelacak |
+| `js/canvas.js`, `js/track.js` | Kanvas karya dan penanda autofocus |
 | `js/i18n.js` | Kamus dan penerapan bahasa Indonesia/Inggris |
 | `js/vendor/` | Three.js r160, GLTFLoader, utilitas geometri, dan MeshoptDecoder lokal |
 | `tools/check.mjs` | Pemeriksaan statis tanpa dependensi tambahan |
