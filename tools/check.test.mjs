@@ -86,3 +86,16 @@ test('skills show a monochrome logo beside every named technology', () => {
   assert.match(css, /\.skill__icon\s*\{[^}]*fill:\s*currentColor/s,
     'skill logos must inherit the monochrome theme colour');
 });
+
+test('about page shows an optimised colour portrait with a responsive crop', () => {
+  const html = readFileSync(join(root, 'index.html'), 'utf8');
+  const css = readFileSync(join(root, 'css/style.css'), 'utf8');
+  const portrait = join(root, 'assets/profile/rainer.webp');
+
+  assert.ok(existsSync(portrait), 'the optimised portrait asset must exist');
+  assert.match(html,
+    /<figure class="about__portrait">\s*<img[^>]*src="\.\/assets\/profile\/rainer\.webp"[^>]*alt="Constantine Rainer Simanjuntak"/s);
+  assert.match(css, /\.about__portrait img\s*\{[^}]*object-fit:\s*cover/s);
+  assert.doesNotMatch(css, /\.about__portrait img\s*\{[^}]*filter:\s*grayscale/s,
+    'the portrait must keep its original colour');
+});
