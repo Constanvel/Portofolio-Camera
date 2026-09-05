@@ -85,6 +85,24 @@ try {
     await page.keyboard.press('ArrowRight');
     assert.equal(await page.locator('#volRange').inputValue(), '1');
   });
+  await test('background audio pauses while hidden and resumes when visible', async page => {
+    await open(page);
+    await page.locator('#settingsBtn').click();
+    await page.locator('#volRange').fill('66');
+    await page.waitForFunction(() => !document.querySelector('#theme').paused);
+
+    await page.evaluate(() => {
+      Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    assert.equal(await page.locator('#theme').evaluate(audio => audio.paused), true);
+
+    await page.evaluate(() => {
+      Object.defineProperty(document, 'hidden', { configurable: true, value: false });
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    await page.waitForFunction(() => !document.querySelector('#theme').paused);
+  });
   await test('focused canvas can still move with arrow keys', async page => {
     await home(page);
     await page.locator('#cv').focus();

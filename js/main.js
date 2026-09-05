@@ -105,12 +105,14 @@ const LITE = matchMedia('(pointer: coarse)').matches
 theme.volume = 0;
 theme.muted = true;
 let audioArmed = false, audioBusy = false, audioOn = false;
+let resumeAfterHide = false;
 /* There is no separate mute flag any more. `level` below carries it: a visitor
    who wants silence drags the slider to zero, and every path to sound — the
    skip button, the gesture net, the end of the sequence — aims at `level`, so
    silence survives all of them without a second variable to keep in step. */
 
 function rollMuted(){
+  if (document.hidden) return;
   theme.play().catch(() => { /* even muted can be refused; the gesture retries */ });
 }
 /* Where the track sits once it is up. It was a constant while the only choice
@@ -129,12 +131,20 @@ async function goAudible(){
      playing at a volume of nothing with audioOn true. Returning here would hand
      that back as success, and every later unmute would flip the flag over
      silence: a toggle that does exactly what it says and cannot be heard. */
-  if (audioOn && theme.volume > 0) return audioOn;
+  if (audioOn && !theme.paused && theme.volume > 0) return audioOn;
   audioBusy = true;
   try {
     theme.muted = false;
     await theme.play();
     audioOn = true;
+    /* play() may settle just after the tab was hidden. Do not let that race
+       restart the track behind another tab; remember it for the visible page. */
+    if (document.hidden){
+      resumeAfterHide = level > 0;
+      theme.pause();
+      audioOn = false;
+      return false;
+    }
     // ease the level up rather than slamming it in
     const t0 = performance.now();
     const ramp = (now) => {
@@ -150,6 +160,7 @@ async function goAudible(){
     // has to end up somewhere a person can hear
     setTimeout(() => { if (theme.volume < level) theme.volume = level; }, 1500);
   } catch (err) {
+    audioOn = false;
     theme.muted = true;
     theme.volume = 0;
     rollMuted();                       // keep buffering, stay armed
@@ -237,6 +248,39 @@ let flashOff = 0;
    snap; at 22.05k it is a thud. */
 const shutter = new Audio('./assets/audio/snap.wav');
 shutter.preload = 'auto';
+
+/* A looping <audio> keeps playing when Chrome is minimised or another tab is
+   selected unless the page stops it. Preserve only the intent to resume: the
+   saved volume remains untouched, while both audible sources are silent for
+   the whole time this document is out of view. */
+function suspendPageAudio(){
+  /* play() can make the element active one microtask before audioOn follows.
+     Read the media element too, so hiding on that exact edge still remembers
+     that audible playback was requested. Muted buffering does not count. */
+  if (!theme.paused && !theme.muted && level > 0) resumeAfterHide = true;
+  theme.pause();
+  audioOn = false;
+  shutter.pause();
+  shutter.currentTime = 0;
+}
+
+async function restorePageAudio(){
+  if (document.hidden || !resumeAfterHide || level <= 0) return;
+  /* If hiding interrupted a play() request, wait for that single-flight
+     attempt to settle before starting its replacement. Keep the resume flag
+     until sound is actually back. */
+  if (audioBusy){ setTimeout(restorePageAudio, 50); return; }
+  const ok = await goAudible();
+  if (ok) resumeAfterHide = false;
+  else armGlobalGesture();
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) suspendPageAudio();
+  else restorePageAudio();
+});
+window.addEventListener('pagehide', suspendPageAudio);
+window.addEventListener('pageshow', restorePageAudio);
 
 /* Off the same slider as the music, and silent at zero: a visitor who turned
    the sound off turned ALL of it off, and a click they cannot stop would be
