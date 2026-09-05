@@ -642,7 +642,7 @@ export class WorkCanvas {
     // must not break the words apart when the cursor passes over them — same
     // rule as the last build, where nothing was ever allowed to cross a word.
     ctx.save();
-    this.clipType(ctx);
+    this.clipType(ctx, true);
     const B = GRID_BOX, R = GRID_R * this.spread;
     const gx0 = Math.floor((this.mx - R) / B) * B;
     const gx1 = Math.ceil((this.mx + R) / B) * B;
@@ -696,7 +696,7 @@ export class WorkCanvas {
     const y0 = cy - Math.ceil(cy / B) * B;
 
     ctx.save();
-    this.clipType(ctx);
+    this.clipType(ctx, true);
     const dots = [];
     for (let x = x0; x < this.w; x += B){
       for (let y = y0; y < this.h; y += B){
@@ -742,8 +742,8 @@ export class WorkCanvas {
     ctx.restore();
   }
 
-  /** Clips to everything EXCEPT the text cards, with a soft rounded hole. */
-  clipType(ctx){
+  /** Clips overlays around text cards and, for the grid, project images. */
+  clipType(ctx, includeTiles = false){
     const p = new Path2D();
     p.rect(0, 0, this.w, this.h);
     for (const r of (this._cardRects || [])){
@@ -751,6 +751,9 @@ export class WorkCanvas {
       const rad = Math.min(22, h / 2);
       if (p.roundRect) p.roundRect(x, y, w, h, rad);
       else p.rect(x, y, w, h);
+    }
+    if (includeTiles){
+      for (const r of (this._tileRects || [])) p.rect(r.x, r.y, r.w, r.h);
     }
     ctx.clip(p, 'evenodd');
   }

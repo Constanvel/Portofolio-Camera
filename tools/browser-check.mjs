@@ -114,6 +114,43 @@ try {
     await home(page);
     assert.equal(await page.evaluate(() => 'blobs' in __PORTFOLIO.work.trackers), false);
   });
+  await test('cursor grid stays outside project tiles', async page => {
+    await home(page);
+    await page.waitForFunction(() => __PORTFOLIO.work._tileRects?.length);
+    const changedPixels = await page.evaluate(() => {
+      const work = __PORTFOLIO.work;
+      work.stop();
+      work.drawPlane(0);
+      const tile = work._tileRects.find(r => r.x >= 0 && r.y >= 0
+        && r.x + r.w <= work.w && r.y + r.h <= work.h);
+      if (!tile) throw new Error('no fully visible project tile');
+
+      const dpr = work.cv.width / work.w;
+      const x = Math.ceil((tile.x + 2) * dpr);
+      const y = Math.ceil((tile.y + 2) * dpr);
+      const width = Math.floor((tile.w - 4) * dpr);
+      const height = Math.floor((tile.h - 4) * dpr);
+      const pixels = () => work.ctx.getImageData(x, y, width, height).data;
+
+      work.mx = work.px = -9999;
+      work.my = work.py = -9999;
+      work.drawGrid();
+      const before = pixels();
+
+      work.mx = work.px = tile.x + tile.w / 2;
+      work.my = work.py = tile.y + tile.h / 2;
+      work.drawGrid();
+      const after = pixels();
+
+      let changed = 0;
+      for (let i = 0; i < before.length; i += 4){
+        if (before[i] !== after[i] || before[i + 1] !== after[i + 1]
+            || before[i + 2] !== after[i + 2] || before[i + 3] !== after[i + 3]) changed++;
+      }
+      return changed;
+    });
+    assert.equal(changedPixels, 0);
+  });
   await test('reduced motion stops autofocus breathing', async page => {
     await home(page);
     const before = await page.evaluate(() => __PORTFOLIO.work.trackers.t);
