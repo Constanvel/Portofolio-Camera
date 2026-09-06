@@ -86,6 +86,12 @@ const ID = {
   'mode.light':   'terang',
   'mode.dark':    'gelap',
 
+  /* project deck */
+  'deck.canvas':  'Deck proyek 3D interaktif. Gunakan panah kiri dan kanan untuk mengganti proyek, lalu Enter untuk membukanya.',
+  'deck.prev':    'sebelumnya',
+  'deck.open':    'buka proyek',
+  'deck.next':    'berikutnya',
+
   /* The document's only <h1>. Visually hidden, so this is a string almost
      nobody sees and everybody using a reader hears first. */
   'h1': 'Constantine Rainer Simanjuntak — pengembang web, desainer UI/UX, dan siswa rekayasa perangkat lunak',

@@ -220,6 +220,58 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
    screenshot is the card, and everything else on this site is type on paper
    with a hairline. Each tile is a button because there is no url under a
    project — it opens the same panel a canvas tile does. */
+.deck{
+  display:none; margin:0; padding:clamp(1rem,2.5vw,1.6rem) 0;
+  border-top:1px solid var(--hair); border-bottom:1px solid var(--hair);
+  text-align:left;
+}
+.deck[data-ready="true"]{
+  display:grid; grid-template-columns:minmax(0,1.6fr) minmax(15rem,.7fr);
+  grid-template-areas:"scene copy" "scene controls";
+  column-gap:clamp(1.2rem,4vw,3.4rem); align-items:center;
+}
+.deck__canvas{
+  grid-area:scene; display:block; width:100%; height:clamp(17rem,34vw,22rem);
+  background:transparent; cursor:grab; touch-action:pan-y;
+}
+.deck.is-dragging .deck__canvas{ cursor:grabbing; }
+.deck__canvas:focus-visible{ outline:2px solid var(--ink); outline-offset:4px; }
+.deck__copy{ grid-area:copy; align-self:end; min-width:0; }
+.deck__count{
+  display:block; color:var(--ink-3); font-size:.6875rem; font-weight:500;
+  letter-spacing:.14em; text-transform:uppercase;
+}
+.deck__title{
+  margin:.65rem 0 0; color:var(--ink); font-size:clamp(1.35rem,3vw,2rem);
+  font-weight:500; letter-spacing:-.025em; line-height:1.08;
+  text-transform:lowercase;
+}
+.deck__note{
+  margin:.7rem 0 0; color:var(--ink-2); font-size:.9375rem;
+  line-height:1.55;
+}
+.deck__controls{
+  grid-area:controls; align-self:start; display:flex; flex-wrap:wrap;
+  gap:.55rem 1rem; margin-top:1.25rem;
+}
+.deck__control{
+  min-height:44px; padding:.55rem 0; border:0; border-bottom:1px solid var(--hair);
+  background:none; color:var(--ink-2); cursor:pointer; font:inherit;
+  font-size:.6875rem; font-weight:500; letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.deck__control--open{ color:var(--ink); }
+.deck__control:focus-visible{ border-bottom-color:currentColor; }
+.deck[data-ready="true"] + .grid{ margin-top:clamp(2.4rem,5vw,3.6rem); }
+@media (max-width:680px){
+  .deck[data-ready="true"]{
+    grid-template-columns:1fr;
+    grid-template-areas:"scene" "copy" "controls";
+  }
+  .deck__canvas{ height:15rem; }
+  .deck__copy{ text-align:center; }
+  .deck__controls{ justify-content:center; margin-top:.9rem; }
+}
 .grid{
   margin:2rem 0 0; padding:0; list-style:none; text-align:left;
   display:grid; gap:clamp(1.7rem,4vw,2.6rem); grid-template-columns:1fr;
@@ -752,6 +804,7 @@ body[data-stage="page"] .set{ background:var(--paper); }
 @media (hover:hover) and (pointer:fine){
   .page__cta:hover{ background:var(--ink); color:var(--paper); }
   .grid__b:hover .grid__img{ opacity:.82; }
+  .deck__control:hover{ color:var(--ink); border-bottom-color:currentColor; }
   .page__back:hover{ color:var(--ink); }
   .nav__a:hover{ color:var(--ink); }
   .skip:hover{ opacity:1; color:var(--ink); }

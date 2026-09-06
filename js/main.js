@@ -32,6 +32,14 @@ const modeBtn   = $('themeBtn');
 const volRange  = $('volRange');
 const vig       = $('vig');
 const flashEl   = $('flash');
+const deckEl    = $('projectDeck');
+let deckCanvas  = $('projectDeckCanvas');
+const deckCount = $('deckCount');
+const deckTitle = $('deckTitle');
+const deckNote  = $('deckNote');
+const deckPrev  = $('deckPrev');
+const deckOpen  = $('deckOpen');
+const deckNext  = $('deckNext');
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -319,6 +327,65 @@ function routeFromHash(hash = location.hash){
   const h = (hash || '').replace(/^#\/?/, '').replace(/^page/, '').toLowerCase();
   return Object.hasOwn(pages, h) ? h : '';
 }
+
+/* ── the project deck ───────────────────────────────────────────────────
+   Three.js is already needed by the desktop intro, but the phone's lite path
+   deliberately avoids it. Import the deck only when works is requested, so a
+   phone that never opens this section still downloads no renderer at all.
+   The module is cached by the browser; the GPU scene is not. Each visit gets a
+   fresh renderer and leaving the page disposes it. */
+let projectDeck = null;
+let projectDeckModule = null;
+let projectDeckToken = 0;
+let projectDeckIndex = 0;
+
+function renderProjectDeckCopy(index = projectDeckIndex){
+  const workItem = WORKS[index];
+  if (!workItem) return;
+  projectDeckIndex = index;
+  deckCount.textContent = `${String(index + 1).padStart(2, '0')} / ${String(WORKS.length).padStart(2, '0')}`;
+  deckTitle.textContent = workItem.label;
+  deckNote.textContent = t(workItem, 'note');
+}
+
+function destroyProjectDeck(){
+  projectDeckToken++;
+  projectDeck?.dispose();
+  projectDeck = null;
+  deckEl.removeAttribute('data-loading');
+  deckEl.removeAttribute('data-ready');
+  /* forceContextLoss releases the old WebGL context. A fresh canvas makes a
+     later visit independent of when that browser chooses to restore it. */
+  const freshCanvas = deckCanvas.cloneNode(false);
+  deckCanvas.replaceWith(freshCanvas);
+  deckCanvas = freshCanvas;
+}
+
+async function showProjectDeck(version){
+  const token = ++projectDeckToken;
+  deckEl.dataset.loading = 'true';
+  renderProjectDeckCopy(projectDeckIndex);
+  try {
+    projectDeckModule ||= import('./project-deck.js');
+    const { ProjectDeck } = await projectDeckModule;
+    if (token !== projectDeckToken || version !== routeVersion || routeFromHash() !== 'works') return;
+    projectDeck = new ProjectDeck(deckCanvas, WORKS, {
+      reducedMotion:reduced,
+      onChange:renderProjectDeckCopy,
+      onOpen:index => { snap(); openWork(index); }
+    });
+    deckEl.removeAttribute('data-loading');
+    deckEl.dataset.ready = 'true';
+    projectDeck.start();
+  } catch (error) {
+    if (token !== projectDeckToken) return;
+    projectDeckModule = null;
+    deckEl.removeAttribute('data-loading');
+    deckEl.removeAttribute('data-ready');
+    console.warn('project deck failed to load', error);
+  }
+}
+
 /* Ignore duplicate hashchange/popstate events. Each new route invalidates older
    transitions before they can hide, show, focus, or stop the current page. */
 let appliedRoute = null;
@@ -326,8 +393,10 @@ let routeVersion = 0;
 async function applyRoute(){
   const r = routeFromHash();
   if (r === appliedRoute) return;
+  const previousRoute = appliedRoute;
   appliedRoute = r;
   const version = ++routeVersion;
+  if (previousRoute === 'works' && r !== 'works') projectDeck?.stop();
   /* Opening a section ends the intro and frees its WebGL resources. */
   if (r) endIntro();
   // and going the other way the plane has to be alive BEFORE the page above it
@@ -360,6 +429,7 @@ async function applyRoute(){
       if (version !== routeVersion) return;
       el.hidden = true;
       el.classList.remove('is-shut');
+      if (name === 'works' && routeFromHash() !== 'works') destroyProjectDeck();
     }
   }
   if (r){
@@ -385,6 +455,7 @@ async function applyRoute(){
     void el.offsetWidth;
     el.classList.add('is-lit');
     body.dataset.stage = 'page';
+    if (r === 'works') showProjectDeck(version);
     /* A section heading receives programmatic focus without entering the Tab order. */
     const heading = el.querySelector('.page__t');
     if (heading){ heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
@@ -747,6 +818,7 @@ window.__PORTFOLIO = {
   lite: LITE,
   get gl(){ return gl; }, get ipod(){ return ipod; },
   get cam(){ return cam; }, get work(){ return work; },
+  get deck(){ return projectDeck; },
   /** hold an act at a fixed moment so a frame can be captured deterministically */
   freeze(act, ms){
     const a = act === 'cam' ? cam : ipod;
@@ -850,6 +922,7 @@ function applyMode(m, save){
   }
   // the canvas holds its colours as strings, so it has to be told to look again
   work?.readPalette?.();
+  projectDeck?.syncTheme();
   if (save) remember('mode', m);
 }
 const savedMode = recall('mode');
@@ -1013,6 +1086,14 @@ function buildWorks(){
   }));
 }
 
+deckPrev.addEventListener('click', () => projectDeck?.next(-1));
+deckNext.addEventListener('click', () => projectDeck?.next(1));
+deckOpen.addEventListener('click', () => {
+  if (!projectDeck) return;
+  snap();
+  openWork(projectDeck.activeIndex);
+});
+
 if (workDlg?.showModal){
   // the cards in `works` are buttons, not links — there is no url under a
   // project, only this panel
@@ -1098,6 +1179,7 @@ function renderLang(l, save){
   // running it again is only that plus two idempotent writes
   applyMode(document.documentElement.dataset.theme, false);
   buildWorks();
+  renderProjectDeckCopy(projectDeck?.activeIndex ?? projectDeckIndex);
   // and the iPod's screen, if the intro is still on it — that word is painted
   // into a texture rather than laid out by the browser, so nothing else here
   // would have touched it

@@ -270,6 +270,38 @@ try {
     assert.equal(await page.locator('html').getAttribute('lang'), 'id');
     assert.match(await page.locator('#worksGrid button').first().textContent(), /Platform publikasi/);
   }, { hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+  await test('3D project deck navigates projects and releases WebGL on exit', async page => {
+    await open(page, '#/works');
+    await page.waitForFunction(() => __PORTFOLIO.deck?.cardCount === 5, null, { timeout:8000 });
+    assert.equal(await page.locator('#projectDeck').getAttribute('data-ready'), 'true');
+    assert.equal(await page.locator('#deckTitle').textContent(), 'lensa');
+
+    await page.locator('#deckNext').click();
+    assert.equal(await page.locator('#deckTitle').textContent(), 'artvault');
+    await page.locator('#settingsBtn').click();
+    await page.locator('#langBtn').click();
+    assert.match(await page.locator('#deckNote').textContent(), /Antarmuka komunitas seni/);
+    const lightCard = await page.evaluate(() => __PORTFOLIO.deck.bodyMaterial.color.getHexString());
+    await page.locator('#themeBtn').click();
+    const darkCard = await page.evaluate(() => __PORTFOLIO.deck.bodyMaterial.color.getHexString());
+    assert.notEqual(darkCard, lightCard);
+    await page.locator('#deckOpen').click();
+    assert.equal(await page.locator('#workTitle').textContent(), 'artvault');
+    await page.keyboard.press('Escape');
+
+    await page.evaluate(() => { location.hash = '#/about'; });
+    await page.waitForFunction(() => __PORTFOLIO.deck === null);
+    assert.equal(await page.locator('#projectDeck').getAttribute('data-ready'), null);
+  });
+  await test('failed 3D deck import leaves the project grid usable', async page => {
+    await page.route('**/js/project-deck.js', route => route.abort());
+    await open(page, '#/works');
+    await page.waitForTimeout(500);
+    assert.equal(await page.locator('#projectDeck').getAttribute('data-ready'), null);
+    assert.equal(await page.locator('#worksGrid button').count(), 5);
+    await page.locator('#worksGrid button').first().click();
+    assert.equal(await page.locator('#workTitle').textContent(), 'lensa');
+  });
   await test('camera zoom uses one frozen portfolio frame', async page => {
     await startCamera(page);
     await page.evaluate(() => __PORTFOLIO.freeze('cam', 3000));

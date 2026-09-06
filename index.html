@@ -258,6 +258,21 @@
   <section class="page" id="pageWorks" hidden>
     <div class="page__in page__in--wide">
       <h2 class="page__t" data-t="nav.works">works</h2>
+      <div class="deck" id="projectDeck">
+        <canvas class="deck__canvas" id="projectDeckCanvas" tabindex="0"
+                data-ta="deck.canvas"
+                aria-label="Interactive 3D project deck. Use left and right arrow keys to change projects, then Enter to open one."></canvas>
+        <div class="deck__copy" aria-live="polite" aria-atomic="true">
+          <span class="deck__count" id="deckCount"></span>
+          <h3 class="deck__title" id="deckTitle"></h3>
+          <p class="deck__note" id="deckNote"></p>
+        </div>
+        <div class="deck__controls">
+          <button class="deck__control" id="deckPrev" type="button" data-t="deck.prev">previous</button>
+          <button class="deck__control deck__control--open" id="deckOpen" type="button" data-t="deck.open">open project</button>
+          <button class="deck__control" id="deckNext" type="button" data-t="deck.next">next</button>
+        </div>
+      </div>
       <ul class="grid" id="worksGrid"></ul>
       <noscript id="worksFallback">
         <ul class="rows">

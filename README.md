@@ -20,6 +20,7 @@ Buka `http://127.0.0.1:8000/`. Modul JavaScript membutuhkan HTTP, bukan membuka 
 | `js/data.js` | Lima proyek, tujuh kartu bagian, dan posisi slot kanvas |
 | `js/main.js` | Navigasi, siklus intro, pengaturan, galeri, dan dialog |
 | `js/scene.js`, `js/env.js` | Model 3D, pencahayaan, animasi, dan pelepasan WebGL |
+| `js/project-deck.js` | Kartu proyek 3D prosedural, interaksi, dan lifecycle WebGL halaman Karya |
 | `js/canvas.js`, `js/track.js` | Kanvas karya dan penanda autofocus |
 | `js/i18n.js` | Kamus dan penerapan bahasa Indonesia/Inggris |
 | `js/vendor/` | Three.js r160, GLTFLoader, utilitas geometri, dan MeshoptDecoder lokal |
@@ -35,6 +36,7 @@ Buka `http://127.0.0.1:8000/`. Modul JavaScript membutuhkan HTTP, bukan membuka 
 - Tombol panah menggerakkan kanvas hanya ketika kanvas mendapat fokus. Slider volume tetap dapat diubah dengan keyboard.
 - Preferensi reduced motion menghentikan gerakan ornamen kanvas, meniadakan pembesaran kursor dan momentum, serta mempersingkat transisi halaman dan intro.
 - Sertifikat dibuka dalam dialog. Tautan “buka berkasnya langsung” tetap membuka berkas asli, termasuk ketika viewer PDF tidak bekerja di perangkat pengguna.
+- Halaman Karya memuat deck 3D secara dinamis. Kartu dibuat dari geometri Three.js dan screenshot proyek, dapat dinavigasi dengan drag, scroll, tombol, atau keyboard, lalu renderer dilepas ketika halaman ditutup.
 - Tanpa JavaScript, semua bagian dapat digulir, navigasi memakai anchor HTML, dan daftar karya beserta tautannya tetap tersedia dalam bahasa Inggris.
 - Bahasa, tema, dan volume disimpan di localStorage bila tersedia. Audio memakai satu nilai volume; nol berarti senyap.
 
