@@ -46,110 +46,110 @@ export const WORKS = [
   {
     src: './assets/tiles/lensa.webp', label: 'lensa',
     href: 'https://github.com/Constanvel/Lensa',
-    note: 'A place to read and write about characters and works — essays, read through six lenses.',
-    note_id: 'Tempat membaca dan menulis tentang karakter dan karya — esai, dibaca lewat enam lensa.',
+    note: 'A publishing platform for essays about fictional characters and works, organised through six critical lenses.',
+    note_id: 'Platform publikasi esai tentang karakter dan karya fiksi, disusun melalui enam lensa analisis.',
     year: 'aug 2026', role: 'solo',
     year_id: 'agu 2026', role_id: 'sendiri',
-    blurb: 'A place to read and write criticism. An essay is filed against the characters and works it is about, so a piece has somewhere to live and something to be found from.',
-    blurb_id: 'Tempat membaca dan menulis kritik. Sebuah esai diarsipkan pada karakter dan karya yang dibahasnya, jadi tulisan punya tempat tinggal dan punya jalan untuk ditemukan.',
+    blurb: 'Lensa gives long-form criticism a clear structure. Readers can discover an essay through its character, source work, or critical lens, while writers get a focused place to publish.',
+    blurb_id: 'Lensa memberi struktur yang jelas untuk tulisan analisis panjang. Pembaca dapat menemukan esai melalui karakter, karya asal, atau lensa analisisnya, sementara penulis mendapat tempat yang fokus untuk menerbitkan tulisan.',
     points: [
-      'Search across characters, works and essays at once',
-      'A feed, and six lenses to read a work through',
-      'Accounts, saved work, settings',
-      'Written empty and error states — down to a page listing every component state'
+      'Unified search across characters, works and essays',
+      'Essay pages connected to the character and source work they discuss',
+      'A discovery feed organised through six critical lenses',
+      'Accounts, saved reading, settings, and complete empty and error states'
     ],
     points_id: [
-      'Pencarian karakter, karya dan esai sekaligus',
-      'Sebuah feed, dan enam lensa untuk membaca satu karya',
-      'Akun, simpanan, pengaturan',
-      'State kosong dan error yang ditulis — sampai satu halaman yang mendaftar setiap state komponen'
+      'Pencarian terpadu untuk karakter, karya, dan esai',
+      'Halaman esai yang terhubung ke karakter dan karya yang dibahas',
+      'Feed penemuan yang disusun melalui enam lensa analisis',
+      'Akun, bacaan tersimpan, pengaturan, serta state kosong dan error yang lengkap'
     ]
   },
   {
     src: './assets/tiles/artvault.webp', label: 'artvault',
-    note: 'An art community: uploads, discovery, rankings, commissions and contests.',
-    note_id: 'Komunitas seni: unggahan, penemuan, peringkat, komisi dan lomba.',
+    note: 'An art-community interface for publishing, discovering and commissioning creative work.',
+    note_id: 'Antarmuka komunitas seni untuk menerbitkan, menemukan, dan memesan karya kreatif.',
     year: 'aug 2026', role: 'solo',
     year_id: 'agu 2026', role_id: 'sendiri',
-    blurb: 'A community for artists to publish and be found. Work arrives in a feed, gets ranked, and can be commissioned or entered into a contest.',
-    blurb_id: 'Komunitas tempat perupa menerbitkan karya dan ditemukan. Karya masuk ke feed, diberi peringkat, dan bisa dikomisikan atau diikutkan lomba.',
+    blurb: 'ARTVAULT is an interface concept for an artist community. It brings discovery, rankings, commissions and contests into one clear path from publishing work to finding an audience.',
+    blurb_id: 'ARTVAULT adalah konsep antarmuka komunitas seniman. Penemuan karya, peringkat, komisi, dan lomba dirangkai dalam satu alur yang jelas dari menerbitkan karya hingga menemukan audiens.',
     points: [
-      'Upload, then discovery, rankings and contests',
-      'Commissions',
-      'Categories — painting, illustration, photography, digital art',
-      'Favourites, collections and notifications'
+      'Publishing and discovery flows for new artwork',
+      'Rankings, contests, and tiered commission packages',
+      'Categories for painting, illustration, photography, and digital art',
+      'Favourites, collections, notifications, and artist profiles'
     ],
     points_id: [
-      'Unggah, lalu penemuan, peringkat dan lomba',
-      'Komisi',
-      'Kategori — lukisan, ilustrasi, fotografi, seni digital',
-      'Favorit, koleksi dan notifikasi'
+      'Alur publikasi dan penemuan karya baru',
+      'Peringkat, lomba, dan paket komisi bertingkat',
+      'Kategori lukisan, ilustrasi, fotografi, dan seni digital',
+      'Favorit, koleksi, notifikasi, dan profil seniman'
     ]
   },
   {
     src: './assets/tiles/uang-jajan-tracker.webp', label: 'uang jajan tracker',
     href: 'https://github.com/Constanvel/UangJajanTracker',
-    note: 'A spending tracker for a phone — money in, money out, by category.',
-    note_id: 'Pelacak pengeluaran untuk ponsel — uang masuk, uang keluar, per kategori.',
+    note: 'A mobile-first allowance tracker that makes daily income and spending quick to record.',
+    note_id: 'Pelacak uang jajan mobile-first yang mempercepat pencatatan pemasukan dan pengeluaran harian.',
     year: 'may–jun 2026', role: 'one of four',
     year_id: 'mei–jun 2026', role_id: 'satu dari empat',
-    blurb: 'Pocket-money tracking on a phone. Adding a transaction is one sheet and nothing else: in or out, an amount, a category, and a note only if it needs one.',
-    blurb_id: 'Melacak uang jajan di ponsel. Menambah transaksi cukup satu lembar dan tidak lebih: masuk atau keluar, nominal, kategori, dan catatan hanya kalau perlu.',
+    blurb: 'Uang Jajan Tracker keeps everyday money records simple on a phone. A single transaction sheet captures the direction, amount and category, with an optional note for extra context.',
+    blurb_id: 'Uang Jajan Tracker menyederhanakan pencatatan uang harian di ponsel. Satu lembar transaksi mencatat jenis, nominal, dan kategori, dengan catatan opsional untuk konteks tambahan.',
     points: [
-      'Money in and money out on a single toggle',
-      'Categories: food, transport, entertainment, other',
-      'An optional note, dated for you'
+      'Income and expenses through one clear toggle',
+      'Categories for food, transport, entertainment, and other needs',
+      'Automatic dates and optional notes for each transaction'
     ],
     points_id: [
-      'Uang masuk dan uang keluar dalam satu sakelar',
-      'Kategori: makan, transport, hiburan, lainnya',
-      'Catatan opsional, tanggalnya diisikan untukmu'
+      'Pemasukan dan pengeluaran melalui satu sakelar yang jelas',
+      'Kategori makan, transportasi, hiburan, dan kebutuhan lainnya',
+      'Tanggal otomatis dan catatan opsional untuk setiap transaksi'
     ]
   },
   {
     src: './assets/tiles/smk-telkom-purwokerto.webp', label: 'smk telkom purwokerto',
     href: 'https://github.com/Constanvel/smk-telkom-purwokerto',
-    note: 'The school site: admissions, majors, the job centre, and two assistants.',
-    note_id: 'Situs sekolah: PPDB, jurusan, bursa kerja, dan dua asisten.',
+    note: 'A team-built school platform covering admissions, news, careers and student-facing assistants.',
+    note_id: 'Platform sekolah yang dibangun bersama tim untuk PPDB, berita, karier, dan asisten siswa.',
     year: 'jul–aug 2026', role: 'two of us',
     year_id: 'jul–agu 2026', role_id: 'berdua',
-    blurb: 'The school’s own site — admissions, the majors on offer, the job centre and announcements, with an admin login behind all of it.',
-    blurb_id: 'Situs resmi sekolah — PPDB, jurusan yang dibuka, bursa kerja dan pengumuman, dengan login admin di belakang semuanya.',
+    blurb: 'The platform brings public school information and content management into one system. My scope focused on the admin dashboard interface used to manage the content behind the public site.',
+    blurb_id: 'Platform ini menyatukan informasi publik sekolah dan pengelolaan konten dalam satu sistem. Bagian saya berfokus pada antarmuka dashboard admin untuk mengelola konten di balik situs publik.',
     points: [
-      'PPDB admissions, and the majors',
-      'BKK — vacancies, internships, careers',
-      'News and announcements',
-      'Two assistants: STELA answers questions about the school, NextTel helps choose a major',
-      'An admin login'
+      'PPDB information and major profiles',
+      'BKK listings for vacancies, internships, and careers',
+      'News, announcements, achievements, and admin content management',
+      'STELA answers school questions; NextTel helps prospective students choose a major',
+      'My contribution: the admin dashboard UI and its management flows'
     ],
     points_id: [
-      'PPDB, dan jurusannya',
-      'BKK — lowongan, magang, karier',
-      'Berita dan pengumuman',
-      'Dua asisten: STELA menjawab pertanyaan soal sekolah, NextTel membantu memilih jurusan',
-      'Login admin'
+      'Informasi PPDB dan profil jurusan',
+      'Daftar BKK untuk lowongan, magang, dan karier',
+      'Berita, pengumuman, prestasi, dan pengelolaan konten admin',
+      'STELA menjawab pertanyaan sekolah; NextTel membantu calon siswa memilih jurusan',
+      'Kontribusi saya: UI dashboard admin dan alur pengelolaannya'
     ]
   },
   {
     src: './assets/tiles/ai-text-summarizer.webp', label: 'ai text summarizer',
     href: 'https://github.com/Constanvel/AI-Text-Summarizer',
-    note: 'Long text in, a short summary out, at three lengths. Runs on Groq.',
-    note_id: 'Teks panjang masuk, ringkasan pendek keluar, dalam tiga panjang. Jalan di atas Groq.',
+    note: 'A focused web tool that turns long text into summaries at three selectable lengths using Groq.',
+    note_id: 'Perkakas web yang mengubah teks panjang menjadi ringkasan dalam tiga pilihan panjang menggunakan Groq.',
     year: 'aug 2026', role: 'solo',
     year_id: 'agu 2026', role_id: 'sendiri',
-    blurb: 'Paste something long, get the short version. Three lengths, and it counts the words while you type.',
-    blurb_id: 'Tempel sesuatu yang panjang, dapat versi pendeknya. Tiga panjang, dan kata-katanya dihitung sambil kamu mengetik.',
+    blurb: 'AI Text Summarizer reduces long input into a useful reading length. The interface keeps the task focused with live word counting, clear length controls and inline feedback when a request fails.',
+    blurb_id: 'AI Text Summarizer memadatkan teks panjang menjadi bacaan dengan panjang yang dibutuhkan. Antarmukanya tetap fokus dengan hitungan kata langsung, pilihan panjang yang jelas, dan pesan error di dalam halaman.',
     points: [
-      'Short, medium or long summaries',
-      'A live word count',
-      'Runs on Groq',
-      'Ctrl+Enter to summarise'
+      'Short, medium, and long summary modes',
+      'Live word count and input validation',
+      'Groq API integration with inline error feedback',
+      'Ctrl+Enter keyboard shortcut for faster submission'
     ],
     points_id: [
-      'Ringkasan pendek, sedang atau panjang',
-      'Hitungan kata langsung',
-      'Jalan di atas Groq',
-      'Ctrl+Enter untuk meringkas'
+      'Mode ringkasan pendek, sedang, dan panjang',
+      'Hitungan kata langsung dan validasi input',
+      'Integrasi API Groq dengan pesan error di dalam halaman',
+      'Pintasan Ctrl+Enter agar pengiriman lebih cepat'
     ]
   }
 ];

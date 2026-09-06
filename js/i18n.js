@@ -88,10 +88,10 @@ const ID = {
 
   /* The document's only <h1>. Visually hidden, so this is a string almost
      nobody sees and everybody using a reader hears first. */
-  'h1': 'Constantine Rainer Simanjuntak — siswa PPLG di SMK Telkom Purwokerto',
+  'h1': 'Constantine Rainer Simanjuntak — pengembang web, desainer UI/UX, dan siswa rekayasa perangkat lunak',
 
   /* about */
-  'about.body': 'Constantine Rainer Simanjuntak — PPLG, SMK Telkom Purwokerto. Saya membangun untuk web dengan React, Tailwind dan Node — platform baca dan esai, komunitas seni, situs sekolah saya sendiri, pelacak pengeluaran — dan perkakas AI di atas model terbuka. Finalis lomba UI/UX Design di Sevent 9.0, Telkom University Purwokerto. Di luar jam kerja saya bikin video desktop aesthetic untuk TikTok, biasanya dengan lagu shoegaze.',
+  'about.body': 'Saya Constantine Rainer Simanjuntak, siswa kelas XI rekayasa perangkat lunak di SMK Telkom Purwokerto. Saya merancang dan membangun produk web dari Figma sampai deployment menggunakan React, Next.js, Tailwind, dan Supabase. Proyek saya mencakup platform publikasi, layanan sekolah, keuangan pribadi, dan perkakas teks berbantuan AI. Melalui klub AI sekolah, saya belajar menuju AI Engineering lewat eksperimen YOLO, RAG, dan model bahasa. Saya pernah menjadi finalis lomba UI/UX Design Sevent 9.0 di Telkom University Purwokerto. Di luar kelas, saya membuat video desktop aesthetic untuk TikTok, biasanya dengan lagu shoegaze.',
   'about.credits': 'Dibangun dengan bagian-bagian pinjaman, didaftar di sini justru karena dipinjam — semuanya di bawah lisensi yang mengizinkannya. Foto, tulisan dan kodenya milik saya.',
   'cr.cam.k': '3d · kamera',
   'cr.cam.v': '<a class="rows__a" href="https://sketchfab.com/3d-models/digital-camera-5b2573eab7bf48f2bb8cd5a6026795b1" target="_blank" rel="noopener">Digital Camera</a> oleh Dokono Kinokoda — <a class="rows__a" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, mesh dan teksturnya dikompres ulang.',
@@ -109,10 +109,10 @@ const ID = {
   'sk.lang.k':    'bahasa',
   'sk.design.k':  'desain',
   'sk.tools.k':   'perkakas',
-  'sk.back.v':    'Migrasi skema, autentikasi, penyimpanan, dan Edge Functions dalam TypeScript',
-  'sk.ai.v':      'Cadangan penyedia dan pembatas biaya, dikirim sebagai edge function',
-  'sk.design.v':  'UI/UX, sistem desain dan state komponen, motion dan penyuntingan video',
-  'sk.tools.v':   'Termasuk plugin dev-server Vite yang ditulis untuk salah satu proyek ini',
+  'sk.back.v':    'Proyek Supabase dengan migrasi skema PostgreSQL, autentikasi, penyimpanan, dan Edge Functions dalam TypeScript',
+  'sk.ai.v':      'Eksperimen RAG, YOLO, dan API model bahasa, termasuk cadangan penyedia dan pembatas biaya',
+  'sk.design.v':  'Alur pengguna, antarmuka responsif, sistem desain, state komponen, motion, dan penyuntingan video',
+  'sk.tools.v':   'Pengembangan berbasis Git, linting, dan perkakas Vite khusus yang digunakan dalam proyek yang sudah dirilis',
 
   /* the date keys. Only the ones that actually differ: feb, mar and jun are
      spelled the same way in both, and jan–mar reads the same too. */
@@ -121,33 +121,33 @@ const ID = {
   'd.ongoing':  'berjalan',
 
   /* experience */
-  'xp.now.v':     'PPLG, SMK Telkom Purwokerto — jurusan rekayasa perangkat lunak.',
-  'xp.club.v':    'Klub AI sekolah — model bahasa, dari purwarupa sampai demo.',
+  'xp.now.v':     'Kelas XI PPLG, SMK Telkom Purwokerto — rekayasa perangkat lunak dengan fokus yang terus berkembang pada produk web dan sistem AI.',
+  'xp.club.v':    'Klub AI sekolah — membuat eksperimen YOLO, RAG dan chatbot model bahasa, mengubahnya menjadi demo, lalu membagikan hasilnya kepada siswa lain.',
   'xp.kumpul.v':  'AI Ignition Training, KUMPUL.ID — tiga puluh jam dalam sembilan modul, di bawah AI Opportunity Fund bersama Google.org dan AVPN.',
-  'xp.own.v':     'Proyek pribadi — React, Tailwind dan Node, dikerjakan dari awal sampai rilis.',
+  'xp.own.v':     'Proyek pribadi — menentukan produk, merancang antarmuka, mengimplementasikan, menguji alur lengkap, lalu melakukan deployment.',
 
   /* services */
-  'sv.web.v':     'React, Next.js dan Tailwind, di atas Supabase — dari repo kosong sampai sesuatu yang tayang.',
-  'sv.ux.v':      'Tata letak, tipografi dan alur. Dari Figma sampai kode yang merilisnya.',
+  'sv.web.v':     'Website responsif dan aplikasi web dengan React, Next.js, Tailwind, dan Supabase, dari penyiapan sampai deployment.',
+  'sv.ux.v':      'Alur pengguna, wireframe, sistem visual, dan layar responsif di Figma yang dilanjutkan menjadi frontend berfungsi.',
   'sv.plat.k':    'platform',
-  'sv.plat.v':    'Akun, unggahan, feed dan setiap halaman di antaranya.',
+  'sv.plat.v':    'Alur produk yang menghubungkan autentikasi, formulir, dashboard, unggahan, feed, dan pengelolaan konten.',
   'sv.ai.k':      'integrasi ai',
-  'sv.ai.v':      'Asisten dan peringkas di atas API model bahasa.',
-  'sv.video.v':   'Edit video pendek dan motion untuk web.',
+  'sv.ai.v':      'Tanya jawab dokumen, chatbot, dan peringkasan teks yang dibangun di atas API model bahasa.',
+  'sv.video.v':   'Penyuntingan video pendek dan motion yang terarah untuk antarmuka serta presentasi portofolio.',
   'sv.cta':       'mulai sesuatu',
 
   /* achievements. The certificate titles are what is printed on the
      certificates, so only the words around them move. */
   'ach.sevent.v': 'Finalis — lomba UI/UX Design, Sevent 9.0, Telkom University Purwokerto.',
-  'ach.toeic.v':  'TOEIC Excellence Program, English Discoveries — Edusoft, anak perusahaan ETS.',
-  'ach.wise.v':   'Lomba Desain UI/UX Nasional, WISE InnoVera — Universitas Widyatama.',
-  'ach.asean.v':  'AI Ready ASEAN — seluruh modul AI selesai. ASEAN Foundation, bersama Google.org.',
+  'ach.toeic.v':  'Menyelesaikan TOEIC Excellence Program melalui English Discoveries — Edusoft, anak perusahaan ETS.',
+  'ach.wise.v':   'Peserta — Lomba Desain UI/UX Nasional WISE InnoVera, Universitas Widyatama.',
+  'ach.asean.v':  'Menyelesaikan seluruh 15 modul AI Ready ASEAN — ASEAN Foundation, bersama Google.org.',
   'ach.efun.v':   'English Fun (E-Fun) — presentasi ala TED, Cabang Dinas Pendidikan Wilayah X, Jawa Tengah.',
   'ach.google.v': 'Google, AI untuk pendidik jenjang dasar dan menengah — selesai, nilai 100.',
 
   /* contact */
-  'ct.body': 'Terbuka untuk kolaborasi, lomba, dan apa pun yang perlu dibangun.',
-  'ct.cta':  'kirim pesan',
+  'ct.body': 'Terbuka untuk kolaborasi pelajar, lomba UI/UX, serta proyek web atau AI yang terarah. Ceritakan apa yang ingin dibangun, siapa penggunanya, dan kapan dibutuhkan.',
+  'ct.cta':  'diskusikan proyek',
 
   /* the page that is not a page.
      No toggle over there: there is nothing on a 404 to change your mind about,
@@ -166,8 +166,8 @@ const ID = {
      the wrong language to anyone who does read the DOM, and so the mechanism
      is already in place the day a real /id/ url exists — which is the only
      thing that would actually serve Indonesian to a scraper. */
-  'meta.desc': 'Constantine Rainer Simanjuntak — siswa PPLG di SMK Telkom Purwokerto. Aplikasi web dan perkakas AI, dibangun dari awal sampai rilis.',
-  'meta.og':   'Siswa PPLG di SMK Telkom Purwokerto. Aplikasi web dan perkakas AI, dibangun dari awal sampai rilis.',
+  'meta.desc': 'Constantine Rainer Simanjuntak adalah siswa rekayasa perangkat lunak yang merancang dan membangun produk web, sistem UI/UX, dan perkakas berbantuan AI.',
+  'meta.og':   'Siswa rekayasa perangkat lunak yang membangun produk web, sistem UI/UX, dan perkakas berbantuan AI dari desain sampai deployment.',
 
   /* the two panels that open over the page */
   'wk.repo': 'buka repo di GitHub',

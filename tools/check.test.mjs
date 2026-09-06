@@ -99,3 +99,21 @@ test('about page shows an optimised colour portrait with a responsive crop', () 
   assert.doesNotMatch(css, /\.about__portrait img\s*\{[^}]*filter:\s*grayscale/s,
     'the portrait must keep its original colour');
 });
+
+test('portfolio copy states AI experience and achievement status clearly', () => {
+  const html = readFileSync(join(root, 'index.html'), 'utf8');
+  const i18n = readFileSync(join(root, 'js/i18n.js'), 'utf8');
+
+  assert.match(html, /YOLO, RAG and language-model chatbots/,
+    'English experience copy should name the AI work');
+  assert.match(i18n, /YOLO, RAG dan chatbot model bahasa/,
+    'Indonesian experience copy should name the AI work');
+  assert.match(html, /Participant — National UI\/UX Design Competition/,
+    'English achievement copy should state the WISE participant status');
+  assert.match(i18n, /Peserta — Lomba Desain UI\/UX Nasional/,
+    'Indonesian achievement copy should state the WISE participant status');
+  assert.match(html, /Completed the TOEIC Excellence Program/,
+    'English achievement copy should state TOEIC completion');
+  assert.match(i18n, /Menyelesaikan TOEIC Excellence Program/,
+    'Indonesian achievement copy should state TOEIC completion');
+});

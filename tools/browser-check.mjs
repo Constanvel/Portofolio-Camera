@@ -268,7 +268,7 @@ try {
     await page.locator('#settingsBtn').click();
     await page.locator('#langBtn').click();
     assert.equal(await page.locator('html').getAttribute('lang'), 'id');
-    assert.match(await page.locator('#worksGrid button').first().textContent(), /Tempat membaca/);
+    assert.match(await page.locator('#worksGrid button').first().textContent(), /Platform publikasi/);
   }, { hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
   await test('camera zoom uses one frozen portfolio frame', async page => {
     await startCamera(page);
