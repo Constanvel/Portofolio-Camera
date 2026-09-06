@@ -63,6 +63,7 @@ export class ProjectDeck {
     this.wheelAt = 0;
     this.textures = new Set();
     this.materials = new Set();
+    this.imageMaterials = new Set();
 
     this.renderer = new THREE.WebGLRenderer({
       canvas,
@@ -104,6 +105,7 @@ export class ProjectDeck {
 
       const imageMaterial = new THREE.MeshBasicMaterial({ toneMapped:false });
       this.materials.add(imageMaterial);
+      this.imageMaterials.add(imageMaterial);
       const image = new THREE.Mesh(this.imageGeometry, imageMaterial);
       image.position.z = CARD_D / 2 + 0.035;
       group.add(image);
@@ -116,6 +118,7 @@ export class ProjectDeck {
         texture.generateMipmaps = true;
         this.textures.add(texture);
         imageMaterial.map = texture;
+        imageMaterial.color.setRGB(1, 1, 1);
         imageMaterial.needsUpdate = true;
         this.invalidate();
       }, undefined, () => this.invalidate());
@@ -308,13 +311,12 @@ export class ProjectDeck {
   syncTheme(){
     if (this.disposed) return;
     const styles = getComputedStyle(document.documentElement);
-    this.bodyMaterial.color.setStyle(cssColour(styles, '--paper', '#ffffff'));
+    this.bodyMaterial.color.setStyle(cssColour(styles, '--deck-card', '#f5f4f7'));
     this.bodyMaterial.emissive.setStyle(cssColour(styles, '--ink', '#111014'));
     this.bodyMaterial.emissiveIntensity = 0.018;
-    for (const material of this.materials){
-      if (material !== this.bodyMaterial && !material.map){
-        material.color.setStyle(cssColour(styles, '--sunk', '#f2f1f4'));
-      }
+    for (const material of this.imageMaterials){
+      if (material.map) material.color.setRGB(1, 1, 1);
+      else material.color.setStyle(cssColour(styles, '--sunk', '#f2f1f4'));
     }
     this.invalidate();
   }

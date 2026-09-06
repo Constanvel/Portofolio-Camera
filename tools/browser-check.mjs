@@ -293,6 +293,19 @@ try {
     await page.waitForFunction(() => __PORTFOLIO.deck === null);
     assert.equal(await page.locator('#projectDeck').getAttribute('data-ready'), null);
   });
+  await test('dark 3D deck keeps project textures at full brightness', async page => {
+    await page.addInitScript(() => localStorage.setItem('pf.mode', 'dark'));
+    await open(page, '#/works');
+    await page.waitForFunction(() => __PORTFOLIO.deck?.textures.size === 5, null, { timeout:8000 });
+    const materials = await page.evaluate(() => ({
+      card: __PORTFOLIO.deck.bodyMaterial.color.getHexString(),
+      images: [...__PORTFOLIO.deck.materials]
+        .filter(material => material.map)
+        .map(material => material.color.getHexString())
+    }));
+    assert.notEqual(materials.card, '0e0e11');
+    assert.deepEqual([...new Set(materials.images)], ['ffffff']);
+  });
   await test('failed 3D deck import leaves the project grid usable', async page => {
     await page.route('**/js/project-deck.js', route => route.abort());
     await open(page, '#/works');

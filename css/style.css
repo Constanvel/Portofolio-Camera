@@ -31,6 +31,7 @@
   --ink-3:#77757c;
   --hair:#e4e2e6;
   --sunk:#f2f1f4;          /* a tile whose picture has not arrived */
+  --deck-card:#f5f4f7;
   --scrim:255,255,255;     /* the navbar's own ground, over photographs */
   /* the light that leaks past the aperture's edge while it opens. Dark on
      paper; on the dark theme the page and the plane behind it are within a few
@@ -78,6 +79,7 @@ body{ transition:background-color 800ms var(--ease-in-out); }
   --ink-3:#7b7988;         /* 3.69 -> 4.53 against the dark paper */
   --hair:#26262c;
   --sunk:#17171b;
+  --deck-card:#92939a;
   --scrim:14,14,17;
 }
 body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
