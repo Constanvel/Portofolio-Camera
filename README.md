@@ -42,7 +42,7 @@ Buka `http://127.0.0.1:8000/`. Modul JavaScript membutuhkan HTTP, bukan membuka 
 - Halaman Karya memuat deck 3D secara dinamis. Kartu dibuat dari geometri Three.js dan screenshot proyek, dapat dinavigasi dengan drag, scroll, tombol, atau keyboard, lalu renderer dilepas ketika halaman ditutup.
 - Panel proyek menampilkan tantangan, kontribusi, pendekatan, hasil, teknologi, serta tautan demo dan repositori yang tersedia.
 - AI Ninja Challenge menjalankan klasifikasi pose langsung di browser. Kamera diproses di perangkat pengunjung dan baru diminta setelah tombol mulai ditekan.
-- Selesainya intro disimpan di `sessionStorage`, sehingga muat ulang pada tab yang sama langsung membuka kanvas karya.
+- Intro diputar kembali pada setiap pemuatan halaman. Tombol lewati tetap tersedia bagi pengunjung yang ingin langsung membuka kanvas karya.
 - Tanpa JavaScript, semua bagian dapat digulir, navigasi memakai anchor HTML, dan daftar karya beserta tautannya tetap tersedia dalam bahasa Inggris.
 - Bahasa, tema, dan volume disimpan di localStorage bila tersedia. Audio memakai satu nilai volume; nol berarti senyap.
 

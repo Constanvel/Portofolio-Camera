@@ -403,17 +403,13 @@ try {
     assert.equal(response.status(), 200);
     assert.match(await demo.title(), /AI Ninja Challenge/);
   });
-  await test('completed intro stays skipped after a same-tab reload', async page => {
+  await test('completed intro starts again after a same-tab reload', async page => {
     await open(page, '');
     await page.locator('#skip').click();
     await page.waitForFunction(() => document.body.dataset.stage === 'work');
-    await page.evaluate(() => localStorage.setItem('pf.vol', '66'));
     await page.reload();
-    await page.waitForFunction(() => document.body.dataset.stage === 'work', null, { timeout:1500 });
-    assert.equal(await page.locator('#mark').isVisible(), false);
-    assert.equal(await page.locator('#gl').isVisible(), false);
-    await page.locator('#settingsBtn').click();
-    await page.waitForFunction(() => !document.querySelector('#theme').paused);
+    await page.waitForFunction(() => document.body.dataset.stage === 'mark');
+    assert.equal(await page.locator('#mark').isVisible(), true);
   });
   await test('dark 3D deck keeps project textures at full brightness', async page => {
     await page.addInitScript(() => localStorage.setItem('pf.mode', 'dark'));

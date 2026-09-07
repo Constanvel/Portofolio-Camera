@@ -43,14 +43,6 @@ const deckNext  = $('deckNext');
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const introSeen = () => {
-  try { return sessionStorage.getItem('pf.intro-seen') === '1'; }
-  catch (e) { return false; }
-};
-const rememberIntro = () => {
-  try { sessionStorage.setItem('pf.intro-seen', '1'); }
-  catch (e) { /* a private context can decline storage without blocking the site */ }
-};
 
 /* ── ?fps, the half that is not the canvas ───────────────────────────────
    The meter in js/canvas.js only lives while the plane is running, and the
@@ -821,7 +813,6 @@ function lite(){
 
 function finish(){
   skipped = true;
-  rememberIntro();
   // whoever is mid-exit is waiting on a frame that is about to stop coming;
   // let it go first, and the teardown behind its await runs a tick later
   if (leaving){ leaving.abort(); leaving = null; }
@@ -1242,9 +1233,8 @@ function renderLang(l, save){
 renderLang(pickLang(recall('lang')), false);
 langBtn.addEventListener('click', () => renderLang(lang === 'id' ? 'en' : 'id', true));
 
-// Returning visits skip main(), so arm the first-gesture audio path before the
-// session shortcut. main() calls this too, and the guard keeps it idempotent.
+// Arm audio before the intro so the first user gesture can start the track.
+// main() calls this too, and the guard keeps it idempotent.
 armGlobalGesture();
-if (introSeen()) endIntro();
 applyRoute();
 if (!skipped) main().catch(failIntro);
