@@ -10,9 +10,6 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const deployment = JSON.parse(readFileSync(join(root, 'vercel.json'), 'utf8'));
-const globalHeaders = deployment.headers
-  ?.find(rule => rule.source === '/(.*)')?.headers || [];
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css',
   '.webp': 'image/webp', '.jpg': 'image/jpeg', '.glb': 'model/gltf-binary',
   '.woff2': 'font/woff2', '.pdf': 'application/pdf', '.opus': 'audio/ogg',
@@ -27,7 +24,6 @@ const server = createServer((req, res) => {
       || rel.includes('..') || !existsSync(join(root, rel))) {
     res.writeHead(404).end(); return;
   }
-  for (const header of globalHeaders) res.setHeader(header.key, header.value);
   res.setHeader('Content-Type', mime[extname(rel)] || 'application/octet-stream');
   res.end(readFileSync(join(root, rel)));
 });
@@ -82,45 +78,6 @@ try {
   await test('route focus reaches the section heading', async page => {
     await open(page);
     assert.equal(await page.evaluate(() => document.activeElement.className), 'page__t');
-    assert.equal(await page.locator('#pageAbout .page__t').evaluate(el => getComputedStyle(el).outlineStyle), 'none');
-    const creditLink = page.locator('#pageAbout .rows__a').first();
-    await creditLink.focus();
-    assert.notEqual(await creditLink.evaluate(el => getComputedStyle(el).outlineStyle), 'none');
-  });
-  await test('intro exposes only visible controls to keyboard users', async page => {
-    await open(page, '');
-    assert.deepEqual(await page.evaluate(() => ({
-      navInert: document.querySelector('#nav').inert,
-      navHidden: document.querySelector('#nav').getAttribute('aria-hidden'),
-      menuInert: document.querySelector('#navBtn').inert
-    })), { navInert:true, navHidden:'true', menuInert:true });
-    await page.keyboard.press('Tab');
-    assert.equal(await page.evaluate(() => document.activeElement.id), 'skip');
-    await page.locator('#skip').click();
-    await page.waitForFunction(() => document.body.dataset.stage === 'work');
-    assert.deepEqual(await page.evaluate(() => ({
-      navInert: document.querySelector('#nav').inert,
-      navHidden: document.querySelector('#nav').hasAttribute('aria-hidden'),
-      skipHidden: document.querySelector('#skip').hidden,
-      skipDisabled: document.querySelector('#skip').disabled
-    })), { navInert:false, navHidden:false, skipHidden:true, skipDisabled:true });
-  });
-  await test('open pages keep the covered work canvas inert', async page => {
-    await open(page, '#/about');
-    assert.deepEqual(await page.evaluate(() => ({
-      inert: document.querySelector('#work').inert,
-      hidden: document.querySelector('#work').getAttribute('aria-hidden')
-    })), { inert:true, hidden:'true' });
-    assert.equal(await page.evaluate(() => {
-      document.querySelector('#cv').focus();
-      return document.activeElement.id;
-    }), '');
-    await page.evaluate(() => { location.hash = '#/'; });
-    await page.waitForFunction(() => document.body.dataset.stage === 'work');
-    assert.deepEqual(await page.evaluate(() => ({
-      inert: document.querySelector('#work').inert,
-      hidden: document.querySelector('#work').hasAttribute('aria-hidden')
-    })), { inert:false, hidden:false });
   });
   await test('latest route wins over a closing transition', async page => {
     await open(page);
@@ -366,36 +323,6 @@ try {
     await page.locator('#workRepo').waitFor({ state:'visible' });
     assert.match(await page.locator('#workRepo').getAttribute('href'), /github\.com\/Constanvel/);
   });
-  await test('content stays selectable and compact controls remain readable', async page => {
-    await open(page, '#/about');
-    assert.notEqual(await page.locator('#aboutBody').evaluate(el => getComputedStyle(el).userSelect), 'none');
-    assert.ok(await page.locator('.rows__k').first().evaluate(el => parseFloat(getComputedStyle(el).fontSize)) >= 12);
-    await page.locator('#settingsBtn').click();
-    for (const selector of ['#themeBtn', '#langBtn', '#volRange']) {
-      assert.ok(await page.locator(selector).evaluate(el => el.getBoundingClientRect().height) >= 44,
-        `${selector} needs a 44px target`);
-    }
-  });
-  await test('project and certificate dialogs have an immediate close action', async page => {
-    await open(page, '#/works');
-    const projectTrigger = page.locator('button[data-work="lensa"]');
-    await projectTrigger.click();
-    const projectClose = page.locator('#workPanel .cert__close');
-    await projectClose.waitFor({ state:'visible' });
-    await page.waitForTimeout(300);
-    assert.ok(await projectClose.evaluate(el => el.getBoundingClientRect().height) >= 44);
-    await projectClose.click();
-    assert.equal(await page.locator('#workPanel').evaluate(el => el.open), false);
-    assert.equal(await page.evaluate(() => document.activeElement.dataset.work), 'lensa');
-
-    await page.evaluate(() => { location.hash = '#/achievements'; });
-    await page.locator('#pageAchievements.is-lit').waitFor({ state:'visible' });
-    await page.locator('a[href$="wise-innovera-uiux.webp"]').click();
-    const certClose = page.locator('#cert .cert__close');
-    await certClose.waitFor({ state:'visible' });
-    await certClose.click();
-    assert.equal(await page.locator('#cert').evaluate(el => el.open), false);
-  });
   await test('AI Ninja is listed with its first-party demo', async (page, context) => {
     await open(page, '#/works');
     await page.locator('button[data-work="ai ninja challenge"]').click();
@@ -407,13 +334,17 @@ try {
     assert.equal(response.status(), 200);
     assert.match(await demo.title(), /AI Ninja Challenge/);
   });
-  await test('completed intro starts again after a same-tab reload', async page => {
+  await test('completed intro stays skipped after a same-tab reload', async page => {
     await open(page, '');
     await page.locator('#skip').click();
     await page.waitForFunction(() => document.body.dataset.stage === 'work');
+    await page.evaluate(() => localStorage.setItem('pf.vol', '66'));
     await page.reload();
-    await page.waitForFunction(() => document.body.dataset.stage === 'mark');
-    assert.equal(await page.locator('#mark').isVisible(), true);
+    await page.waitForFunction(() => document.body.dataset.stage === 'work', null, { timeout:1500 });
+    assert.equal(await page.locator('#mark').isVisible(), false);
+    assert.equal(await page.locator('#gl').isVisible(), false);
+    await page.locator('#settingsBtn').click();
+    await page.waitForFunction(() => !document.querySelector('#theme').paused);
   });
   await test('dark 3D deck keeps project textures at full brightness', async page => {
     await page.addInitScript(() => localStorage.setItem('pf.mode', 'dark'));

@@ -43,6 +43,14 @@ const deckNext  = $('deckNext');
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+const introSeen = () => {
+  try { return sessionStorage.getItem('pf.intro-seen') === '1'; }
+  catch (e) { return false; }
+};
+const rememberIntro = () => {
+  try { sessionStorage.setItem('pf.intro-seen', '1'); }
+  catch (e) { /* a private context can decline storage without blocking the site */ }
+};
 
 /* ── ?fps, the half that is not the canvas ───────────────────────────────
    The meter in js/canvas.js only lives while the plane is running, and the
@@ -220,37 +228,8 @@ const pages = Object.fromEntries(
     .map(el => [el.id.slice(4).toLowerCase(), el])
 );
 const navLinks = document.querySelectorAll('.nav__a');
-const navEl    = $('nav');
 const navBtn   = $('navBtn');
 let lastStage = 'work';
-
-/* Opacity and pointer-events only affect sight and pointer input. They do not
-   remove controls from the keyboard order or accessibility tree, so the intro
-   explicitly makes its covered navigation and work surface inert. No inert
-   attribute lives in the HTML: the no-JavaScript fallback must stay usable. */
-function setNavigationAvailable(available){
-  navEl.inert = !available;
-  navBtn.inert = !available;
-  if (available){
-    navEl.removeAttribute('aria-hidden');
-    navBtn.removeAttribute('aria-hidden');
-  } else {
-    navEl.setAttribute('aria-hidden', 'true');
-    navBtn.setAttribute('aria-hidden', 'true');
-  }
-}
-function setWorkAvailable(available){
-  workWrap.inert = !available;
-  if (available) workWrap.removeAttribute('aria-hidden');
-  else workWrap.setAttribute('aria-hidden', 'true');
-}
-function retireSkip(){
-  skipBtn.classList.remove('is-lit');
-  skipBtn.disabled = true;
-  skipBtn.hidden = true;
-}
-setNavigationAvailable(false);
-setWorkAvailable(false);
 
 /* ── the exposure ────────────────────────────────────────────────────────
    Retriggering a CSS animation needs the class off, a reflow, and the class on
@@ -425,7 +404,6 @@ async function applyRoute(){
   const previousRoute = appliedRoute;
   appliedRoute = r;
   const version = ++routeVersion;
-  if (r) setWorkAvailable(false);
   if (previousRoute === 'works' && r !== 'works') projectDeck?.stop();
   /* Opening a section ends the intro and frees its WebGL resources. */
   if (r) endIntro();
@@ -491,7 +469,6 @@ async function applyRoute(){
     if (heading){ heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
   } else if (body.dataset.stage === 'page'){
     body.dataset.stage = lastStage;
-    setWorkAvailable(true);
     work?.cv.focus({ preventScroll: true });
   }
 }
@@ -540,8 +517,6 @@ function showWork(){
   if (workShown) return;
   workShown = true;
   workWrap.hidden = false;
-  setNavigationAvailable(true);
-  setWorkAvailable(!routeFromHash());
   lastStage = 'work';
   body.dataset.stage = 'work';
   body.classList.remove('is-dark');
@@ -755,7 +730,7 @@ async function toCamera(){
     onLit: () => body.classList.remove('is-dark'),
     // the plane goes up underneath only once the monitor's edges ARE the
     // viewport's edges; the camera's own fade is then the cross-dissolve
-    onReveal: () => { showWork(); retireSkip(); },
+    onReveal: () => { showWork(); skipBtn.classList.remove('is-lit'); },
     onDone: finish
   });
   gl.acts.push(cam);
@@ -794,7 +769,7 @@ async function toCamera(){
 function lite(){
   /* Touch devices fetch audio on the first gesture, through goAudible(). */
   glCanvas.hidden = true;
-  retireSkip();
+  skipBtn.classList.remove('is-lit');
   showWork();
   /* Here rather than inside showWork(): the desktop path calls that too, and
      there the plane is already being revealed by the camera's own monitor
@@ -813,6 +788,7 @@ function lite(){
 
 function finish(){
   skipped = true;
+  rememberIntro();
   // whoever is mid-exit is waiting on a frame that is about to stop coming;
   // let it go first, and the teardown behind its await runs a tick later
   if (leaving){ leaving.abort(); leaving = null; }
@@ -839,7 +815,7 @@ function finish(){
   if (gl){ gl.dispose(); gl = null; }
   glCanvas.classList.remove('is-lit', 'is-live', 'is-hot');
   glCanvas.hidden = true;
-  retireSkip();
+  skipBtn.classList.remove('is-lit');
   body.classList.remove('is-dark');
   dim(0);
   showWork();
@@ -1233,8 +1209,9 @@ function renderLang(l, save){
 renderLang(pickLang(recall('lang')), false);
 langBtn.addEventListener('click', () => renderLang(lang === 'id' ? 'en' : 'id', true));
 
-// Arm audio before the intro so the first user gesture can start the track.
-// main() calls this too, and the guard keeps it idempotent.
+// Returning visits skip main(), so arm the first-gesture audio path before the
+// session shortcut. main() calls this too, and the guard keeps it idempotent.
 armGlobalGesture();
+if (introSeen()) endIntro();
 applyRoute();
 if (!skipped) main().catch(failIntro);

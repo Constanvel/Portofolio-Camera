@@ -36,13 +36,12 @@ Buka `http://127.0.0.1:8000/`. Modul JavaScript membutuhkan HTTP, bukan membuka 
 - Anchor `#pageAbout` dan tautan lama `#/about` sama-sama didukung. Navigasi terbaru membatalkan transisi sebelumnya; halaman yang terbuka menerima fokus pada judulnya.
 - Membuka bagian menghentikan kanvas. Meninggalkan intro membebaskan renderer dan model; hasil unduhan yang terlambat ikut dilepas.
 - Tombol panah menggerakkan kanvas hanya ketika kanvas mendapat fokus. Slider volume tetap dapat diubah dengan keyboard.
-- Navigasi dan kanvas yang tertutup tidak menerima fokus keyboard. Kontrol ringkas memakai target sentuh minimum 44 px, teks isi dapat diseleksi, dan dialog menyediakan tombol tutup di bagian atas maupun bawah.
 - Preferensi reduced motion menghentikan gerakan ornamen kanvas, meniadakan pembesaran kursor dan momentum, serta mempersingkat transisi halaman dan intro.
 - Sertifikat dibuka dalam dialog. Tautan “buka berkasnya langsung” tetap membuka berkas asli, termasuk ketika viewer PDF tidak bekerja di perangkat pengguna.
 - Halaman Karya memuat deck 3D secara dinamis. Kartu dibuat dari geometri Three.js dan screenshot proyek, dapat dinavigasi dengan drag, scroll, tombol, atau keyboard, lalu renderer dilepas ketika halaman ditutup.
 - Panel proyek menampilkan tantangan, kontribusi, pendekatan, hasil, teknologi, serta tautan demo dan repositori yang tersedia.
 - AI Ninja Challenge menjalankan klasifikasi pose langsung di browser. Kamera diproses di perangkat pengunjung dan baru diminta setelah tombol mulai ditekan.
-- Intro diputar kembali pada setiap pemuatan halaman. Tombol lewati tetap tersedia bagi pengunjung yang ingin langsung membuka kanvas karya.
+- Selesainya intro disimpan di `sessionStorage`, sehingga muat ulang pada tab yang sama langsung membuka kanvas karya.
 - Tanpa JavaScript, semua bagian dapat digulir, navigasi memakai anchor HTML, dan daftar karya beserta tautannya tetap tersedia dalam bahasa Inggris.
 - Bahasa, tema, dan volume disimpan di localStorage bila tersedia. Audio memakai satu nilai volume; nol berarti senyap.
 
@@ -105,13 +104,7 @@ Untuk diagnosis visual: `?fps` menampilkan pengukuran frame, `?nogrid` mematikan
 
 Gunakan direktori situs ini sebagai root proyek Vercel, preset **Other**, tanpa install/build command atau output directory khusus. `vercel.json` mengatur cache `assets/` selama satu jam dengan stale-while-revalidate satu hari. Ganti nama aset saat isinya berubah dan perlu langsung terlihat.
 
-Saat terminal berada di folder induk `D:\Portofolio-Cam`, berikan path situs secara eksplisit agar Vercel tidak mengunggah folder induk sebagai root:
-
-```powershell
-npx.cmd vercel deploy "D:\Portofolio-Cam\Portofolio-Camera" --prod --force
-```
-
-Konfigurasi yang sama memasang Content Security Policy, kebijakan izin kamera, pembatasan frame, referrer policy, dan MIME sniffing protection. CSP mengizinkan kompilasi WebAssembly hanya untuk decoder Meshopt lokal yang dibutuhkan model 3D. Dokumen utama memakai `no-store` agar perubahan header keamanan selalu diambil dari deployment terbaru. Izin kamera hanya tersedia untuk origin situs sendiri dan dipakai oleh demo AI Ninja.
+Konfigurasi yang sama memasang Content Security Policy, kebijakan izin kamera, pembatasan frame, referrer policy, dan MIME sniffing protection. Izin kamera hanya tersedia untuk origin situs sendiri dan dipakai oleh demo AI Ninja.
 
 Domain utama: `https://portofolio-rainer.vercel.app/`. Jika berubah, perbarui canonical, `og:url`, `og:image`, sitemap, dan robots.txt bersama-sama.
 
