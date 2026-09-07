@@ -73,6 +73,7 @@ const ID = {
 
   /* the furniture */
   'ui.back':      'kembali',
+  'ui.close':     'tutup',
   'ui.skip':      'lewati intro',
   'ui.settings':  'pengaturan',
   'ui.drag':      'geser untuk menjelajah',

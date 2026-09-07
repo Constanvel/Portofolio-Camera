@@ -36,6 +36,7 @@ Buka `http://127.0.0.1:8000/`. Modul JavaScript membutuhkan HTTP, bukan membuka 
 - Anchor `#pageAbout` dan tautan lama `#/about` sama-sama didukung. Navigasi terbaru membatalkan transisi sebelumnya; halaman yang terbuka menerima fokus pada judulnya.
 - Membuka bagian menghentikan kanvas. Meninggalkan intro membebaskan renderer dan model; hasil unduhan yang terlambat ikut dilepas.
 - Tombol panah menggerakkan kanvas hanya ketika kanvas mendapat fokus. Slider volume tetap dapat diubah dengan keyboard.
+- Navigasi dan kanvas yang tertutup tidak menerima fokus keyboard. Kontrol ringkas memakai target sentuh minimum 44 px, teks isi dapat diseleksi, dan dialog menyediakan tombol tutup di bagian atas maupun bawah.
 - Preferensi reduced motion menghentikan gerakan ornamen kanvas, meniadakan pembesaran kursor dan momentum, serta mempersingkat transisi halaman dan intro.
 - Sertifikat dibuka dalam dialog. Tautan “buka berkasnya langsung” tetap membuka berkas asli, termasuk ketika viewer PDF tidak bekerja di perangkat pengguna.
 - Halaman Karya memuat deck 3D secara dinamis. Kartu dibuat dari geometri Three.js dan screenshot proyek, dapat dinavigasi dengan drag, scroll, tombol, atau keyboard, lalu renderer dilepas ketika halaman ditutup.

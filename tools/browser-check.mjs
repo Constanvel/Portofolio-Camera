@@ -78,6 +78,45 @@ try {
   await test('route focus reaches the section heading', async page => {
     await open(page);
     assert.equal(await page.evaluate(() => document.activeElement.className), 'page__t');
+    assert.equal(await page.locator('#pageAbout .page__t').evaluate(el => getComputedStyle(el).outlineStyle), 'none');
+    const creditLink = page.locator('#pageAbout .rows__a').first();
+    await creditLink.focus();
+    assert.notEqual(await creditLink.evaluate(el => getComputedStyle(el).outlineStyle), 'none');
+  });
+  await test('intro exposes only visible controls to keyboard users', async page => {
+    await open(page, '');
+    assert.deepEqual(await page.evaluate(() => ({
+      navInert: document.querySelector('#nav').inert,
+      navHidden: document.querySelector('#nav').getAttribute('aria-hidden'),
+      menuInert: document.querySelector('#navBtn').inert
+    })), { navInert:true, navHidden:'true', menuInert:true });
+    await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(() => document.activeElement.id), 'skip');
+    await page.locator('#skip').click();
+    await page.waitForFunction(() => document.body.dataset.stage === 'work');
+    assert.deepEqual(await page.evaluate(() => ({
+      navInert: document.querySelector('#nav').inert,
+      navHidden: document.querySelector('#nav').hasAttribute('aria-hidden'),
+      skipHidden: document.querySelector('#skip').hidden,
+      skipDisabled: document.querySelector('#skip').disabled
+    })), { navInert:false, navHidden:false, skipHidden:true, skipDisabled:true });
+  });
+  await test('open pages keep the covered work canvas inert', async page => {
+    await open(page, '#/about');
+    assert.deepEqual(await page.evaluate(() => ({
+      inert: document.querySelector('#work').inert,
+      hidden: document.querySelector('#work').getAttribute('aria-hidden')
+    })), { inert:true, hidden:'true' });
+    assert.equal(await page.evaluate(() => {
+      document.querySelector('#cv').focus();
+      return document.activeElement.id;
+    }), '');
+    await page.evaluate(() => { location.hash = '#/'; });
+    await page.waitForFunction(() => document.body.dataset.stage === 'work');
+    assert.deepEqual(await page.evaluate(() => ({
+      inert: document.querySelector('#work').inert,
+      hidden: document.querySelector('#work').hasAttribute('aria-hidden')
+    })), { inert:false, hidden:false });
   });
   await test('latest route wins over a closing transition', async page => {
     await open(page);
@@ -322,6 +361,36 @@ try {
       'https://smk-telkom-purwokerto.vercel.app');
     await page.locator('#workRepo').waitFor({ state:'visible' });
     assert.match(await page.locator('#workRepo').getAttribute('href'), /github\.com\/Constanvel/);
+  });
+  await test('content stays selectable and compact controls remain readable', async page => {
+    await open(page, '#/about');
+    assert.notEqual(await page.locator('#aboutBody').evaluate(el => getComputedStyle(el).userSelect), 'none');
+    assert.ok(await page.locator('.rows__k').first().evaluate(el => parseFloat(getComputedStyle(el).fontSize)) >= 12);
+    await page.locator('#settingsBtn').click();
+    for (const selector of ['#themeBtn', '#langBtn', '#volRange']) {
+      assert.ok(await page.locator(selector).evaluate(el => el.getBoundingClientRect().height) >= 44,
+        `${selector} needs a 44px target`);
+    }
+  });
+  await test('project and certificate dialogs have an immediate close action', async page => {
+    await open(page, '#/works');
+    const projectTrigger = page.locator('button[data-work="lensa"]');
+    await projectTrigger.click();
+    const projectClose = page.locator('#workPanel .cert__close');
+    await projectClose.waitFor({ state:'visible' });
+    await page.waitForTimeout(300);
+    assert.ok(await projectClose.evaluate(el => el.getBoundingClientRect().height) >= 44);
+    await projectClose.click();
+    assert.equal(await page.locator('#workPanel').evaluate(el => el.open), false);
+    assert.equal(await page.evaluate(() => document.activeElement.dataset.work), 'lensa');
+
+    await page.evaluate(() => { location.hash = '#/achievements'; });
+    await page.locator('#pageAchievements.is-lit').waitFor({ state:'visible' });
+    await page.locator('a[href$="wise-innovera-uiux.webp"]').click();
+    const certClose = page.locator('#cert .cert__close');
+    await certClose.waitFor({ state:'visible' });
+    await certClose.click();
+    assert.equal(await page.locator('#cert').evaluate(el => el.open), false);
   });
   await test('AI Ninja is listed with its first-party demo', async (page, context) => {
     await open(page, '#/works');

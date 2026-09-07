@@ -111,7 +111,7 @@
        this site has none of anywhere else. Same eight links either way: the
        <nav> below is the bar AND the dropdown, so there is no second copy to
        fall out of step. -->
-  <button class="navbtn" id="navBtn" type="button"
+  <button class="navbtn" id="navBtn" type="button" aria-haspopup="true"
           aria-expanded="false" aria-controls="nav">menu</button>
   <nav class="nav" id="nav" aria-label="sections" data-ta="nav.label">
     <a class="nav__a" href="#" data-t="nav.home">home</a>
@@ -303,7 +303,7 @@
       <h2 class="page__t" data-t="nav.works">works</h2>
       <div class="deck" id="projectDeck">
         <canvas class="deck__canvas" id="projectDeckCanvas" tabindex="0"
-                data-ta="deck.canvas"
+                data-ta="deck.canvas" aria-describedby="deckNote"
                 aria-label="Interactive 3D project deck. Use left and right arrow keys to change projects, then Enter to open one."></canvas>
         <div class="deck__copy" aria-live="polite" aria-atomic="true">
           <span class="deck__count" id="deckCount"></span>
@@ -424,9 +424,9 @@
        quiet type, present from the first frame rather than lit by a stage.
        One button rather than two floating in the corner: the volume needs a
        slider, and a slider needs somewhere to live. -->
-  <button class="skip set" id="settingsBtn" type="button"
+  <button class="skip set" id="settingsBtn" type="button" aria-haspopup="true"
           aria-expanded="false" aria-controls="settingsPanel" data-t="ui.settings">settings</button>
-  <div class="set__panel" id="settingsPanel" role="group" aria-label="settings" data-ta="ui.settings" hidden>
+  <div class="set__panel" id="settingsPanel" role="region" aria-labelledby="settingsBtn" hidden>
     <div class="set__row">
       <span class="set__k" data-t="set.theme">theme</span>
       <button class="set__v" id="themeBtn" type="button">light</button>
@@ -461,7 +461,8 @@
   <!-- aria-labelledby, because a <dialog> with no accessible name is
        announced as "dialog" and nothing else. The heading is already in
        here and is already the right words. -->
-  <dialog class="cert" id="workPanel" aria-labelledby="workTitle">
+  <dialog class="cert" id="workPanel" aria-labelledby="workTitle" aria-describedby="workBlurb">
+    <form method="dialog" class="cert__top"><button class="cert__close" type="submit" data-t="ui.close">close</button></form>
     <!-- the tiles are all 1440x810; the attributes are here for the RATIO,
          so the panel reserves the box before the picture lands instead of
          growing under the heading. CSS still decides the actual size. -->
@@ -494,6 +495,7 @@
        body is one injected frame or picture. js/main.js gives it the row
        text as an aria-label at the moment it opens. -->
   <dialog class="cert" id="cert">
+    <form method="dialog" class="cert__top"><button class="cert__close" type="submit" data-t="ui.close">close</button></form>
     <div class="cert__v" id="certView"></div>
     <p class="cert__f"><a class="rows__a" id="certOpen" href="#" target="_blank" rel="noopener" data-t="wk.file">open the file itself</a></p>
     <form method="dialog"><button class="page__back" type="submit" data-t="ui.back">back</button></form>

@@ -41,6 +41,8 @@
   --ease-in-out:cubic-bezier(.65,0,.35,1);
   --t-slow:1100ms;
   --t-mid:620ms;
+  --tap-target:44px;
+  --label-size:.75rem;
 }
 
 *,*::before,*::after{ box-sizing:border-box; }
@@ -53,12 +55,15 @@ html,body{ height:100%; }
 html{ overscroll-behavior:none; }
 body{
   margin:0; background:var(--paper); color:var(--ink);
-  -webkit-tap-highlight-color:transparent;
-  -webkit-user-select:none; user-select:none;
+  -webkit-tap-highlight-color:rgba(127,127,127,.18);
   -webkit-text-size-adjust:100%;
   font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
   font-weight:400; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
   overflow:hidden; overscroll-behavior:none;
+}
+::selection{ background:var(--ink); color:var(--paper); }
+.mark,.gl,.work__cv,.deck__canvas,.nav,.navbtn,.skip{
+  -webkit-user-select:none; user-select:none;
 }
 body[data-stage="work"], body[data-stage="page"]{ overflow:hidden; }
 
@@ -153,7 +158,7 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 .work__hint{
   position:absolute; left:50%; transform:translateX(-50%);
   bottom:calc(clamp(18px,3.4vh,34px) + env(safe-area-inset-bottom,0px));
-  margin:0; font-size:.6875rem; font-weight:500; letter-spacing:.16em;
+  margin:0; font-size:var(--label-size); font-weight:500; letter-spacing:.14em;
   text-transform:uppercase; color:var(--ink-2);
   opacity:0; transition:opacity 900ms var(--ease-in-out);
   pointer-events:none;
@@ -240,7 +245,7 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 .deck__canvas:focus-visible{ outline:2px solid var(--ink); outline-offset:4px; }
 .deck__copy{ grid-area:copy; align-self:end; min-width:0; }
 .deck__count{
-  display:block; color:var(--ink-3); font-size:.6875rem; font-weight:500;
+  display:block; color:var(--ink-3); font-size:var(--label-size); font-weight:500;
   letter-spacing:.14em; text-transform:uppercase;
 }
 .deck__title{
@@ -257,9 +262,9 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
   gap:.55rem 1rem; margin-top:1.25rem;
 }
 .deck__control{
-  min-height:44px; padding:.55rem 0; border:0; border-bottom:1px solid var(--hair);
+  min-height:var(--tap-target); padding:.55rem 0; border:0; border-bottom:1px solid var(--hair);
   background:none; color:var(--ink-2); cursor:pointer; font:inherit;
-  font-size:.6875rem; font-weight:500; letter-spacing:.14em;
+  font-size:var(--label-size); font-weight:500; letter-spacing:.12em;
   text-transform:uppercase;
 }
 .deck__control--open{ color:var(--ink); }
@@ -290,7 +295,7 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 }
 .grid__t{
   display:block; margin-top:.75rem; color:var(--ink);
-  font-size:.6875rem; font-weight:500; letter-spacing:.14em; text-transform:uppercase;
+  font-size:var(--label-size); font-weight:500; letter-spacing:.12em; text-transform:uppercase;
 }
 /* the one line that says what it is. Sentence case and normal tracking: it is
    the only thing on a card meant to be READ rather than scanned, and setting it
@@ -301,7 +306,7 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 }
 .grid__m{
   display:block; margin-top:.45rem; color:var(--ink-3);
-  font-size:.6875rem; letter-spacing:.14em; text-transform:uppercase;
+  font-size:var(--label-size); letter-spacing:.12em; text-transform:uppercase;
 }
 .grid__b:focus-visible .grid__img{ opacity:.82; }
 /* Read but not seen — the page's <h1>. Not display:none and not
@@ -318,8 +323,8 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
   letter-spacing:-.035em; line-height:1.04;
 }
 .page__p{
-  margin:0 auto; max-width:36ch; font-size:1.0625rem; line-height:1.65;
-  color:var(--ink-2);
+  margin:0 auto; max-width:42ch; font-size:1.0625rem; line-height:1.7;
+  color:var(--ink-2); text-align:left;
 }
 .about__portrait{
   width:min(100%,24rem); aspect-ratio:16/10; margin:0 auto 1.7rem;
@@ -336,13 +341,13 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
    rows every other section uses, one size down: it is a legal obligation being
    met honestly, not a feature asking to be read first. */
 .page__c{
-  margin:3.4rem auto 0; max-width:36ch;
-  font-size:.8125rem; line-height:1.6; color:var(--ink-3);
+  margin:3.4rem auto 0; max-width:42ch; text-align:left;
+  font-size:.875rem; line-height:1.65; color:var(--ink-3);
 }
 .rows--fine{ margin-top:.9rem; }
 .rows--fine .rows__r{ padding:.65rem 0; }
-.rows--fine .rows__v{ font-size:.8125rem; line-height:1.55; color:var(--ink-2); }
-.rows--fine .rows__k{ font-size:.625rem; }
+.rows--fine .rows__v{ font-size:.875rem; line-height:1.6; color:var(--ink-2); }
+.rows--fine .rows__k{ font-size:var(--label-size); }
 .rows__badge{
   display:inline-grid; place-items:center; width:1.25rem; height:1.25rem;
   margin-right:.45rem; border:1px solid currentColor; border-radius:3px;
@@ -355,13 +360,13 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
   font-size:.9375rem; font-weight:500; letter-spacing:-.01em;
   color:var(--ink); text-decoration:none; background:transparent;
   transition:background var(--t-mid) var(--ease-out), color var(--t-mid) var(--ease-out);
-  min-height:44px;
+  min-height:var(--tap-target);
 }
 .page__cta:focus-visible{ background:var(--ink); color:var(--paper); }
 .page__back{
-  display:block; margin:3.2rem auto 0; padding:.6rem 1rem; min-height:44px;
+  display:block; margin:3.2rem auto 0; padding:.6rem 1rem; min-height:var(--tap-target);
   border:0; background:none; cursor:pointer; color:var(--ink-2);
-  font-family:inherit; font-size:.6875rem; font-weight:500;
+  font-family:inherit; font-size:var(--label-size); font-weight:500;
   letter-spacing:.16em; text-transform:uppercase;
 }
 .page__back:focus-visible{ color:var(--ink); }
@@ -494,7 +499,7 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 }
 .rows__k{
   padding-top:.3rem; color:var(--ink);
-  font-size:.6875rem; font-weight:500; letter-spacing:.14em; text-transform:uppercase;
+  font-size:var(--label-size); font-weight:500; letter-spacing:.12em; text-transform:uppercase;
 }
 .rows__v{ font-size:1rem; line-height:1.55; color:var(--ink-2); }
 /* Technology names stay plain like the rest of the page. Their marks are
@@ -519,6 +524,7 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
    the only honest way to show which is to mark the ones that do. */
 .rows__a{
   color:inherit; text-decoration:none; border-bottom:1px solid var(--hair);
+  text-underline-offset:.18em;
   transition:color 220ms var(--ease-out), border-color 220ms var(--ease-out);
 }
 .rows__a:hover,
@@ -573,9 +579,9 @@ body[data-stage="page"] .nav__a{ pointer-events:auto; }
 .nav__a{
   position:relative;
   flex:0 0 auto;
-  display:inline-flex; align-items:center; min-height:44px; padding:.5rem 0;
+  display:inline-flex; align-items:center; min-height:var(--tap-target); padding:.5rem 0;
   color:var(--ink-2); text-decoration:none;
-  font-size:.6875rem; font-weight:500; letter-spacing:.14em; text-transform:uppercase;
+  font-size:var(--label-size); font-weight:500; letter-spacing:.12em; text-transform:uppercase;
   transition:color var(--t-mid) var(--ease-out);
 }
 /* the rule drawn under the current link is the one thing that moves the
@@ -608,10 +614,10 @@ body[data-stage="page"] .nav__a{ pointer-events:auto; }
   .navbtn{
     display:block; position:fixed; z-index:66;
     top:calc(.7rem + env(safe-area-inset-top,0px)); left:50%; translate:-50% 0;
-    min-height:44px; padding:.5rem 1rem;
+    min-height:var(--tap-target); padding:.5rem 1rem;
     border:0; background:none; cursor:pointer; color:var(--ink-2);
-    font:inherit; font-size:.6875rem; font-weight:500;
-    letter-spacing:.14em; text-transform:uppercase;
+    font:inherit; font-size:var(--label-size); font-weight:500;
+    letter-spacing:.12em; text-transform:uppercase;
     /* lit by the stage, exactly as the bar it replaces — a control for
        sections must not be reachable before there are sections to reach */
     opacity:0; pointer-events:none;
@@ -650,10 +656,10 @@ body[data-stage="page"] .nav__a{ pointer-events:auto; }
   position:fixed;
   right:calc(clamp(14px,2.4vw,26px) + env(safe-area-inset-right,0px));
   bottom:calc(clamp(14px,2.4vh,26px) + env(safe-area-inset-bottom,0px));
-  z-index:70; min-height:44px; padding:.55rem .9rem;
+  z-index:70; min-height:var(--tap-target); padding:.55rem .9rem;
   border:0; background:none; cursor:pointer; color:var(--ink-2);
-  font-family:inherit; font-size:.625rem; font-weight:500;
-  letter-spacing:.18em; text-transform:uppercase;
+  font-family:inherit; font-size:var(--label-size); font-weight:500;
+  letter-spacing:.14em; text-transform:uppercase;
   opacity:0; transition:opacity var(--t-mid) var(--ease-in-out);
   pointer-events:none;
 }
@@ -703,11 +709,11 @@ body[data-stage="page"] .set{ background:var(--paper); }
 .set__row:last-child{ border-bottom:0; padding-bottom:.2rem; }
 .set__k{
   color:var(--ink-2);
-  font-size:.6875rem; font-weight:500; letter-spacing:.14em; text-transform:uppercase;
+  font-size:var(--label-size); font-weight:500; letter-spacing:.12em; text-transform:uppercase;
 }
 /* the value is the control: same hairline as a link, no button chrome */
 .set__v{
-  font:inherit; font-size:.9375rem; padding:0; min-height:24px;
+  font:inherit; font-size:.9375rem; padding:.55rem .25rem; min-height:var(--tap-target);
   background:none; border:0; border-bottom:1px solid var(--hair);
   color:var(--ink); cursor:pointer;
 }
@@ -717,20 +723,24 @@ body[data-stage="page"] .set{ background:var(--paper); }
 .set__row--wide{ flex-direction:column; align-items:stretch; gap:.55rem; }
 .set__range{
   -webkit-appearance:none; appearance:none;
-  width:100%; height:22px; background:none; cursor:pointer;
+  width:100%; height:var(--tap-target); background:none; cursor:pointer;
 }
-.set__range::-webkit-slider-runnable-track{ height:1px; background:var(--hair); }
-.set__range::-moz-range-track{ height:1px; background:var(--hair); }
+.set__range::-webkit-slider-runnable-track{ height:2px; background:var(--hair); }
+.set__range::-moz-range-track{ height:2px; background:var(--hair); }
 .set__range::-webkit-slider-thumb{
   -webkit-appearance:none; appearance:none;
-  width:14px; height:14px; margin-top:-6.5px; border:0; border-radius:50%;
+  width:20px; height:20px; margin-top:-9px; border:0; border-radius:50%;
   background:var(--ink);
 }
 .set__range::-moz-range-thumb{
-  width:14px; height:14px; border:0; border-radius:50%; background:var(--ink);
+  width:20px; height:20px; border:0; border-radius:50%; background:var(--ink);
 }
 
 :focus-visible{ outline:2px solid var(--ink); outline-offset:3px; }
+/* Route changes move focus to a heading so assistive technology announces the
+   new section. Headings are not interactive or part of the Tab order, so the
+   global control ring would draw a misleading full-width box around them. */
+.page__t:focus-visible,.wk__t:focus-visible{ outline:none; }
 
 /* ── a certificate, opened in place ──────────────────────────────────────
    <dialog> brings the backdrop, the Escape key, the focus trap and the close
@@ -752,6 +762,18 @@ body[data-stage="page"] .set{ background:var(--paper); }
              overlay 260ms allow-discrete, display 260ms allow-discrete;
 }
 .cert[open]{ opacity:1; transform:none; }
+.cert__top{
+  position:sticky; top:0; z-index:3; display:flex; justify-content:flex-end;
+  height:0; margin:0;
+}
+.cert__close{
+  min-width:var(--tap-target); min-height:var(--tap-target); padding:.55rem .8rem;
+  border:1px solid var(--hair); border-radius:999px;
+  background:rgba(var(--scrim),.94); color:var(--ink); cursor:pointer;
+  font-family:inherit; font-size:var(--label-size); font-weight:500; line-height:1;
+  letter-spacing:.12em; text-transform:uppercase;
+}
+.cert__close:focus-visible{ border-color:currentColor; }
 /* An element entering the top layer has no previous state to transition FROM,
    so without this the open state just applies and nothing moves. A browser
    that does not know the rule ignores it and the dialog snaps in, which is
@@ -792,8 +814,8 @@ body[data-stage="page"] .set{ background:var(--paper); }
 }
 .wk__t{ margin:1.1rem 0 0; font-size:1.5rem; font-weight:500; letter-spacing:-.02em; }
 .wk__meta{
-  margin:.35rem 0 0; font-size:.6875rem; font-weight:500;
-  letter-spacing:.14em; text-transform:uppercase; color:var(--ink-2);
+  margin:.35rem 0 0; font-size:var(--label-size); font-weight:500;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--ink-2);
 }
 .wk__p{ margin:.7rem 0 0; font-size:1rem; line-height:1.6; color:var(--ink-2); }
 .wk__case{
@@ -803,8 +825,8 @@ body[data-stage="page"] .set{ background:var(--paper); }
 .wk__case section{ padding:.85rem 0; border-top:1px solid var(--hair); }
 .wk__case section:last-child{ grid-column:1 / -1; }
 .wk__case h3{
-  margin:0; color:var(--ink-3); font-size:.625rem; font-weight:500;
-  letter-spacing:.15em; line-height:1.4; text-transform:uppercase;
+  margin:0; color:var(--ink-3); font-size:var(--label-size); font-weight:500;
+  letter-spacing:.12em; line-height:1.4; text-transform:uppercase;
 }
 .wk__case p{
   margin:.45rem 0 0; color:var(--ink-2); font-size:.9rem; line-height:1.55;
@@ -849,13 +871,13 @@ body[data-stage="page"] .set{ background:var(--paper); }
   /* the canvas is dragged, so nothing on it may be selected or long-pressed */
   .work__cv{ -webkit-touch-callout:none; }
   /* the hint has to clear the home indicator and read at arm's length */
-  .work__hint{ font-size:.75rem; letter-spacing:.14em; }
-  .skip{ font-size:.6875rem; padding:.7rem 1rem; }
+  .work__hint{ letter-spacing:.14em; }
+  .skip{ padding:.7rem 1rem; }
   .page__p{ font-size:1rem; line-height:1.6; }
   /* eight links never fit a phone, so the bar is swiped rather than folded
      into a menu; it starts at `home` and scrolls to `contact` */
   .nav{ justify-content:flex-start; }
-  .nav__a{ font-size:.75rem; letter-spacing:.12em; }
+  .nav__a{ letter-spacing:.12em; }
 }
 
 /* a phone on its side has almost no height to spend */

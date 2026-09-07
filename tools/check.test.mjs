@@ -169,3 +169,23 @@ test('site includes structured data and reproducible verification', () => {
     assert.match(headers, new RegExp(name), `${name} header is required`);
   }
 });
+
+test('shared interface keeps its accessibility affordances', () => {
+  const html = readFileSync(join(root, 'index.html'), 'utf8');
+  const css = readFileSync(join(root, 'css/style.css'), 'utf8');
+  const i18n = readFileSync(join(root, 'js/i18n.js'), 'utf8');
+  const bodyRule = css.match(/\nbody\{([\s\S]*?)\}/)?.[1] || '';
+
+  assert.equal((html.match(/class="cert__close"/g) || []).length, 2,
+    'both long dialogs need a close control at the top');
+  assert.match(html, /id="workPanel"[^>]*aria-describedby="workBlurb"/,
+    'the project dialog needs its overview as an accessible description');
+  assert.doesNotMatch(bodyRule, /user-select\s*:\s*none/,
+    'readable page text must remain selectable');
+  assert.match(css, /--tap-target\s*:\s*44px/,
+    'shared controls need one explicit minimum target token');
+  assert.match(css, /--label-size\s*:\s*\.75rem/,
+    'small interface labels need one readable size token');
+  assert.match(i18n, /'ui\.close'\s*:\s*'tutup'/,
+    'the visible close control needs an Indonesian translation');
+});
