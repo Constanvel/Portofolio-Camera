@@ -170,6 +170,16 @@ test('site includes structured data and reproducible verification', () => {
   }
 });
 
+test('production CSP permits the bundled Meshopt WebAssembly decoder', () => {
+  const vercel = JSON.parse(readFileSync(join(root, 'vercel.json'), 'utf8'));
+  const csp = vercel.headers
+    .flatMap(rule => rule.headers || [])
+    .find(header => header.key === 'Content-Security-Policy')?.value || '';
+
+  assert.match(csp, /script-src[^;]*'wasm-unsafe-eval'/,
+    'the 3D intro decoder needs wasm-unsafe-eval in script-src');
+});
+
 test('shared interface keeps its accessibility affordances', () => {
   const html = readFileSync(join(root, 'index.html'), 'utf8');
   const css = readFileSync(join(root, 'css/style.css'), 'utf8');

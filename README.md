@@ -105,7 +105,7 @@ Untuk diagnosis visual: `?fps` menampilkan pengukuran frame, `?nogrid` mematikan
 
 Gunakan direktori situs ini sebagai root proyek Vercel, preset **Other**, tanpa install/build command atau output directory khusus. `vercel.json` mengatur cache `assets/` selama satu jam dengan stale-while-revalidate satu hari. Ganti nama aset saat isinya berubah dan perlu langsung terlihat.
 
-Konfigurasi yang sama memasang Content Security Policy, kebijakan izin kamera, pembatasan frame, referrer policy, dan MIME sniffing protection. Izin kamera hanya tersedia untuk origin situs sendiri dan dipakai oleh demo AI Ninja.
+Konfigurasi yang sama memasang Content Security Policy, kebijakan izin kamera, pembatasan frame, referrer policy, dan MIME sniffing protection. CSP mengizinkan kompilasi WebAssembly hanya untuk decoder Meshopt lokal yang dibutuhkan model 3D. Izin kamera hanya tersedia untuk origin situs sendiri dan dipakai oleh demo AI Ninja.
 
 Domain utama: `https://portofolio-rainer.vercel.app/`. Jika berubah, perbarui canonical, `og:url`, `og:image`, sitemap, dan robots.txt bersama-sama.
 

@@ -10,6 +10,9 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const deployment = JSON.parse(readFileSync(join(root, 'vercel.json'), 'utf8'));
+const globalHeaders = deployment.headers
+  ?.find(rule => rule.source === '/(.*)')?.headers || [];
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css',
   '.webp': 'image/webp', '.jpg': 'image/jpeg', '.glb': 'model/gltf-binary',
   '.woff2': 'font/woff2', '.pdf': 'application/pdf', '.opus': 'audio/ogg',
@@ -24,6 +27,7 @@ const server = createServer((req, res) => {
       || rel.includes('..') || !existsSync(join(root, rel))) {
     res.writeHead(404).end(); return;
   }
+  for (const header of globalHeaders) res.setHeader(header.key, header.value);
   res.setHeader('Content-Type', mime[extname(rel)] || 'application/octet-stream');
   res.end(readFileSync(join(root, rel)));
 });
