@@ -150,51 +150,6 @@ body.is-dark{ background:#08080a; --ink-2:#8e8c96; }
 }
 .work__cv.is-drag{ cursor:grabbing; }
 .work__cv.is-hot{ cursor:pointer; }
-.home-id{
-  position:absolute; z-index:2; left:clamp(1.5rem,7vw,6rem); top:50%;
-  width:min(32rem,calc(100vw - 3rem)); padding:clamp(1.15rem,2.4vw,1.7rem);
-  transform:translateY(calc(-50% + 14px)); opacity:0; pointer-events:none;
-  border:1px solid var(--hair); border-radius:10px;
-  background:rgba(var(--scrim),.91);
-  transition:opacity 700ms var(--ease-in-out), transform 700ms var(--ease-out);
-}
-body[data-stage="work"] .home-id{ opacity:1; transform:translateY(-50%); }
-.home-id__eyebrow{
-  margin:0; color:var(--ink-2); font-size:.6875rem; font-weight:500;
-  letter-spacing:.14em; line-height:1.5; text-transform:uppercase;
-}
-.home-id__name{
-  max-width:12ch; margin:.8rem 0 0; color:var(--ink);
-  font-size:clamp(2rem,5vw,4.6rem); font-weight:500;
-  letter-spacing:-.055em; line-height:.94;
-}
-.home-id__statement{
-  max-width:42ch; margin:1rem 0 0; color:var(--ink-2);
-  font-size:clamp(.9rem,1.4vw,1.05rem); line-height:1.55;
-}
-.home-id__actions{
-  display:flex; flex-wrap:wrap; gap:.45rem 1.2rem; margin-top:1.15rem;
-  pointer-events:auto;
-}
-.home-id__actions a{
-  min-height:44px; display:inline-flex; align-items:center;
-  border-bottom:1px solid var(--hair); color:var(--ink-2);
-  font-size:.6875rem; font-weight:500; letter-spacing:.13em;
-  text-decoration:none; text-transform:uppercase;
-}
-.home-id__actions a:focus-visible{ color:var(--ink); border-bottom-color:currentColor; }
-@media (max-width:680px){
-  .home-id{
-    left:1rem; right:1rem; top:auto;
-    bottom:calc(3.7rem + env(safe-area-inset-bottom,0px));
-    width:auto; padding:1rem;
-    transform:translateY(12px);
-  }
-  body[data-stage="work"] .home-id{ transform:none; }
-  .home-id__name{ max-width:15ch; font-size:clamp(1.7rem,8vw,2.5rem); }
-  .home-id__statement{ margin-top:.7rem; font-size:.875rem; }
-  .home-id__actions{ margin-top:.75rem; gap:.25rem .9rem; }
-}
 .work__hint{
   position:absolute; left:50%; transform:translateX(-50%);
   bottom:calc(clamp(18px,3.4vh,34px) + env(safe-area-inset-bottom,0px));
@@ -874,7 +829,6 @@ body[data-stage="page"] .set{ background:var(--paper); }
    stays until something else is tapped. Every hover rule lives behind a real
    hover; :focus-visible carries the keyboard, and touch gets neither. */
 @media (hover:hover) and (pointer:fine){
-  .home-id__actions a:hover{ color:var(--ink); border-bottom-color:currentColor; }
   .page__cta:hover{ background:var(--ink); color:var(--paper); }
   .grid__b:hover .grid__img{ opacity:.82; }
   .deck__control:hover{ color:var(--ink); border-bottom-color:currentColor; }
@@ -915,7 +869,7 @@ body[data-stage="page"] .set{ background:var(--paper); }
 
 @media (prefers-reduced-motion:reduce){
   /* keep every state reachable, just without the travel */
-  .mark,.gl,.page,.page.is-lit,.home-id,.work__hint,.skip,.nav,.nav__a::after,
+  .mark,.gl,.page,.page.is-lit,.work__hint,.skip,.nav,.nav__a::after,
   .cert,.cert[open],.cert::backdrop,.cert[open]::backdrop{ transition-duration:1ms; }
   /* the panel still arrives, it just does not travel to get here */
   .cert{ transform:none; }
