@@ -32,25 +32,9 @@ const modeBtn   = $('themeBtn');
 const volRange  = $('volRange');
 const vig       = $('vig');
 const flashEl   = $('flash');
-const deckEl    = $('projectDeck');
-let deckCanvas  = $('projectDeckCanvas');
-const deckCount = $('deckCount');
-const deckTitle = $('deckTitle');
-const deckNote  = $('deckNote');
-const deckPrev  = $('deckPrev');
-const deckOpen  = $('deckOpen');
-const deckNext  = $('deckNext');
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const introSeen = () => {
-  try { return sessionStorage.getItem('pf.intro-seen') === '1'; }
-  catch (e) { return false; }
-};
-const rememberIntro = () => {
-  try { sessionStorage.setItem('pf.intro-seen', '1'); }
-  catch (e) { /* a private context can decline storage without blocking the site */ }
-};
 
 /* ── ?fps, the half that is not the canvas ───────────────────────────────
    The meter in js/canvas.js only lives while the plane is running, and the
@@ -335,65 +319,6 @@ function routeFromHash(hash = location.hash){
   const h = (hash || '').replace(/^#\/?/, '').replace(/^page/, '').toLowerCase();
   return Object.hasOwn(pages, h) ? h : '';
 }
-
-/* ── the project deck ───────────────────────────────────────────────────
-   Three.js is already needed by the desktop intro, but the phone's lite path
-   deliberately avoids it. Import the deck only when works is requested, so a
-   phone that never opens this section still downloads no renderer at all.
-   The module is cached by the browser; the GPU scene is not. Each visit gets a
-   fresh renderer and leaving the page disposes it. */
-let projectDeck = null;
-let projectDeckModule = null;
-let projectDeckToken = 0;
-let projectDeckIndex = 0;
-
-function renderProjectDeckCopy(index = projectDeckIndex){
-  const workItem = WORKS[index];
-  if (!workItem) return;
-  projectDeckIndex = index;
-  deckCount.textContent = `${String(index + 1).padStart(2, '0')} / ${String(WORKS.length).padStart(2, '0')}`;
-  deckTitle.textContent = workItem.label;
-  deckNote.textContent = t(workItem, 'note');
-}
-
-function destroyProjectDeck(){
-  projectDeckToken++;
-  projectDeck?.dispose();
-  projectDeck = null;
-  deckEl.removeAttribute('data-loading');
-  deckEl.removeAttribute('data-ready');
-  /* forceContextLoss releases the old WebGL context. A fresh canvas makes a
-     later visit independent of when that browser chooses to restore it. */
-  const freshCanvas = deckCanvas.cloneNode(false);
-  deckCanvas.replaceWith(freshCanvas);
-  deckCanvas = freshCanvas;
-}
-
-async function showProjectDeck(version){
-  const token = ++projectDeckToken;
-  deckEl.dataset.loading = 'true';
-  renderProjectDeckCopy(projectDeckIndex);
-  try {
-    projectDeckModule ||= import('./project-deck.js');
-    const { ProjectDeck } = await projectDeckModule;
-    if (token !== projectDeckToken || version !== routeVersion || routeFromHash() !== 'works') return;
-    projectDeck = new ProjectDeck(deckCanvas, WORKS, {
-      reducedMotion:reduced,
-      onChange:renderProjectDeckCopy,
-      onOpen:index => { snap(); openWork(index); }
-    });
-    deckEl.removeAttribute('data-loading');
-    deckEl.dataset.ready = 'true';
-    projectDeck.start();
-  } catch (error) {
-    if (token !== projectDeckToken) return;
-    projectDeckModule = null;
-    deckEl.removeAttribute('data-loading');
-    deckEl.removeAttribute('data-ready');
-    console.warn('project deck failed to load', error);
-  }
-}
-
 /* Ignore duplicate hashchange/popstate events. Each new route invalidates older
    transitions before they can hide, show, focus, or stop the current page. */
 let appliedRoute = null;
@@ -401,10 +326,8 @@ let routeVersion = 0;
 async function applyRoute(){
   const r = routeFromHash();
   if (r === appliedRoute) return;
-  const previousRoute = appliedRoute;
   appliedRoute = r;
   const version = ++routeVersion;
-  if (previousRoute === 'works' && r !== 'works') projectDeck?.stop();
   /* Opening a section ends the intro and frees its WebGL resources. */
   if (r) endIntro();
   // and going the other way the plane has to be alive BEFORE the page above it
@@ -437,7 +360,6 @@ async function applyRoute(){
       if (version !== routeVersion) return;
       el.hidden = true;
       el.classList.remove('is-shut');
-      if (name === 'works' && routeFromHash() !== 'works') destroyProjectDeck();
     }
   }
   if (r){
@@ -463,7 +385,6 @@ async function applyRoute(){
     void el.offsetWidth;
     el.classList.add('is-lit');
     body.dataset.stage = 'page';
-    if (r === 'works') showProjectDeck(version);
     /* A section heading receives programmatic focus without entering the Tab order. */
     const heading = el.querySelector('.page__t');
     if (heading){ heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
@@ -479,9 +400,9 @@ document.querySelectorAll('[data-back]').forEach(b => {
 window.addEventListener('popstate', applyRoute);
 
 /* ── the canvas of work ─────────────────────────────────────────────────
-   Built before it is seen: the digicam's monitor is textured with one frame
-   from this canvas, so the hand-off uses the same pixels without making the
-   browser render the hidden page alongside WebGL throughout the zoom. */
+   Built and running well before it is seen: the digicam's monitor is
+   textured with this very canvas, so what plays on the screen is the page
+   itself rather than a preview of it, and the hand-off is not a cut. */
 let work = null, workShown = false, workHeld = false;
 
 /* Preload the work media under the lite intro, but hold its render loop until
@@ -695,12 +616,6 @@ async function toCamera(){
   ipod = null;
   leaving = act;
   glCanvas.classList.remove('is-live', 'is-hot');
-  /* The work plane is already painted for the digicam monitor. Freeze that
-     frame as soon as the transition starts so the hidden 2D canvas does not
-     compete with either the iPod dolly or the camera zoom. showWork() resumes
-     it at the reveal. */
-  const workFrame = ensureWork();
-  workFrame.hold();
   await act.intoScreen(reduced ? 90 : 1400);
   leaving = null;
   /* Skip can land inside that await, and finish() drops `gl` when it does.
@@ -716,7 +631,7 @@ async function toCamera(){
   catch (e){ console.warn('camera failed to load', e); return finish(); }
   if (skipped) return;
 
-  cam = new S.CameraAct(gl, model, workFrame.cv, {
+  cam = new S.CameraAct(gl, model, ensureWork().cv, {
     /* And the paper comes up AFTER the camera, never before it — and not
        alongside it either, which is where this started. The line used to sit
        above the act, lighting the page white while the camera was still at
@@ -788,7 +703,6 @@ function lite(){
 
 function finish(){
   skipped = true;
-  rememberIntro();
   // whoever is mid-exit is waiting on a frame that is about to stop coming;
   // let it go first, and the teardown behind its await runs a tick later
   if (leaving){ leaving.abort(); leaving = null; }
@@ -827,7 +741,6 @@ window.__PORTFOLIO = {
   lite: LITE,
   get gl(){ return gl; }, get ipod(){ return ipod; },
   get cam(){ return cam; }, get work(){ return work; },
-  get deck(){ return projectDeck; },
   /** hold an act at a fixed moment so a frame can be captured deterministically */
   freeze(act, ms){
     const a = act === 'cam' ? cam : ipod;
@@ -931,7 +844,6 @@ function applyMode(m, save){
   }
   // the canvas holds its colours as strings, so it has to be told to look again
   work?.readPalette?.();
-  projectDeck?.syncTheme();
   if (save) remember('mode', m);
 }
 const savedMode = recall('mode');
@@ -997,6 +909,11 @@ document.addEventListener('keydown', (e) => {
 /* NOT id="work" — <main class="work" id="work"> is the canvas of work, and
    getElementById would have handed that back instead. It has no showModal, so
    the guard below simply refused to arm and nothing said why. */
+// a bad url must not take the panel down with it — URL() throws on anything
+// it cannot parse, and this runs while a visitor is opening a project
+function hostOf(u){
+  try { return new URL(u).hostname; } catch (e) { return ''; }
+}
 const workDlg = $('workPanel');
 /* Which project is on screen, so that switching language while a panel is open
    rewrites it in place rather than leaving one section of the site in English
@@ -1021,19 +938,6 @@ function openWork(i){
   $('workMeta').hidden = !meta;
 
   $('workBlurb').textContent = t(w, 'blurb') || '';
-  const caseFields = [
-    ['challenge', 'workChallenge'],
-    ['contribution', 'workContribution'],
-    ['approach', 'workApproach'],
-    ['outcome', 'workOutcome'],
-    ['stack', 'workStack']
-  ];
-  for (const [field, id] of caseFields){
-    const value = t(w, field);
-    const section = $(id).closest('[data-case]');
-    $(id).textContent = Array.isArray(value) ? value.join(' · ') : (value || '');
-    section.hidden = !value || (Array.isArray(value) && value.length === 0);
-  }
   /* `line`, not `t` — t() is the translation helper now, and the parameter was
      shadowing it inside exactly the callback that needs it. */
   $('workPoints').replaceChildren(...(t(w, 'points') || []).map(line => {
@@ -1042,18 +946,18 @@ function openWork(i){
     return li;
   }));
 
-  const demo = $('workDemo');
-  demo.href = w.demo || '#';
-  demo.hidden = !w.demo;
-  const repo = $('workRepo');
-  repo.href = w.href || '#';
-  repo.hidden = !w.href;
+  /* Same rule as the meta line: a project with no repo gets no link at all
+     rather than one that goes nowhere. The label is read off the url instead
+     of being fixed in the markup, so pointing a project at a live demo later
+     does not leave it announcing a repo that is not there. */
+  const link = $('workLink');
+  link.href = w.href || '#';
+  link.textContent = /(^|\.)github\.com$/.test(hostOf(w.href))
+    ? s('wk.repo', 'open the repo on GitHub')
+    : s('wk.open', 'open the project');
+  $('workLinkRow').hidden = !w.href;
 
   workDlg.showModal();
-  workDlg.scrollTop = 0;
-  const title = $('workTitle');
-  title.tabIndex = -1;
-  title.focus({ preventScroll:true });
 }
 /* The interactive gallery reads WORKS. tools/fallback.mjs uses the same data
    for the no-JS gallery; tools/check.mjs checks it and the canvas slots. */
@@ -1102,14 +1006,6 @@ function buildWorks(){
     return li;
   }));
 }
-
-deckPrev.addEventListener('click', () => projectDeck?.next(-1));
-deckNext.addEventListener('click', () => projectDeck?.next(1));
-deckOpen.addEventListener('click', () => {
-  if (!projectDeck) return;
-  snap();
-  openWork(projectDeck.activeIndex);
-});
 
 if (workDlg?.showModal){
   // the cards in `works` are buttons, not links — there is no url under a
@@ -1196,7 +1092,6 @@ function renderLang(l, save){
   // running it again is only that plus two idempotent writes
   applyMode(document.documentElement.dataset.theme, false);
   buildWorks();
-  renderProjectDeckCopy(projectDeck?.activeIndex ?? projectDeckIndex);
   // and the iPod's screen, if the intro is still on it — that word is painted
   // into a texture rather than laid out by the browser, so nothing else here
   // would have touched it
@@ -1209,9 +1104,5 @@ function renderLang(l, save){
 renderLang(pickLang(recall('lang')), false);
 langBtn.addEventListener('click', () => renderLang(lang === 'id' ? 'en' : 'id', true));
 
-// Returning visits skip main(), so arm the first-gesture audio path before the
-// session shortcut. main() calls this too, and the guard keeps it idempotent.
-armGlobalGesture();
-if (introSeen()) endIntro();
 applyRoute();
-if (!skipped) main().catch(failIntro);
+main().catch(failIntro);

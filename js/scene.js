@@ -729,10 +729,10 @@ export class CameraAct {
     this.bodyH = size.y * this.scale;
 
     /* ── the monitor. Whatever the model shipped with is discarded, and what
-       goes on it is a finished frame from the canvas of work. The image stays
-       fixed during the WebGL move, then the same canvas resumes underneath as
-       the panel dissolves, so the hand-off keeps matching without a full-size
-       texture upload on every frame. */
+       goes on it is the live canvas of work itself — not a preview of it. The
+       page you are about to be handed is already running on the screen, so
+       when the body dissolves there is nothing to cut to: the pixels are
+       already the same pixels. */
     this.mtex = this.src ? new THREE.CanvasTexture(this.src) : null;
     if (this.mtex){
       this.mtex.colorSpace = THREE.SRGBColorSpace;
@@ -940,9 +940,7 @@ export class CameraAct {
     const a = this.uvStart, b = this.uvEnd, t = zoom;
     this.mtex.repeat.set(lerp(a.rx, b.rx, t), lerp(a.ry, b.ry, t));
     this.mtex.offset.set(lerp(a.ox, b.ox, t), lerp(a.oy, b.oy, t));
-    /* CanvasTexture uploads the prepared frame on its first render. Repeat and
-       offset are texture-transform uniforms, so zooming them needs no further
-       upload of the full canvas bitmap. */
+    if (lit > 0.01) this.mtex.needsUpdate = true;   // the page is live
   }
 
   dispose(){
