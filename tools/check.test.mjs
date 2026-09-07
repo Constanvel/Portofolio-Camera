@@ -180,6 +180,16 @@ test('production CSP permits the bundled Meshopt WebAssembly decoder', () => {
     'the 3D intro decoder needs wasm-unsafe-eval in script-src');
 });
 
+test('entry document cannot reuse stale security headers', () => {
+  const vercel = JSON.parse(readFileSync(join(root, 'vercel.json'), 'utf8'));
+  const cache = vercel.headers
+    .find(rule => rule.source === '/')?.headers
+    ?.find(header => header.key === 'Cache-Control')?.value || '';
+
+  assert.match(cache, /\bno-store\b/,
+    'the root document must fetch fresh security headers after deployment');
+});
+
 test('shared interface keeps its accessibility affordances', () => {
   const html = readFileSync(join(root, 'index.html'), 'utf8');
   const css = readFileSync(join(root, 'css/style.css'), 'utf8');
