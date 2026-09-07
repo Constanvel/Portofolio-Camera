@@ -1,6 +1,6 @@
 # Portofolio-Camera
 
-Portofolio Constantine Rainer Simanjuntak. Situs statis dengan intro 3D, kanvas karya, studi kasus proyek, demo AI berbasis kamera, CV, sertifikat, serta pilihan bahasa, tema, dan volume.
+Portofolio Constantine Rainer Simanjuntak. Situs statis dengan intro 3D, identitas profesional, kanvas karya, studi kasus proyek, demo AI berbasis kamera, CV, sertifikat, serta pilihan bahasa, tema, dan volume.
 
 ## Menjalankan
 

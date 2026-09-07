@@ -96,6 +96,13 @@ const ID = {
      nobody sees and everybody using a reader hears first. */
   'h1': 'Constantine Rainer Simanjuntak — pengembang web, desainer UI/UX, dan siswa rekayasa perangkat lunak',
 
+  /* home identity */
+  'home.role':      'Pengembang Web · Desainer UI/UX · Calon AI Engineer',
+  'home.statement': 'Saya mengubah ide produk menjadi antarmuka responsif dan eksperimen AI terapan, dari alur pertama sampai deployment yang teruji.',
+  'home.work':      'lihat karya pilihan',
+  'home.contact':   'hubungi saya',
+  'home.cv':        'unduh CV',
+
   /* about */
   'about.body': 'Saya Constantine Rainer Simanjuntak, siswa kelas XI rekayasa perangkat lunak di SMK Telkom Purwokerto. Saya merancang dan membangun produk web dari Figma sampai deployment menggunakan React, Next.js, Tailwind, dan Supabase. Proyek saya mencakup platform publikasi, layanan sekolah, keuangan pribadi, dan perkakas teks berbantuan AI. Melalui klub AI sekolah, saya belajar menuju AI Engineering lewat eksperimen YOLO, RAG, dan model bahasa. Saya pernah menjadi finalis lomba UI/UX Design Sevent 9.0 di Telkom University Purwokerto. Di luar kelas, saya membuat video desktop aesthetic untuk TikTok, biasanya dengan lagu shoegaze.',
   'about.credits': 'Dibangun dengan bagian-bagian pinjaman, didaftar di sini justru karena dipinjam — semuanya di bawah lisensi yang mengizinkannya. Foto, tulisan dan kodenya milik saya.',

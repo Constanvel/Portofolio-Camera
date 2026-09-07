@@ -118,11 +118,11 @@ test('portfolio copy states AI experience and achievement status clearly', () =>
     'Indonesian achievement copy should state TOEIC completion');
 });
 
-test('home stays visually clear while contact exposes professional paths', () => {
+test('home and contact expose professional identity paths', () => {
   const html = readFileSync(join(root, 'index.html'), 'utf8');
 
-  assert.doesNotMatch(html, /class="home-id"/,
-    'the work stage must not restore the removed identity card');
+  assert.match(html, /class="home-id"/,
+    'the work stage needs a visible identity block');
   assert.match(html, /Constantine Rainer Simanjuntak/);
   assert.match(html, /href="\.\/output\/pdf\/constantine-rainer-simanjuntak-cv\.pdf"/,
     'the home or contact page needs a downloadable CV');

@@ -92,15 +92,15 @@ try {
     assert.deepEqual(await visiblePages(page), []);
     assert.equal(await page.evaluate(() => __PORTFOLIO.work.running), true);
   });
-  await test('home stage stays clear and professional links remain in contact', async page => {
+  await test('home stage presents identity and primary actions', async page => {
     await open(page, '');
     await page.locator('#skip').click();
     await page.waitForFunction(() => document.body.dataset.stage === 'work');
-    assert.equal(await page.locator('.home-id').count(), 0);
-    assert.equal(await page.locator('#cv').isVisible(), true);
-    await page.evaluate(() => { location.hash = '#/contact'; });
-    await page.locator('#pageContact.is-lit').waitFor({ state:'visible' });
-    assert.equal(await page.locator('#pageContact a[href$="constantine-rainer-simanjuntak-cv.pdf"]').count(), 1);
+    await page.locator('.home-id').waitFor({ state:'visible' });
+    assert.match(await page.locator('.home-id__name').textContent(), /Constantine Rainer Simanjuntak/);
+    assert.equal(await page.locator('.home-id a[href="#pageWorks"]').count(), 1);
+    assert.equal(await page.locator('.home-id a[href="#pageContact"]').count(), 1);
+    assert.equal(await page.locator('.home-id a[href$="constantine-rainer-simanjuntak-cv.pdf"]').count(), 1);
     const cv = await page.request.get(origin + '/output/pdf/constantine-rainer-simanjuntak-cv.pdf');
     assert.equal(cv.status(), 200);
     assert.match(cv.headers()['content-type'] || '', /application\/pdf/);
