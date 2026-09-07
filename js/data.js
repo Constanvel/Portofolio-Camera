@@ -50,6 +50,16 @@ export const WORKS = [
     note_id: 'Platform publikasi esai tentang karakter dan karya fiksi, disusun melalui enam lensa analisis.',
     year: 'aug 2026', role: 'solo',
     year_id: 'agu 2026', role_id: 'sendiri',
+    challenge: 'Long-form character analysis is difficult to discover, source and discuss when every essay is presented as an isolated post.',
+    challenge_id: 'Analisis karakter yang panjang sulit ditemukan, diberi sumber, dan didiskusikan ketika setiap esai berdiri sebagai tulisan yang terpisah.',
+    contribution: 'Defined the product, designed the interface, implemented the Next.js application and modelled its Supabase schema, authentication and content rules.',
+    contribution_id: 'Menentukan produk, merancang antarmuka, mengimplementasikan aplikasi Next.js, serta memodelkan skema Supabase, autentikasi, dan aturan kontennya.',
+    approach: 'Structured discovery around six critical lenses, connected essays to characters and source works, and represented claims, citations and counterpoints as explicit data.',
+    approach_id: 'Menyusun penemuan melalui enam lensa analisis, menghubungkan esai dengan karakter dan karya asal, serta menjadikan klaim, sitasi, dan counterpoint sebagai data yang jelas.',
+    outcome: 'Produced a complete product prototype with search, reading, authoring, account flows, database migrations and automated checks for its core writing rules.',
+    outcome_id: 'Menghasilkan prototipe produk lengkap dengan pencarian, pembacaan, penulisan, alur akun, migrasi database, dan pemeriksaan otomatis untuk aturan utama penulisan.',
+    stack: ['Next.js 16', 'TypeScript', 'Tailwind CSS', 'Supabase', 'PostgreSQL'],
+    stack_id: ['Next.js 16', 'TypeScript', 'Tailwind CSS', 'Supabase', 'PostgreSQL'],
     blurb: 'Lensa gives long-form criticism a clear structure. Readers can discover an essay through its character, source work, or critical lens, while writers get a focused place to publish.',
     blurb_id: 'Lensa memberi struktur yang jelas untuk tulisan analisis panjang. Pembaca dapat menemukan esai melalui karakter, karya asal, atau lensa analisisnya, sementara penulis mendapat tempat yang fokus untuk menerbitkan tulisan.',
     points: [
@@ -71,6 +81,16 @@ export const WORKS = [
     note_id: 'Antarmuka komunitas seni untuk menerbitkan, menemukan, dan memesan karya kreatif.',
     year: 'aug 2026', role: 'solo',
     year_id: 'agu 2026', role_id: 'sendiri',
+    challenge: 'Art platforms often separate discovery, competition and commission flows, making it harder for a new artist to move from publishing work to finding an audience.',
+    challenge_id: 'Platform seni sering memisahkan alur penemuan, lomba, dan komisi sehingga seniman baru lebih sulit bergerak dari menerbitkan karya menuju menemukan audiens.',
+    contribution: 'Created the product direction, information architecture, visual system and interactive frontend concept.',
+    contribution_id: 'Membuat arah produk, arsitektur informasi, sistem visual, dan konsep frontend interaktif.',
+    approach: 'Placed discovery, ranking, commissions and contests in one navigation system, then designed complete states for publishing, profiles, collections and notifications.',
+    approach_id: 'Menempatkan penemuan, peringkat, komisi, dan lomba dalam satu sistem navigasi, lalu merancang state lengkap untuk publikasi, profil, koleksi, dan notifikasi.',
+    outcome: 'Completed an interface concept that demonstrates the main journey from uploading artwork to receiving engagement and commission enquiries.',
+    outcome_id: 'Menyelesaikan konsep antarmuka yang menunjukkan perjalanan utama dari mengunggah karya sampai menerima interaksi dan permintaan komisi.',
+    stack: ['React', 'JavaScript', 'CSS', 'Figma'],
+    stack_id: ['React', 'JavaScript', 'CSS', 'Figma'],
     blurb: 'ARTVAULT is an interface concept for an artist community. It brings discovery, rankings, commissions and contests into one clear path from publishing work to finding an audience.',
     blurb_id: 'ARTVAULT adalah konsep antarmuka komunitas seniman. Penemuan karya, peringkat, komisi, dan lomba dirangkai dalam satu alur yang jelas dari menerbitkan karya hingga menemukan audiens.',
     points: [
@@ -93,6 +113,16 @@ export const WORKS = [
     note_id: 'Pelacak uang jajan mobile-first yang mempercepat pencatatan pemasukan dan pengeluaran harian.',
     year: 'may–jun 2026', role: 'one of four',
     year_id: 'mei–jun 2026', role_id: 'satu dari empat',
+    challenge: 'Students need to record small daily income and expenses quickly, without the complexity of a full personal-finance application.',
+    challenge_id: 'Pelajar perlu mencatat pemasukan dan pengeluaran kecil dengan cepat tanpa kerumitan aplikasi keuangan pribadi yang lengkap.',
+    contribution: 'Worked in a four-person team on the product direction and user experience for the mobile transaction flow.',
+    contribution_id: 'Bekerja dalam tim beranggotakan empat orang pada arah produk dan pengalaman pengguna untuk alur transaksi mobile.',
+    approach: 'Reduced entry to one transaction sheet with a direction toggle, amount, category, automatic date and optional note.',
+    approach_id: 'Menyederhanakan input menjadi satu lembar transaksi berisi pilihan jenis, nominal, kategori, tanggal otomatis, dan catatan opsional.',
+    outcome: 'Delivered a mobile application flow backed by an API and database, with clear recording paths for common student spending.',
+    outcome_id: 'Menghasilkan alur aplikasi mobile yang didukung API dan database, dengan jalur pencatatan yang jelas untuk pengeluaran umum pelajar.',
+    stack: ['Flutter', 'Dart', 'Node.js', 'MySQL'],
+    stack_id: ['Flutter', 'Dart', 'Node.js', 'MySQL'],
     blurb: 'Uang Jajan Tracker keeps everyday money records simple on a phone. A single transaction sheet captures the direction, amount and category, with an optional note for extra context.',
     blurb_id: 'Uang Jajan Tracker menyederhanakan pencatatan uang harian di ponsel. Satu lembar transaksi mencatat jenis, nominal, dan kategori, dengan catatan opsional untuk konteks tambahan.',
     points: [
@@ -109,10 +139,21 @@ export const WORKS = [
   {
     src: './assets/tiles/smk-telkom-purwokerto.webp', label: 'smk telkom purwokerto',
     href: 'https://github.com/Constanvel/smk-telkom-purwokerto',
+    demo: 'https://smk-telkom-purwokerto.vercel.app',
     note: 'A team-built school platform covering admissions, news, careers and student-facing assistants.',
     note_id: 'Platform sekolah yang dibangun bersama tim untuk PPDB, berita, karier, dan asisten siswa.',
     year: 'jul–aug 2026', role: 'two of us',
     year_id: 'jul–agu 2026', role_id: 'berdua',
+    challenge: 'Public school information and the content behind it were spread across separate flows, while administrators needed one consistent place to keep them current.',
+    challenge_id: 'Informasi publik sekolah dan konten di baliknya tersebar dalam alur terpisah, sementara admin membutuhkan satu tempat konsisten untuk memperbaruinya.',
+    contribution: 'Designed and implemented the admin dashboard interface and management flows within the team project.',
+    contribution_id: 'Merancang dan mengimplementasikan antarmuka dashboard admin serta alur pengelolaannya dalam proyek tim.',
+    approach: 'Built reusable React and Tailwind patterns for dashboard navigation, overview states, tables and CRUD flows across school content.',
+    approach_id: 'Membangun pola React dan Tailwind yang dapat digunakan ulang untuk navigasi dashboard, state ringkasan, tabel, dan alur CRUD konten sekolah.',
+    outcome: 'The deployed platform now connects public admissions, news, achievements and career information with an administration experience for maintaining that content.',
+    outcome_id: 'Platform yang telah di-deploy menghubungkan informasi PPDB, berita, prestasi, dan karier dengan pengalaman administrasi untuk mengelola konten tersebut.',
+    stack: ['React', 'JavaScript', 'Tailwind CSS', 'Vite'],
+    stack_id: ['React', 'JavaScript', 'Tailwind CSS', 'Vite'],
     blurb: 'The platform brings public school information and content management into one system. My scope focused on the admin dashboard interface used to manage the content behind the public site.',
     blurb_id: 'Platform ini menyatukan informasi publik sekolah dan pengelolaan konten dalam satu sistem. Bagian saya berfokus pada antarmuka dashboard admin untuk mengelola konten di balik situs publik.',
     points: [
@@ -137,6 +178,16 @@ export const WORKS = [
     note_id: 'Perkakas web yang mengubah teks panjang menjadi ringkasan dalam tiga pilihan panjang menggunakan Groq.',
     year: 'aug 2026', role: 'solo',
     year_id: 'agu 2026', role_id: 'sendiri',
+    challenge: 'Long source text takes time to review, while a useful summary still needs to respect the reader\'s preferred level of detail.',
+    challenge_id: 'Teks sumber yang panjang membutuhkan waktu untuk ditinjau, sedangkan ringkasan yang berguna tetap harus mengikuti tingkat detail yang dibutuhkan pembaca.',
+    contribution: 'Designed and built the complete interface, request flow, validation and Groq API integration.',
+    contribution_id: 'Merancang dan membangun seluruh antarmuka, alur permintaan, validasi, dan integrasi API Groq.',
+    approach: 'Kept the interaction to one focused input and three output lengths, with live word counting, keyboard submission and inline failure feedback.',
+    approach_id: 'Memusatkan interaksi pada satu input dan tiga panjang keluaran, dilengkapi hitungan kata langsung, pengiriman lewat keyboard, dan pesan kegagalan di dalam halaman.',
+    outcome: 'Produced a working summarisation tool with predictable controls and resilient error states instead of leaving failed requests unexplained.',
+    outcome_id: 'Menghasilkan perkakas peringkasan yang berfungsi dengan kontrol yang jelas dan state error yang tetap informatif saat permintaan gagal.',
+    stack: ['HTML', 'CSS', 'JavaScript', 'Groq API'],
+    stack_id: ['HTML', 'CSS', 'JavaScript', 'Groq API'],
     blurb: 'AI Text Summarizer reduces long input into a useful reading length. The interface keeps the task focused with live word counting, clear length controls and inline feedback when a request fails.',
     blurb_id: 'AI Text Summarizer memadatkan teks panjang menjadi bacaan dengan panjang yang dibutuhkan. Antarmukanya tetap fokus dengan hitungan kata langsung, pilihan panjang yang jelas, dan pesan error di dalam halaman.',
     points: [
@@ -150,6 +201,38 @@ export const WORKS = [
       'Hitungan kata langsung dan validasi input',
       'Integrasi API Groq dengan pesan error di dalam halaman',
       'Pintasan Ctrl+Enter agar pengiriman lebih cepat'
+    ]
+  },
+  {
+    src: './assets/tiles/ai-ninja.webp', label: 'ai ninja challenge',
+    demo: './demos/ai-ninja/',
+    note: 'A browser pose-classification game that turns live camera predictions into timed ninja challenges.',
+    note_id: 'Game klasifikasi pose di browser yang mengubah prediksi kamera langsung menjadi tantangan ninja berbatas waktu.',
+    year: 'aug 2026', role: 'solo',
+    year_id: 'agu 2026', role_id: 'sendiri',
+    challenge: 'A pose model is difficult to understand from confidence numbers alone; it needs an interaction that makes recognition quality visible and engaging.',
+    challenge_id: 'Model pose sulit dipahami hanya dari angka confidence; dibutuhkan interaksi yang membuat kualitas pengenalannya terlihat dan menarik.',
+    contribution: 'Trained and integrated the pose model, matched its exact labels to the game logic, and built the complete scoring, character and history systems.',
+    contribution_id: 'Melatih dan mengintegrasikan model pose, mencocokkan label persisnya dengan logika game, serta membangun sistem skor, karakter, dan riwayat.',
+    approach: 'Runs a MobileNetV1-based Teachable Machine pose classifier in the browser, selects the highest-confidence class and validates Attack, Deffend or Dodge during each timed challenge.',
+    approach_id: 'Menjalankan pengklasifikasi pose Teachable Machine berbasis MobileNetV1 di browser, memilih kelas dengan confidence tertinggi, lalu memvalidasi Attack, Deffend, atau Dodge pada setiap tantangan.',
+    outcome: 'Created a direct camera demo with three character strategies, combo scoring, HP, boss rounds, persistent high scores and ten-match local history.',
+    outcome_id: 'Menghasilkan demo kamera langsung dengan tiga strategi karakter, skor combo, HP, ronde boss, high score tersimpan, dan riwayat sepuluh pertandingan.',
+    stack: ['JavaScript', 'TensorFlow.js', 'Teachable Machine Pose', 'MobileNetV1'],
+    stack_id: ['JavaScript', 'TensorFlow.js', 'Teachable Machine Pose', 'MobileNetV1'],
+    blurb: 'AI Ninja turns real-time pose classification into a small game. The camera stays in the browser while model predictions drive challenges, score, combo and character abilities.',
+    blurb_id: 'AI Ninja mengubah klasifikasi pose real-time menjadi game kecil. Kamera tetap diproses di browser sementara prediksi model menggerakkan tantangan, skor, combo, dan kemampuan karakter.',
+    points: [
+      'Live classification for Attack, Deffend and Dodge poses',
+      'Confidence-gated challenge validation and countdowns',
+      'Swift, Tank and Berserker characters with different trade-offs',
+      'Local high score and ten-match history'
+    ],
+    points_id: [
+      'Klasifikasi langsung untuk pose Attack, Deffend, dan Dodge',
+      'Validasi tantangan berbasis confidence dan hitung mundur',
+      'Karakter Swift, Tank, dan Berserker dengan kelebihan berbeda',
+      'High score lokal dan riwayat sepuluh pertandingan'
     ]
   }
 ];
@@ -190,6 +273,7 @@ export const SLOTS = [
   { c:3, r:3, kind:'card', i:4 },   // services
 
   { c:0, r:4, kind:'card', i:5 },   // achievements
+  { c:1, r:4, kind:'work', i:5 },
   { c:2, r:4, kind:'work', i:4 },
   { c:3, r:4, kind:'card', i:6 }    // contact
 ];

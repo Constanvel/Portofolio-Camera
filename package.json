@@ -1,0 +1,19 @@
+{
+  "name": "constantine-rainer-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Static WebGL portfolio for Constantine Rainer Simanjuntak",
+  "scripts": {
+    "check": "node tools/check.mjs",
+    "test": "node --test tools/check.test.mjs",
+    "test:browser": "node tools/browser-check.mjs",
+    "verify": "npm run check && npm run test && npm run test:browser"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  },
+  "engines": {
+    "node": ">=22.7.0"
+  }
+}

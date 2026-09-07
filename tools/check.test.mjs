@@ -117,3 +117,55 @@ test('portfolio copy states AI experience and achievement status clearly', () =>
   assert.match(i18n, /Menyelesaikan TOEIC Excellence Program/,
     'Indonesian achievement copy should state TOEIC completion');
 });
+
+test('home and contact expose professional identity paths', () => {
+  const html = readFileSync(join(root, 'index.html'), 'utf8');
+
+  assert.match(html, /class="home-id"/,
+    'the work stage needs a visible identity block');
+  assert.match(html, /Constantine Rainer Simanjuntak/);
+  assert.match(html, /href="\.\/output\/pdf\/constantine-rainer-simanjuntak-cv\.pdf"/,
+    'the home or contact page needs a downloadable CV');
+  assert.match(html, /href="https:\/\/www\.behance\.net\/constanrainer"/,
+    'the verified Behance profile needs to be available');
+});
+
+test('every project contains a structured bilingual case study', () => {
+  const data = readFileSync(join(root, 'js/data.js'), 'utf8');
+  const fields = ['challenge', 'contribution', 'approach', 'outcome', 'stack'];
+
+  for (const field of fields) {
+    const english = [...data.matchAll(new RegExp(`\\b${field}:`, 'g'))].length;
+    const indonesian = [...data.matchAll(new RegExp(`\\b${field}_id:`, 'g'))].length;
+    assert.ok(english >= 6, `${field} needs one English value for every project`);
+    assert.ok(indonesian >= 6, `${field}_id needs one Indonesian value for every project`);
+  }
+  assert.match(data, /label: 'ai ninja challenge'/,
+    'the applied pose-classification project needs a portfolio entry');
+  assert.match(data, /demo: '\.\/demos\/ai-ninja\/'/,
+    'AI Ninja needs a first-party direct demo');
+});
+
+test('site includes structured data and reproducible verification', () => {
+  const html = readFileSync(join(root, 'index.html'), 'utf8');
+  const jsonLdMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(jsonLdMatch, 'index needs JSON-LD');
+  const jsonLd = JSON.parse(jsonLdMatch[1]);
+  assert.ok(Array.isArray(jsonLd['@graph']), 'JSON-LD needs a graph');
+  assert.ok(jsonLd['@graph'].some(item => item['@type'] === 'Person'));
+  assert.ok(jsonLd['@graph'].some(item => item['@type'] === 'WebSite'));
+
+  const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  for (const script of ['check', 'test', 'test:browser', 'verify']) {
+    assert.equal(typeof pkg.scripts?.[script], 'string', `package script ${script} is required`);
+  }
+  assert.ok(existsSync(join(root, '.github/workflows/verify.yml')),
+    'GitHub Actions verification workflow is required');
+
+  const vercel = JSON.parse(readFileSync(join(root, 'vercel.json'), 'utf8'));
+  const headers = JSON.stringify(vercel.headers);
+  for (const name of ['Content-Security-Policy', 'Permissions-Policy',
+    'Referrer-Policy', 'X-Content-Type-Options']) {
+    assert.match(headers, new RegExp(name), `${name} header is required`);
+  }
+});

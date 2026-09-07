@@ -33,6 +33,49 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://portofolio-rainer.vercel.app/#person",
+      "name": "Constantine Rainer Simanjuntak",
+      "alternateName": "Reiner",
+      "url": "https://portofolio-rainer.vercel.app/",
+      "image": "https://portofolio-rainer.vercel.app/assets/profile/rainer.webp",
+      "email": "mailto:rainersimanjuntak59@gmail.com",
+      "homeLocation": { "@type": "Place", "name": "Purwokerto, Indonesia" },
+      "jobTitle": "Software Engineering Student",
+      "description": "Web developer, UI/UX designer and aspiring AI engineer building responsive products and applied AI experiments.",
+      "sameAs": [
+        "https://github.com/Constanvel",
+        "https://www.behance.net/constanrainer",
+        "https://instagram.com/constanvel",
+        "https://tiktok.com/@constanvel"
+      ],
+      "knowsAbout": ["Web Development", "UI/UX Design", "React", "Next.js", "Supabase", "RAG", "YOLO", "Pose Classification"]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://portofolio-rainer.vercel.app/#website",
+      "url": "https://portofolio-rainer.vercel.app/",
+      "name": "Constantine Rainer Simanjuntak Portfolio",
+      "inLanguage": ["en", "id"],
+      "author": { "@id": "https://portofolio-rainer.vercel.app/#person" }
+    },
+    {
+      "@type": "ItemList",
+      "name": "Selected projects",
+      "itemListElement": [
+        { "@type": "SoftwareApplication", "position": 1, "name": "Lensa", "url": "https://github.com/Constanvel/Lensa" },
+        { "@type": "SoftwareApplication", "position": 2, "name": "SMK Telkom Purwokerto", "url": "https://smk-telkom-purwokerto.vercel.app" },
+        { "@type": "SoftwareApplication", "position": 3, "name": "AI Ninja Challenge", "url": "https://portofolio-rainer.vercel.app/demos/ai-ninja/" }
+      ]
+    }
+  ]
+}
+</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='16' y='24' font-size='28' font-family='Helvetica,Arial' text-anchor='middle' fill='%23111014'%3E*%3C/text%3E%3C/svg%3E">
 <link rel="preload" as="font" type="font/woff2" href="./assets/fonts/VCR.woff2" crossorigin
       media="(pointer: fine)">
@@ -135,6 +178,16 @@
         <li><a href="#pageContact" data-t="nav.contact">contact</a></li>
       </ul>
     </canvas>
+    <section class="home-id" aria-labelledby="homeName">
+      <p class="home-id__eyebrow" data-t="home.role">Web Developer · UI/UX Designer · Aspiring AI Engineer</p>
+      <h2 class="home-id__name" id="homeName">Constantine Rainer Simanjuntak</h2>
+      <p class="home-id__statement" data-t="home.statement">I turn product ideas into responsive interfaces and applied AI experiments, from first flow to tested deployment.</p>
+      <div class="home-id__actions">
+        <a href="#pageWorks" data-t="home.work">view selected work</a>
+        <a href="#pageContact" data-t="home.contact">contact me</a>
+        <a href="./output/pdf/constantine-rainer-simanjuntak-cv.pdf" target="_blank" rel="noopener" data-t="home.cv">download CV</a>
+      </div>
+    </section>
     <p class="work__hint" id="hint" data-t="ui.drag">drag to explore</p>
   </main>
 
@@ -276,11 +329,12 @@
       <ul class="grid" id="worksGrid"></ul>
       <noscript id="worksFallback">
         <ul class="rows">
-          <li class="rows__r"><span class="rows__k">lensa</span><span class="rows__v">A publishing platform for essays about fictional characters and works, organised through six critical lenses. <a class="rows__a" href="https://github.com/Constanvel/Lensa" target="_blank" rel="noopener">open the project</a></span></li>
+          <li class="rows__r"><span class="rows__k">lensa</span><span class="rows__v">A publishing platform for essays about fictional characters and works, organised through six critical lenses. <a class="rows__a" href="https://github.com/Constanvel/Lensa" target="_blank" rel="noopener">open the repository</a></span></li>
           <li class="rows__r"><span class="rows__k">artvault</span><span class="rows__v">An art-community interface for publishing, discovering and commissioning creative work. <a class="rows__a" href="./assets/tiles/artvault.webp" target="_blank" rel="noopener">view the screenshot</a></span></li>
-          <li class="rows__r"><span class="rows__k">uang jajan tracker</span><span class="rows__v">A mobile-first allowance tracker that makes daily income and spending quick to record. <a class="rows__a" href="https://github.com/Constanvel/UangJajanTracker" target="_blank" rel="noopener">open the project</a></span></li>
-          <li class="rows__r"><span class="rows__k">smk telkom purwokerto</span><span class="rows__v">A team-built school platform covering admissions, news, careers and student-facing assistants. <a class="rows__a" href="https://github.com/Constanvel/smk-telkom-purwokerto" target="_blank" rel="noopener">open the project</a></span></li>
-          <li class="rows__r"><span class="rows__k">ai text summarizer</span><span class="rows__v">A focused web tool that turns long text into summaries at three selectable lengths using Groq. <a class="rows__a" href="https://github.com/Constanvel/AI-Text-Summarizer" target="_blank" rel="noopener">open the project</a></span></li>
+          <li class="rows__r"><span class="rows__k">uang jajan tracker</span><span class="rows__v">A mobile-first allowance tracker that makes daily income and spending quick to record. <a class="rows__a" href="https://github.com/Constanvel/UangJajanTracker" target="_blank" rel="noopener">open the repository</a></span></li>
+          <li class="rows__r"><span class="rows__k">smk telkom purwokerto</span><span class="rows__v">A team-built school platform covering admissions, news, careers and student-facing assistants. <a class="rows__a" href="https://smk-telkom-purwokerto.vercel.app" target="_blank" rel="noopener">open the live demo</a></span></li>
+          <li class="rows__r"><span class="rows__k">ai text summarizer</span><span class="rows__v">A focused web tool that turns long text into summaries at three selectable lengths using Groq. <a class="rows__a" href="https://github.com/Constanvel/AI-Text-Summarizer" target="_blank" rel="noopener">open the repository</a></span></li>
+          <li class="rows__r"><span class="rows__k">ai ninja challenge</span><span class="rows__v">A browser pose-classification game that turns live camera predictions into timed ninja challenges. <a class="rows__a" href="./demos/ai-ninja/" target="_blank" rel="noopener">open the live demo</a></span></li>
         </ul>
       </noscript>
       <button class="page__back" type="button" data-back data-t="ui.back">back</button>
@@ -358,6 +412,8 @@
       <ul class="rows">
         <li class="rows__r"><span class="rows__k"><svg class="rows__i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>email</span><span class="rows__v"><a class="rows__a" href="mailto:rainersimanjuntak59@gmail.com">rainersimanjuntak59@gmail.com</a></span></li>
         <li class="rows__r"><span class="rows__k"><svg class="rows__i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>github</span><span class="rows__v"><a class="rows__a" href="https://github.com/Constanvel" target="_blank" rel="noopener">github.com/Constanvel</a></span></li>
+        <li class="rows__r"><span class="rows__k"><span class="rows__badge" aria-hidden="true">Be</span>behance</span><span class="rows__v"><a class="rows__a" href="https://www.behance.net/constanrainer" target="_blank" rel="noopener">behance.net/constanrainer</a></span></li>
+        <li class="rows__r"><span class="rows__k"><span class="rows__badge" aria-hidden="true">CV</span>resume</span><span class="rows__v"><a class="rows__a" href="./output/pdf/constantine-rainer-simanjuntak-cv.pdf" target="_blank" rel="noopener" data-t="ct.cv">download curriculum vitae</a></span></li>
         <!-- wa.me takes the country code with no + and no leading 0, so
              081617800000 is written 6281617800000. The visible text keeps the
              0 — that is the number as anyone here would read it back. -->
@@ -423,8 +479,18 @@
     <h2 class="wk__t" id="workTitle"></h2>
     <p class="wk__meta" id="workMeta" hidden></p>
     <p class="wk__p" id="workBlurb"></p>
+    <div class="wk__case">
+      <section data-case="challenge"><h3 data-t="wk.challenge">challenge</h3><p id="workChallenge"></p></section>
+      <section data-case="contribution"><h3 data-t="wk.contribution">my contribution</h3><p id="workContribution"></p></section>
+      <section data-case="approach"><h3 data-t="wk.approach">approach</h3><p id="workApproach"></p></section>
+      <section data-case="outcome"><h3 data-t="wk.outcome">outcome</h3><p id="workOutcome"></p></section>
+      <section data-case="stack"><h3 data-t="wk.stack">technology</h3><p id="workStack"></p></section>
+    </div>
     <ul class="wk__l" id="workPoints"></ul>
-    <p class="cert__f" id="workLinkRow" hidden><a class="rows__a" id="workLink" target="_blank" rel="noopener">open the project</a></p>
+    <div class="wk__actions">
+      <a class="page__cta" id="workDemo" target="_blank" rel="noopener" hidden data-t="wk.demo">open live demo</a>
+      <a class="page__cta" id="workRepo" target="_blank" rel="noopener" hidden data-t="wk.repo">open the repo on GitHub</a>
+    </div>
     <form method="dialog"><button class="page__back" type="submit" data-t="ui.back">back</button></form>
   </dialog>
 

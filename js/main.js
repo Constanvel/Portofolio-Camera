@@ -43,6 +43,14 @@ const deckNext  = $('deckNext');
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+const introSeen = () => {
+  try { return sessionStorage.getItem('pf.intro-seen') === '1'; }
+  catch (e) { return false; }
+};
+const rememberIntro = () => {
+  try { sessionStorage.setItem('pf.intro-seen', '1'); }
+  catch (e) { /* a private context can decline storage without blocking the site */ }
+};
 
 /* ── ?fps, the half that is not the canvas ───────────────────────────────
    The meter in js/canvas.js only lives while the plane is running, and the
@@ -780,6 +788,7 @@ function lite(){
 
 function finish(){
   skipped = true;
+  rememberIntro();
   // whoever is mid-exit is waiting on a frame that is about to stop coming;
   // let it go first, and the teardown behind its await runs a tick later
   if (leaving){ leaving.abort(); leaving = null; }
@@ -988,11 +997,6 @@ document.addEventListener('keydown', (e) => {
 /* NOT id="work" — <main class="work" id="work"> is the canvas of work, and
    getElementById would have handed that back instead. It has no showModal, so
    the guard below simply refused to arm and nothing said why. */
-// a bad url must not take the panel down with it — URL() throws on anything
-// it cannot parse, and this runs while a visitor is opening a project
-function hostOf(u){
-  try { return new URL(u).hostname; } catch (e) { return ''; }
-}
 const workDlg = $('workPanel');
 /* Which project is on screen, so that switching language while a panel is open
    rewrites it in place rather than leaving one section of the site in English
@@ -1017,6 +1021,19 @@ function openWork(i){
   $('workMeta').hidden = !meta;
 
   $('workBlurb').textContent = t(w, 'blurb') || '';
+  const caseFields = [
+    ['challenge', 'workChallenge'],
+    ['contribution', 'workContribution'],
+    ['approach', 'workApproach'],
+    ['outcome', 'workOutcome'],
+    ['stack', 'workStack']
+  ];
+  for (const [field, id] of caseFields){
+    const value = t(w, field);
+    const section = $(id).closest('[data-case]');
+    $(id).textContent = Array.isArray(value) ? value.join(' · ') : (value || '');
+    section.hidden = !value || (Array.isArray(value) && value.length === 0);
+  }
   /* `line`, not `t` — t() is the translation helper now, and the parameter was
      shadowing it inside exactly the callback that needs it. */
   $('workPoints').replaceChildren(...(t(w, 'points') || []).map(line => {
@@ -1025,18 +1042,18 @@ function openWork(i){
     return li;
   }));
 
-  /* Same rule as the meta line: a project with no repo gets no link at all
-     rather than one that goes nowhere. The label is read off the url instead
-     of being fixed in the markup, so pointing a project at a live demo later
-     does not leave it announcing a repo that is not there. */
-  const link = $('workLink');
-  link.href = w.href || '#';
-  link.textContent = /(^|\.)github\.com$/.test(hostOf(w.href))
-    ? s('wk.repo', 'open the repo on GitHub')
-    : s('wk.open', 'open the project');
-  $('workLinkRow').hidden = !w.href;
+  const demo = $('workDemo');
+  demo.href = w.demo || '#';
+  demo.hidden = !w.demo;
+  const repo = $('workRepo');
+  repo.href = w.href || '#';
+  repo.hidden = !w.href;
 
   workDlg.showModal();
+  workDlg.scrollTop = 0;
+  const title = $('workTitle');
+  title.tabIndex = -1;
+  title.focus({ preventScroll:true });
 }
 /* The interactive gallery reads WORKS. tools/fallback.mjs uses the same data
    for the no-JS gallery; tools/check.mjs checks it and the canvas slots. */
@@ -1192,5 +1209,9 @@ function renderLang(l, save){
 renderLang(pickLang(recall('lang')), false);
 langBtn.addEventListener('click', () => renderLang(lang === 'id' ? 'en' : 'id', true));
 
+// Returning visits skip main(), so arm the first-gesture audio path before the
+// session shortcut. main() calls this too, and the guard keeps it idempotent.
+armGlobalGesture();
+if (introSeen()) endIntro();
 applyRoute();
-main().catch(failIntro);
+if (!skipped) main().catch(failIntro);

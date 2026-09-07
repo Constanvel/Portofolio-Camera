@@ -181,7 +181,8 @@ try {
   for (const work of WORKS) {
     if (labels.has(work.label)) note('nama proyek duplikat', [work.label]);
     labels.add(work.label);
-    for (const field of ['note', 'year', 'role', 'blurb', 'points']) {
+    for (const field of ['note', 'year', 'role', 'challenge', 'contribution',
+      'approach', 'outcome', 'stack', 'blurb', 'points']) {
       if (work[field] == null) continue;
       const id = work[field + '_id'];
       const valid = Array.isArray(work[field])

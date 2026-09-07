@@ -13,12 +13,14 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css',
   '.webp': 'image/webp', '.jpg': 'image/jpeg', '.glb': 'model/gltf-binary',
   '.woff2': 'font/woff2', '.pdf': 'application/pdf', '.opus': 'audio/ogg',
-  '.mp3': 'audio/mpeg', '.wav': 'audio/wav' };
+  '.mp3': 'audio/mpeg', '.wav': 'audio/wav', '.json': 'application/json',
+  '.bin': 'application/octet-stream' };
 const server = createServer((req, res) => {
   const pathname = new URL(req.url, 'http://localhost').pathname;
-  const rel = pathname === '/' ? 'index.html' : pathname.slice(1);
+  const rel = pathname === '/' ? 'index.html'
+    : pathname.endsWith('/') ? `${pathname.slice(1)}index.html` : pathname.slice(1);
   // Do not expose environment files, repository metadata, or test dependencies.
-  if (!/^(index\.html|404\.html|css\/style\.css|js\/[\w./-]+\.js|assets\/[\w./-]+)$/.test(rel)
+  if (!/^(index\.html|404\.html|css\/style\.css|js\/[\w./-]+\.js|assets\/[\w./-]+|demos\/[\w./-]+|output\/pdf\/[\w.-]+\.pdf)$/.test(rel)
       || rel.includes('..') || !existsSync(join(root, rel))) {
     res.writeHead(404).end(); return;
   }
@@ -89,6 +91,19 @@ try {
     await page.waitForTimeout(650);
     assert.deepEqual(await visiblePages(page), []);
     assert.equal(await page.evaluate(() => __PORTFOLIO.work.running), true);
+  });
+  await test('home stage presents identity and primary actions', async page => {
+    await open(page, '');
+    await page.locator('#skip').click();
+    await page.waitForFunction(() => document.body.dataset.stage === 'work');
+    await page.locator('.home-id').waitFor({ state:'visible' });
+    assert.match(await page.locator('.home-id__name').textContent(), /Constantine Rainer Simanjuntak/);
+    assert.equal(await page.locator('.home-id a[href="#pageWorks"]').count(), 1);
+    assert.equal(await page.locator('.home-id a[href="#pageContact"]').count(), 1);
+    assert.equal(await page.locator('.home-id a[href$="constantine-rainer-simanjuntak-cv.pdf"]').count(), 1);
+    const cv = await page.request.get(origin + '/output/pdf/constantine-rainer-simanjuntak-cv.pdf');
+    assert.equal(cv.status(), 200);
+    assert.match(cv.headers()['content-type'] || '', /application\/pdf/);
   });
   await test('volume slider owns its arrow keys', async page => {
     await home(page);
@@ -189,8 +204,8 @@ try {
       assert.ok(await page.locator('#pageContact').evaluate(el => {
         const rect = el.getBoundingClientRect(); return rect.top < innerHeight && rect.bottom > 0;
       }));
-      assert.equal(await page.locator('#worksFallback li').count(), 5);
-      assert.equal(await page.locator('#worksFallback a').count(), 5);
+      assert.equal(await page.locator('#worksFallback li').count(), 6);
+      assert.equal(await page.locator('#worksFallback a').count(), 6);
     }, { javaScriptEnabled: false, viewport: { width, height: 844 } });
   }
   await test('failed scene import falls back to works', async page => {
@@ -272,7 +287,7 @@ try {
   }, { hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
   await test('3D project deck navigates projects and releases WebGL on exit', async page => {
     await open(page, '#/works');
-    await page.waitForFunction(() => __PORTFOLIO.deck?.cardCount === 5, null, { timeout:8000 });
+    await page.waitForFunction(() => __PORTFOLIO.deck?.cardCount === 6, null, { timeout:8000 });
     assert.equal(await page.locator('#projectDeck').getAttribute('data-ready'), 'true');
     assert.equal(await page.locator('#deckTitle').textContent(), 'lensa');
 
@@ -293,10 +308,48 @@ try {
     await page.waitForFunction(() => __PORTFOLIO.deck === null);
     assert.equal(await page.locator('#projectDeck').getAttribute('data-ready'), null);
   });
+  await test('project panel presents case study, demo and source actions', async page => {
+    await open(page, '#/works');
+    await page.locator('button[data-work="smk telkom purwokerto"]').click();
+    await page.locator('#workPanel').waitFor({ state:'visible' });
+    assert.equal(await page.locator('#workPanel').evaluate(panel => panel.scrollTop), 0,
+      'a case study must open at its screenshot and title');
+    for (const section of ['challenge', 'contribution', 'approach', 'outcome', 'stack']) {
+      assert.equal(await page.locator(`#workPanel [data-case="${section}"]`).count(), 1);
+    }
+    await page.locator('#workDemo').waitFor({ state:'visible' });
+    assert.equal(await page.locator('#workDemo').getAttribute('href'),
+      'https://smk-telkom-purwokerto.vercel.app');
+    await page.locator('#workRepo').waitFor({ state:'visible' });
+    assert.match(await page.locator('#workRepo').getAttribute('href'), /github\.com\/Constanvel/);
+  });
+  await test('AI Ninja is listed with its first-party demo', async (page, context) => {
+    await open(page, '#/works');
+    await page.locator('button[data-work="ai ninja challenge"]').click();
+    await page.locator('#workPanel').waitFor({ state:'visible' });
+    assert.equal(await page.locator('#workDemo').getAttribute('href'), './demos/ai-ninja/');
+    assert.match(await page.locator('[data-case="approach"]').textContent(), /pose|classification|klasifikasi/i);
+    const demo = await context.newPage();
+    const response = await demo.goto(origin + '/demos/ai-ninja/');
+    assert.equal(response.status(), 200);
+    assert.match(await demo.title(), /AI Ninja Challenge/);
+  });
+  await test('completed intro stays skipped after a same-tab reload', async page => {
+    await open(page, '');
+    await page.locator('#skip').click();
+    await page.waitForFunction(() => document.body.dataset.stage === 'work');
+    await page.evaluate(() => localStorage.setItem('pf.vol', '66'));
+    await page.reload();
+    await page.waitForFunction(() => document.body.dataset.stage === 'work', null, { timeout:1500 });
+    assert.equal(await page.locator('#mark').isVisible(), false);
+    assert.equal(await page.locator('#gl').isVisible(), false);
+    await page.locator('#settingsBtn').click();
+    await page.waitForFunction(() => !document.querySelector('#theme').paused);
+  });
   await test('dark 3D deck keeps project textures at full brightness', async page => {
     await page.addInitScript(() => localStorage.setItem('pf.mode', 'dark'));
     await open(page, '#/works');
-    await page.waitForFunction(() => __PORTFOLIO.deck?.textures.size === 5, null, { timeout:8000 });
+    await page.waitForFunction(() => __PORTFOLIO.deck?.textures.size === 6, null, { timeout:8000 });
     const materials = await page.evaluate(() => ({
       card: __PORTFOLIO.deck.bodyMaterial.color.getHexString(),
       images: [...__PORTFOLIO.deck.materials]
@@ -311,7 +364,7 @@ try {
     await open(page, '#/works');
     await page.waitForTimeout(500);
     assert.equal(await page.locator('#projectDeck').getAttribute('data-ready'), null);
-    assert.equal(await page.locator('#worksGrid button').count(), 5);
+    assert.equal(await page.locator('#worksGrid button').count(), 6);
     await page.locator('#worksGrid button').first().click();
     assert.equal(await page.locator('#workTitle').textContent(), 'lensa');
   });

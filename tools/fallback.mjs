@@ -8,9 +8,13 @@ const escape = value => String(value).replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 export function renderFallback(works) {
   return '<ul class="rows">\n' + works.map(w =>
-    `          <li class="rows__r"><span class="rows__k">${escape(w.label)}</span>` +
-    `<span class="rows__v">${escape(w.note)} <a class="rows__a" href="${escape(w.href || w.src)}"` +
-    ` target="_blank" rel="noopener">${w.href ? 'open the project' : 'view the screenshot'}</a></span></li>`
+    {
+      const destination = w.demo || w.href || w.src;
+      const action = w.demo ? 'open the live demo' : w.href ? 'open the repository' : 'view the screenshot';
+      return `          <li class="rows__r"><span class="rows__k">${escape(w.label)}</span>` +
+        `<span class="rows__v">${escape(w.note)} <a class="rows__a" href="${escape(destination)}"` +
+        ` target="_blank" rel="noopener">${action}</a></span></li>`;
+    }
   ).join('\n') + '\n        </ul>';
 }
 

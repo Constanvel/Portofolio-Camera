@@ -1,6 +1,6 @@
 # Portofolio-Camera
 
-Portofolio Constantine Rainer Simanjuntak. Situs statis dengan intro 3D, kanvas karya, galeri proyek, sertifikat, serta pilihan bahasa, tema, dan volume.
+Portofolio Constantine Rainer Simanjuntak. Situs statis dengan intro 3D, identitas profesional, kanvas karya, studi kasus proyek, demo AI berbasis kamera, CV, sertifikat, serta pilihan bahasa, tema, dan volume.
 
 ## Menjalankan
 
@@ -17,7 +17,7 @@ Buka `http://127.0.0.1:8000/`. Modul JavaScript membutuhkan HTTP, bukan membuka 
 | Berkas | Tanggung jawab |
 |---|---|
 | `index.html`, `css/style.css` | Halaman, navigasi, dialog, dan gaya responsif |
-| `js/data.js` | Lima proyek, tujuh kartu bagian, dan posisi slot kanvas |
+| `js/data.js` | Enam proyek, studi kasus bilingual, tujuh kartu bagian, dan posisi slot kanvas |
 | `js/main.js` | Navigasi, siklus intro, pengaturan, galeri, dan dialog |
 | `js/scene.js`, `js/env.js` | Model 3D, pencahayaan, animasi, dan pelepasan WebGL |
 | `js/project-deck.js` | Kartu proyek 3D prosedural, interaksi, dan lifecycle WebGL halaman Karya |
@@ -26,6 +26,8 @@ Buka `http://127.0.0.1:8000/`. Modul JavaScript membutuhkan HTTP, bukan membuka 
 | `js/vendor/` | Three.js r160, GLTFLoader, utilitas geometri, dan MeshoptDecoder lokal |
 | `tools/check.mjs` | Pemeriksaan statis tanpa dependensi tambahan |
 | `tools/browser-check.mjs` | Tes regresi melalui browser menggunakan Playwright |
+| `demos/ai-ninja/` | Demo klasifikasi pose TensorFlow.js beserta model yang berjalan di browser |
+| `tools/generate-cv.py`, `output/pdf/` | Sumber generator dan hasil PDF CV satu halaman |
 
 ## Perilaku utama
 
@@ -37,6 +39,9 @@ Buka `http://127.0.0.1:8000/`. Modul JavaScript membutuhkan HTTP, bukan membuka 
 - Preferensi reduced motion menghentikan gerakan ornamen kanvas, meniadakan pembesaran kursor dan momentum, serta mempersingkat transisi halaman dan intro.
 - Sertifikat dibuka dalam dialog. Tautan “buka berkasnya langsung” tetap membuka berkas asli, termasuk ketika viewer PDF tidak bekerja di perangkat pengguna.
 - Halaman Karya memuat deck 3D secara dinamis. Kartu dibuat dari geometri Three.js dan screenshot proyek, dapat dinavigasi dengan drag, scroll, tombol, atau keyboard, lalu renderer dilepas ketika halaman ditutup.
+- Panel proyek menampilkan tantangan, kontribusi, pendekatan, hasil, teknologi, serta tautan demo dan repositori yang tersedia.
+- AI Ninja Challenge menjalankan klasifikasi pose langsung di browser. Kamera diproses di perangkat pengunjung dan baru diminta setelah tombol mulai ditekan.
+- Selesainya intro disimpan di `sessionStorage`, sehingga muat ulang pada tab yang sama langsung membuka kanvas karya.
 - Tanpa JavaScript, semua bagian dapat digulir, navigasi memakai anchor HTML, dan daftar karya beserta tautannya tetap tersedia dalam bahasa Inggris.
 - Bahasa, tema, dan volume disimpan di localStorage bila tersedia. Audio memakai satu nilai volume; nol berarti senyap.
 
@@ -58,11 +63,11 @@ Untuk bagian baru, tambahkan `<section class="page" id="pageNama">`, tautan ke `
 
 ## Pemeriksaan
 
-Pemeriksaan statis dan tes untuk pemeriksanya menggunakan Node.js 22.7+:
+Pemeriksaan menggunakan Node.js 22.7+. Instal dependensi pengembangan, lalu jalankan seluruh pemeriksaan:
 
 ```sh
-node tools/check.mjs
-node --test tools/check.test.mjs
+npm install
+npm run verify
 ```
 
 Yang diperiksa: kunci terjemahan, referensi aset, kelas CSS, karakter kendali, origin metadata, sintaks modul, JSON deployment, cakupan slot, rute kartu, terjemahan proyek, dan sinkronisasi HTML cadangan.
@@ -73,13 +78,15 @@ Konfigurasi redirect berada di folder saudara yang terpisah dari repo situs. Bil
 node tools/check.mjs --redirect-config ../redirect-portofolio-camera/vercel.json
 ```
 
-Tes browser memerlukan Playwright sebagai perkakas pengembangan. Gunakan instalasi Playwright yang sudah tersedia, atau pasang secara lokal tanpa menambah dependensi produksi:
+Perintah individual tetap tersedia:
 
 ```sh
-npm install --no-save --package-lock=false playwright
-npx playwright install chromium
-node tools/browser-check.mjs
+npm run check
+npm test
+npm run test:browser
 ```
+
+Workflow `.github/workflows/verify.yml` menjalankan rangkaian yang sama pada push ke `main` dan pull request.
 
 `PLAYWRIGHT_MODULE` dapat menunjuk ke folder paket Playwright yang sudah tersedia. `BROWSER_CHANNEL=msedge` memakai Edge terpasang. Di PowerShell:
 
@@ -96,6 +103,8 @@ Untuk diagnosis visual: `?fps` menampilkan pengukuran frame, `?nogrid` mematikan
 ## Deployment
 
 Gunakan direktori situs ini sebagai root proyek Vercel, preset **Other**, tanpa install/build command atau output directory khusus. `vercel.json` mengatur cache `assets/` selama satu jam dengan stale-while-revalidate satu hari. Ganti nama aset saat isinya berubah dan perlu langsung terlihat.
+
+Konfigurasi yang sama memasang Content Security Policy, kebijakan izin kamera, pembatasan frame, referrer policy, dan MIME sniffing protection. Izin kamera hanya tersedia untuk origin situs sendiri dan dipakai oleh demo AI Ninja.
 
 Domain utama: `https://portofolio-rainer.vercel.app/`. Jika berubah, perbarui canonical, `og:url`, `og:image`, sitemap, dan robots.txt bersama-sama.
 
