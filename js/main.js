@@ -616,6 +616,10 @@ async function toCamera(){
   ipod = null;
   leaving = act;
   glCanvas.classList.remove('is-live', 'is-hot');
+  /* The monitor only needs one finished portfolio frame. Keeping the hidden
+     canvas alive here would make it compete with WebGL for every frame. */
+  const workFrame = ensureWork();
+  workFrame.hold();
   await act.intoScreen(reduced ? 90 : 1400);
   leaving = null;
   /* Skip can land inside that await, and finish() drops `gl` when it does.
@@ -631,7 +635,7 @@ async function toCamera(){
   catch (e){ console.warn('camera failed to load', e); return finish(); }
   if (skipped) return;
 
-  cam = new S.CameraAct(gl, model, ensureWork().cv, {
+  cam = new S.CameraAct(gl, model, workFrame.cv, {
     /* And the paper comes up AFTER the camera, never before it — and not
        alongside it either, which is where this started. The line used to sit
        above the act, lighting the page white while the camera was still at

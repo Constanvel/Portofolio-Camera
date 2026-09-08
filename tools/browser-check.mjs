@@ -57,6 +57,18 @@ async function home(page) {
   await page.evaluate(() => { location.hash = '#/'; });
   await page.waitForTimeout(350); // the outgoing page has a 260ms transition
 }
+async function startCamera(page) {
+  await open(page, '');
+  await page.waitForFunction(() => __PORTFOLIO.ipod?.armed, null, { timeout: 15000 });
+  const point = await page.evaluate(() => {
+    const { ipod, gl } = __PORTFOLIO;
+    const position = ipod.hit.position.clone().set(0, 0, 0);
+    ipod.hit.localToWorld(position).project(gl.camera);
+    return { x: (position.x + 1) * innerWidth / 2, y: (1 - position.y) * innerHeight / 2 };
+  });
+  await page.mouse.click(point.x, point.y);
+  await page.waitForFunction(() => __PORTFOLIO.cam?.running, null, { timeout: 10000 });
+}
 
 try {
   browser = await chromium.launch({ headless: true,
@@ -258,17 +270,23 @@ try {
     assert.equal(await page.locator('html').getAttribute('lang'), 'id');
     assert.match(await page.locator('#worksGrid button').first().textContent(), /Tempat membaca/);
   }, { hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
-  await test('full desktop intro completes and releases WebGL', async page => {
-    await open(page, '');
-    await page.waitForFunction(() => __PORTFOLIO.ipod?.armed, null, { timeout: 15000 });
-    const point = await page.evaluate(() => {
-      const { ipod, gl } = __PORTFOLIO;
-      const position = ipod.hit.position.clone().set(0, 0, 0);
-      ipod.hit.localToWorld(position).project(gl.camera);
-      return { x: (position.x + 1) * innerWidth / 2, y: (1 - position.y) * innerHeight / 2 };
+  await test('camera transition avoids duplicate canvas work and texture uploads', async page => {
+    await startCamera(page);
+    await page.evaluate(() => __PORTFOLIO.freeze('cam', 3000));
+    await page.waitForTimeout(80);
+    const result = await page.evaluate(async () => {
+      const workRunning = __PORTFOLIO.work.running;
+      const before = __PORTFOLIO.cam.mtex.version;
+      await new Promise(resolve => setTimeout(resolve, 160));
+      return {
+        workRunning,
+        textureUpdates: __PORTFOLIO.cam.mtex.version - before
+      };
     });
-    await page.mouse.click(point.x, point.y);
-    await page.waitForFunction(() => __PORTFOLIO.cam?.running, null, { timeout: 10000 });
+    assert.deepEqual(result, { workRunning: false, textureUpdates: 0 });
+  });
+  await test('full desktop intro completes and releases WebGL', async page => {
+    await startCamera(page);
     await page.waitForFunction(() => document.body.dataset.stage === 'work' && __PORTFOLIO.gl === null,
       null, { timeout: 10000 });
     assert.equal(await page.evaluate(() => __PORTFOLIO.work.running), true);

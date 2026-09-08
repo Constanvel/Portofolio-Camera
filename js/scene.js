@@ -940,7 +940,8 @@ export class CameraAct {
     const a = this.uvStart, b = this.uvEnd, t = zoom;
     this.mtex.repeat.set(lerp(a.rx, b.rx, t), lerp(a.ry, b.ry, t));
     this.mtex.offset.set(lerp(a.ox, b.ox, t), lerp(a.oy, b.oy, t));
-    if (lit > 0.01) this.mtex.needsUpdate = true;   // the page is live
+    /* The source canvas is held during this act. Texture transforms still
+       animate through uniforms, so the bitmap itself needs no re-upload. */
   }
 
   dispose(){

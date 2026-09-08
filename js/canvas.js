@@ -418,6 +418,14 @@ export class WorkCanvas {
     this.playing.fill(false);
     if (this._vis) document.removeEventListener('visibilitychange', this._vis);
   }
+  /* Draw one complete frame for the camera monitor, then leave this hidden
+     canvas idle until it is revealed as the real portfolio. */
+  hold(){
+    this.stop();
+    const now = performance.now();
+    this._last = now - IDLE_MS - 17;
+    this.frame(now);
+  }
 
   frame(now){
     const raw = now - this._last;
